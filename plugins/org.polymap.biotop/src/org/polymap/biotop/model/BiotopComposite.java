@@ -1,4 +1,4 @@
-/* 
+/*
  * polymap.org
  * Copyright 2011, Falko Bräutigam, and other contributors as
  * indicated by the @authors tag. All rights reserved.
@@ -15,68 +15,94 @@
  */
 package org.polymap.biotop.model;
 
-import java.util.Date;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.qi4j.api.common.Optional;
+import org.qi4j.api.concern.Concerns;
 import org.qi4j.api.entity.EntityComposite;
 import org.qi4j.api.mixin.Mixins;
 import org.qi4j.api.property.Property;
 
-import com.vividsolutions.jts.geom.Geometry;
-
-import org.polymap.core.model.Entity;
-import org.polymap.core.qi4j.EntityMixin;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import org.polymap.core.qi4j.QiEntity;
+import org.polymap.core.qi4j.event.ModelChangeSupport;
+import org.polymap.core.qi4j.event.PropertyChangeSupport;
 
 /**
- * 
+ *
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
+@Concerns( {
+    PropertyChangeSupport.Concern.class
+} )
 @Mixins( {
-    BiotopComposite.Mixin.class, 
-    EntityMixin.class
+    BiotopComposite.Mixin.class,
+    PropertyChangeSupport.Mixin.class,
+    ModelChangeSupport.Mixin.class,
+    QiEntity.Mixin.class
 //    JsonState.Mixin.class
 } )
 public interface BiotopComposite
-    extends EntityComposite, Entity {
+    extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
 
     @Optional
-    Property<Geometry>          geom();
-    
-    Property<String>            schluessel();
+    Property<MultiPolygon>      geom();
 
-    Property<Integer>           biotoptyp();
-    
-    /** */
-    @Optional
-    Property<Integer>           erhaltungszustand();
+    Property<String>            objnr();
 
-    /**
-     * Status_ID
-     */
-    Property<String>            statusid();
+    Property<String>            oid();
 
     @Optional
-    Property<Date>              erfasst();
-    
+    Property<String>            label();
+
     @Optional
-    Property<Date>              bearbeitet();
-    
+    Property<Integer>           tk25();
+
     @Optional
-    Property<String>            bearbeiter();
-    
+    Property<String>            unr();
+
+    @Optional
+    Property<String>            bid();
+
+    @Optional
+    Property<String>            bt_code();
+
+    @Optional
+    Property<String>            wert();
+
+
+
+//    Property<Integer>           biotoptyp();
+//
+//    /** */
+//    @Optional
+//    Property<Integer>           erhaltungszustand();
+//
+//    /**
+//     * Status_ID
+//     */
+//    Property<String>            statusid();
+//
+//    @Optional
+//    Property<Date>              erfasst();
+//
+//    @Optional
+//    Property<Date>              bearbeitet();
+//
+//    @Optional
+//    Property<String>            bearbeiter();
+
 
     /**
      * Methods and transient fields.
      */
     public static abstract class Mixin
             implements BiotopComposite {
-        
+
         private static Log log = LogFactory.getLog( Mixin.class );
-    
+
     }
-    
+
 }

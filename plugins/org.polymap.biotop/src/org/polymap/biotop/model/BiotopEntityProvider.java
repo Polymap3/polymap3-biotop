@@ -1,4 +1,4 @@
-/* 
+/*
  * polymap.org
  * Copyright 2011, Falko Bräutigam, and other contributors as indicated
  * by the @authors tag.
@@ -16,6 +16,7 @@
 package org.polymap.biotop.model;
 
 import org.geotools.feature.NameImpl;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -28,7 +29,7 @@ import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
 import org.polymap.rhei.data.entityfeature.EntityProvider;
 
 /**
- * 
+ *
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
@@ -43,13 +44,15 @@ public class BiotopEntityProvider
         super( repo, BiotopComposite.class, new NameImpl( BiotopRepository.NAMESPACE, "Biotop" ) );
     }
 
-    
-    public BiotopComposite newEntity() {
-        return (BiotopComposite)repo.newEntity( BiotopComposite.class, null, new EntityCreator<BiotopComposite>() {
-            public void create( BiotopComposite builderInstance ) {
-                builderInstance.schluessel().set( "keine Ahnung..." );
-                builderInstance.statusid().set( "wunderbar" );
-                builderInstance.biotoptyp().set( 0 );
+
+    public BiotopComposite newEntity( final EntityCreator<BiotopComposite> creator )
+    throws Exception {
+        return repo.newEntity( BiotopComposite.class, null, new EntityCreator<BiotopComposite>() {
+            public void create( BiotopComposite instance )
+            throws Exception {
+                // defaults
+                // custom
+                creator.create( instance );
             }
         });
     }
@@ -66,6 +69,11 @@ public class BiotopEntityProvider
 
     public String getDefaultGeometry() {
         return "geom";
+    }
+
+
+    public ReferencedEnvelope getBounds() {
+        return new ReferencedEnvelope( 4000000, 5000000, 5000000, 6000000, getCoordinateReferenceSystem( null ) );
     }
 
 }

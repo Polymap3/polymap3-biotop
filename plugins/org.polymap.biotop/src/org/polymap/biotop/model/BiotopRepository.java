@@ -155,7 +155,7 @@ public class BiotopRepository
         
         public void revert( OperationSupport os ) {
             log.debug( "..." );
-            discardChanges();
+            revertChanges();
         }
 
     }
