@@ -28,6 +28,8 @@ import org.polymap.core.qi4j.QiModule.EntityCreator;
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
 import org.polymap.rhei.data.entityfeature.EntityProvider;
 
+import org.polymap.biotop.model.constant.Status;
+
 /**
  *
  *
@@ -51,6 +53,7 @@ public class BiotopEntityProvider
             public void create( BiotopComposite instance )
             throws Exception {
                 // defaults
+                instance.status().set( Status.aktuell.id );
                 // custom
                 creator.create( instance );
             }

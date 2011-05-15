@@ -1,4 +1,4 @@
-/* 
+/*
  * polymap.org
  * Copyright 2011, Falko Bräutigam, and other contributors as
  * indicated by the @authors tag. All rights reserved.
@@ -36,7 +36,7 @@ import org.polymap.core.qi4j.idgen.HRIdentityGeneratorService;
 import org.polymap.core.runtime.Polymap;
 
 /**
- * 
+ *
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
@@ -46,12 +46,12 @@ public class BiotopRepositoryAssembler
     private static Log log = LogFactory.getLog( BiotopRepositoryAssembler.class );
 
     private Application                 app;
-    
+
     private UnitOfWorkFactory           uowf;
-    
+
     private Module                      module;
 
-    
+
     public BiotopRepositoryAssembler() {
     }
 
@@ -71,14 +71,14 @@ public class BiotopRepositoryAssembler
     public void assemble( ApplicationAssembly _app )
             throws Exception {
         log.info( "Assembling: org.polymap.biotop ..." );
-        
+
         // project layer / module
         LayerAssembly domainLayer = _app.layerAssembly( "application-layer" );
         ModuleAssembly domainModule = domainLayer.moduleAssembly( "biotop-module" );
-        domainModule.addEntities( 
+        domainModule.addEntities(
                 BiotopComposite.class
         );
-//        domainModule.addTransients( 
+//        domainModule.addTransients(
 //                CreateCatalogEntryOperation.class,
 //                AntragImportOperation.class,
 //                PersonImportOperation.class,
@@ -90,12 +90,10 @@ public class BiotopRepositoryAssembler
 //                BelegPosImportOperation.class,
 //                BelegPosDataImportOperation.class
 //        );
-//        domainModule.addValues( 
-//                AntragSchrittValue.class,
-//                PersonValue.class,
-//                BelegPosValue.class,
-//                BelegPosDataValue.class
-//        );
+        domainModule.addValues(
+                AktivitaetValue.class,
+                BiotoptypValue.class
+        );
 
 //        domainModule.addServices( FactoryService.class )
 //                .visibleIn( Visibility.application );
@@ -105,7 +103,7 @@ public class BiotopRepositoryAssembler
 
         File moduleRoot = new File( root, "org.polymap.biotop" );
         moduleRoot.mkdir();
-        
+
         domainModule.addServices( LuceneEntityStoreService.class )
                 .setMetaInfo( new LuceneEntityStoreInfo( moduleRoot ) )
                 .instantiateOnStartup()
@@ -116,7 +114,7 @@ public class BiotopRepositoryAssembler
                 //.visibleIn( indexingVisibility )
                 //.setMetaInfo( namedQueries )
                 .instantiateOnStartup();
-        
+
         domainModule.addServices( HRIdentityGeneratorService.class );
 
 //        domainModule.addServices( AntragsnummerGeneratorService.class )
@@ -132,5 +130,5 @@ public class BiotopRepositoryAssembler
     public Module getModule() {
         return module;
     }
-    
+
 }

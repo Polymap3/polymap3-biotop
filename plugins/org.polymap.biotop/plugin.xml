@@ -7,5 +7,35 @@
             class="org.polymap.biotop.model.BiotopRepositoryAssembler">
       </assembler>
    </extension>
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <category
+            id="org.polymap.biotop.BiotopCategory"
+            name="Biotop">
+      </category>
+      <wizard
+            category="org.polymap.biotop.BiotopCategory"
+            class="org.polymap.biotop.model.importer.MdbImportWizard"
+            id="org.polymap.biotop.wizard1"
+            name="LfULG-Daten (*.mdb)">
+      </wizard>
+   </extension>
+   <extension
+         point="org.polymap.rhei.form.pageProviders">
+      <pageProvider
+            class="org.polymap.biotop.ui.BiotopFormPageProvider"
+            id="org.polymap.biotop.BiotopPageProvider"
+            isStandard="false"
+            name="Biotop">
+      </pageProvider>
+   </extension>
+   <extension
+         point="org.polymap.rhei.filter.filterProviders">
+      <filterProvider
+            class="org.polymap.biotop.ui.BiotopFilterProvider"
+            id="org.polymap.biotop.BiotopFilterProvider"
+            name="org.polymap.biotop.BiotopFilterProvider">
+      </filterProvider>
+   </extension>
 
 </plugin>
