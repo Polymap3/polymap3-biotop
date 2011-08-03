@@ -136,28 +136,4 @@ public class BiotopRepository
         return assembler.getModule().valueBuilderFactory().newValueBuilder( type );
     }
     
-
-    /**
-     * 
-     */
-    class OperationSaveListener
-    implements IOperationSaveListener {
-
-        public void prepareSave( OperationSupport os )
-        throws Exception {
-        }
-
-        public void save( OperationSupport os )
-        throws Exception {
-            log.debug( "..." );
-            commitChanges();
-        }
-        
-        public void revert( OperationSupport os ) {
-            log.debug( "..." );
-            revertChanges();
-        }
-
-    }
-
 }
