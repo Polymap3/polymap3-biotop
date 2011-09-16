@@ -61,6 +61,7 @@ public interface BiotopComposite
     Property<Double>            groesse();
 
     /** Interne Objektenummer - laufende Nummer. */
+    @Optional
     Property<String>            objnr();
 
     /** Importierte Objektnummer des SBK (objnr). */

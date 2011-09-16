@@ -29,12 +29,10 @@ import org.qi4j.api.value.ValueBuilder;
 
 import org.polymap.core.model.CompletionException;
 import org.polymap.core.model.ConcurrentModificationException;
-import org.polymap.core.operation.IOperationSaveListener;
 import org.polymap.core.operation.OperationSupport;
 import org.polymap.core.qi4j.Qi4jPlugin;
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModuleAssembler;
-import org.polymap.core.qi4j.Qi4jPlugin.Session;
 import org.polymap.core.runtime.Polymap;
 
 /**
@@ -56,16 +54,6 @@ public class BiotopRepository
         return (BiotopRepository)Qi4jPlugin.Session.instance().module( BiotopRepository.class );
     }
 
-    /**
-     * The global instance used outside any user session.
-     * 
-     * @return A newly created {@link Session} instance. It is up to the caller
-     *         to store and re-use if necessary.
-     */
-    public static final BiotopRepository globalInstance() {
-        return (BiotopRepository)Qi4jPlugin.Session.globalInstance().module( BiotopRepository.class );
-    }
-    
 
     // instance *******************************************
 
