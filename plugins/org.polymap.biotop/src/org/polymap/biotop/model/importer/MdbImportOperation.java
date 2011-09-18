@@ -43,6 +43,8 @@ import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
 import org.polymap.biotop.model.BiotoptypArtComposite;
 import org.polymap.biotop.model.BiotoptypValue;
+import org.polymap.biotop.model.PflanzeValue;
+import org.polymap.biotop.model.PflanzenArtComposite;
 
 import org.polymap.core.qi4j.QiModule.EntityCreator;
 import org.polymap.core.qi4j.event.AbstractModelChangeOperation;
@@ -86,12 +88,11 @@ public class MdbImportOperation
 //            importEntity( db.getTable( "Referenz_Reviere" ), sub, 
 //                    RevierComposite.class, "Nr_Biotoptyp", null );
 
-            // BiotoptypArtComposite
+            // Biotoptyp
             sub = new SubProgressMonitor( monitor, 10 );
             importEntity( db.getTable( "Referenz_Biotoptypen" ), sub, 
                     BiotoptypArtComposite.class, "Nr_Biotoptyp", null );
 
-            // BiotoptypValue
             sub = new SubProgressMonitor( monitor, 10 );
             importValue( db.getTable( "Biotoptypen" ), sub, BiotoptypValue.class,
                     new ValueCallback<BiotoptypValue>() {
@@ -99,6 +100,21 @@ public class MdbImportOperation
                             biotop.biotoptypen().get().add( value );
                             biotop.status().set( biotop.status().get() );
                             log.info( "Biotoptyp added: " + biotop );
+                        }
+            });
+
+            // Pflanzen
+            sub = new SubProgressMonitor( monitor, 10 );
+            importEntity( db.getTable( "Referenz_Pflanzen" ), sub, 
+                    PflanzenArtComposite.class, "Nr_Planze", null );
+
+            sub = new SubProgressMonitor( monitor, 10 );
+            importValue( db.getTable( "Pflanzen" ), sub, PflanzeValue.class,
+                    new ValueCallback<PflanzeValue>() {
+                        public void fillValue( BiotopComposite biotop, PflanzeValue value ) {
+                            biotop.pflanzen().get().add( value );
+                            biotop.status().set( biotop.status().get() );
+                            log.info( "Pflanze added: " + biotop );
                         }
             });
 
@@ -205,7 +221,6 @@ public class MdbImportOperation
                 //log.warn( "    No Biotop found for: " + row );
                 continue;
             }
-            log.info( "    Biotop found for: " + row );
 
             ValueBuilder<T> builder = BiotopRepository.instance().newValueBuilder( type );
             T prototype = builder.prototype();

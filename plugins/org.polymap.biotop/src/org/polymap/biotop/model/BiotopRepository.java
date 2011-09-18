@@ -86,9 +86,24 @@ public class BiotopRepository
             final ReferencedEnvelope bounds = new ReferencedEnvelope( 4000000, 5000000, 5000000, 6000000, crs );
             
             biotopService = new BiotopService( 
+                    // BiotopComposite
                     new BiotopEntityProvider( this ),
+                    // BiotoptypArtComposite
                     new DefaultEntityProvider( this, BiotoptypArtComposite.class, 
                             new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" )) {
+                        public ReferencedEnvelope getBounds() {
+                            return bounds;
+                        }
+                        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
+                            return crs;
+                        }
+                        public String getDefaultGeometry() {
+                            throw new RuntimeException( "not yet implemented." );
+                        }
+                    },
+                    // PflanzenArtComposite
+                    new DefaultEntityProvider( this, PflanzenArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Pflanzenart" )) {
                         public ReferencedEnvelope getBounds() {
                             return bounds;
                         }

@@ -222,11 +222,9 @@ public interface BiotopComposite
     @UseDefaults
     Property<Collection<BiotoptypValue>> biotoptypen();
 
-//    @Computed
-//    Property<Date>              bearbeitet();
-//
-//    @Computed
-//    Property<String>            bearbeiter();
+    @Optional
+    @UseDefaults
+    Property<Collection<PflanzeValue>> pflanzen();
 
     @Optional
     @ImportColumn("Nr_Naturraum")

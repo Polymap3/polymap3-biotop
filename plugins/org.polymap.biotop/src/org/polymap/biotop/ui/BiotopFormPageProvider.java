@@ -89,13 +89,14 @@ public class BiotopFormPageProvider
         if (feature.getType().getName().getLocalPart().equalsIgnoreCase( "biotop" )) {
             result.add( new BaseFormEditorPage( feature, formEditor.getFeatureStore() ) );
             result.add( new TypFormEditorPage( feature, formEditor.getFeatureStore() ) );
+            result.add( new PflanzenFormPage( feature, formEditor.getFeatureStore() ) );
         }
         return result;
     }
 
 
     /**
-     * The standard page for {@link AntragComposite}.
+     * The standard page.
      */
     public static class BaseFormEditorPage
             implements IFormEditorPage {
@@ -319,7 +320,7 @@ public class BiotopFormPageProvider
             tk = site.getToolkit();
             layouter = new DefaultFormPageLayouter();
 
-            site.setFormTitle( "Biotop: " + biotop.objnr().get() );
+            //site.setFormTitle( "Biotop: " + biotop.objnr().get() );
             FormLayout layout = new FormLayout();
             site.getPageBody().setLayout( layout );
 

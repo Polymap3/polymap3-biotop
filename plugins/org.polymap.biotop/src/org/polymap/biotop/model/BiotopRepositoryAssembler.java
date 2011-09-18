@@ -77,7 +77,8 @@ public class BiotopRepositoryAssembler
         ModuleAssembly domainModule = domainLayer.moduleAssembly( "biotop-module" );
         domainModule.addEntities(
                 BiotopComposite.class,
-                BiotoptypArtComposite.class
+                BiotoptypArtComposite.class,
+                PflanzenArtComposite.class
         );
 //        domainModule.addTransients(
 //                CreateCatalogEntryOperation.class,
@@ -93,7 +94,8 @@ public class BiotopRepositoryAssembler
 //        );
         domainModule.addValues(
                 AktivitaetValue.class,
-                BiotoptypValue.class
+                BiotoptypValue.class,
+                PflanzeValue.class
         );
 
 //        domainModule.addServices( FactoryService.class )

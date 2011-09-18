@@ -93,10 +93,13 @@ public class AnnotatedCompositeImporter {
                     else if (Double.class.equals( p.type() )) {
                         p.set( ((Number)rowEntry.getValue()).doubleValue() );
                     }
+                    // Boolean
+                    else if (Boolean.class.equals( p.type() )) {
+                        p.set( rowEntry.getValue() );
+                    }
                     else {
                         throw new RuntimeException( "Unhandled property type: " + p.type() );
                     }
-                    p.set( rowEntry.getValue() );
                     //log.info( "    property: " + p.qualifiedName().name() + " = " + rowEntry.getValue() );
                 }
                 catch (Exception e) {
