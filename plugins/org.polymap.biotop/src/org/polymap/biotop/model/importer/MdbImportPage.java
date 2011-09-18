@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.lf5.util.StreamUtils;
 
 import com.healthmarketscience.jackcess.Database;
+import com.healthmarketscience.jackcess.Table;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -98,8 +99,20 @@ public class MdbImportPage
         data.right = new FormAttachment( 100 );
         tablesList.setLayoutData( data );
         tablesList.addSelectionListener( new SelectionAdapter() {
-            public void widgetSelected( SelectionEvent e ) {
+            public void widgetSelected( SelectionEvent ev ) {
                 tableNames = tablesList.getSelection();
+                
+                try {
+                    Database db = Database.open( dbFile );
+                    for (String name : tableNames) {
+                        Table table = db.getTable( name );
+                        MdbImportOperation.printSchema( table );
+                    }
+                    db.close();
+                }
+                catch (IOException e) {
+                    throw new RuntimeException( e );
+                }
                 checkFinish();
             }
         });

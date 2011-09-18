@@ -76,7 +76,8 @@ public class BiotopRepositoryAssembler
         LayerAssembly domainLayer = _app.layerAssembly( "application-layer" );
         ModuleAssembly domainModule = domainLayer.moduleAssembly( "biotop-module" );
         domainModule.addEntities(
-                BiotopComposite.class
+                BiotopComposite.class,
+                BiotoptypArtComposite.class
         );
 //        domainModule.addTransients(
 //                CreateCatalogEntryOperation.class,

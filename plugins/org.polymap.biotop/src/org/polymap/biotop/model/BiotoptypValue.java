@@ -21,6 +21,8 @@ import org.qi4j.api.value.ValueComposite;
 
 import org.polymap.core.model.Composite;
 
+import org.polymap.biotop.model.importer.ImportColumn;
+
 /**
  *
  *
@@ -28,32 +30,38 @@ import org.polymap.core.model.Composite;
  */
 public interface BiotoptypValue
         extends ValueComposite, Composite {
+    
+//  [INFO] MdbImportOperation -     column: TK25 - INT
+//  [INFO] MdbImportOperation -     column: Objektnummer - TEXT
+//  [INFO] MdbImportOperation -     column: Nr_Biotoptyp - BYTE
+//  [INFO] MdbImportOperation -     column: Biotop_Unternummer - TEXT
+//  [INFO] MdbImportOperation -     column: Biotoptyp_Flächenprozent - BYTE
+//  [INFO] MdbImportOperation -     column: Biotoptyp_Länge - INT
+//  [INFO] MdbImportOperation -     column: Biotoptyp_Breite - FLOAT
+//  [INFO] MdbImportOperation -     column: Pflegerückstand - BYTE
 
     @Optional
-    Property<String>            objnr();
+    @ImportColumn("Nr_Biotoptyp")
+    Property<String>            biotoptypArtNr();
 
     @Optional
-    Property<String>            objnr_sbk();
-
-    @Optional
-    Property<Integer>           tk25();
-
-    @Optional
-    Property<Integer>           nummer();
-
-    @Optional
+    @ImportColumn("Biotop_Unternummer")
     Property<String>            unternummer();
 
     @Optional
+    @ImportColumn("Biotoptyp_Flächenprozent")
     Property<Double>            flaechenprozent();
 
     @Optional
+    @ImportColumn("Biotoptyp_Länge")
     Property<Double>            laenge();
 
     @Optional
+    @ImportColumn("Biotoptyp_Breite")
     Property<Double>            breite();
 
     @Optional
+    @ImportColumn("Pflegerückstand")
     Property<Integer>           pflegerueckstand();
 
 }

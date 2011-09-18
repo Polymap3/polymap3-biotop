@@ -15,6 +15,11 @@
  */
 package org.polymap.biotop.model;
 
+import org.geotools.feature.NameImpl;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
 import net.refractions.udig.catalog.CatalogPluginSession;
 import net.refractions.udig.catalog.IService;
 
@@ -34,6 +39,8 @@ import org.polymap.core.qi4j.Qi4jPlugin;
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModuleAssembler;
 import org.polymap.core.runtime.Polymap;
+
+import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
 
 /**
  * 
@@ -74,8 +81,28 @@ public class BiotopRepository
         }
         
         // the Biotop service
-        biotopService = new BiotopService( 
-                new BiotopEntityProvider( this ) );
+        try {
+            final CoordinateReferenceSystem crs = CRS.decode( "EPSG:31468" );
+            final ReferencedEnvelope bounds = new ReferencedEnvelope( 4000000, 5000000, 5000000, 6000000, crs );
+            
+            biotopService = new BiotopService( 
+                    new BiotopEntityProvider( this ),
+                    new DefaultEntityProvider( this, BiotoptypArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" )) {
+                        public ReferencedEnvelope getBounds() {
+                            return bounds;
+                        }
+                        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
+                            return crs;
+                        }
+                        public String getDefaultGeometry() {
+                            throw new RuntimeException( "not yet implemented." );
+                        }
+                    });
+        }
+        catch (Exception e) {
+            throw new RuntimeException( e );
+        }
         
         // register with catalog
         if (Polymap.getSessionDisplay() != null) {

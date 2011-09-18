@@ -99,7 +99,7 @@ public class BiotopFilterProvider
 
                     ValueBuilder<BiotoptypValue> builder = repo.newValueBuilder( BiotoptypValue.class );
                     BiotoptypValue prototype = builder.prototype();
-                    prototype.objnr_sbk().set( "*" );
+                    prototype.unternummer().set( "*" );
 
                     ContainsPredicate<BiotoptypValue> predicate = QueryExpressions.contains(
                             template.biotoptypen(), builder.newInstance() );

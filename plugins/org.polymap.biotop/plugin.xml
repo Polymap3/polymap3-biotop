@@ -25,7 +25,7 @@
       <pageProvider
             class="org.polymap.biotop.ui.BiotopFormPageProvider"
             id="org.polymap.biotop.BiotopPageProvider"
-            isStandard="false"
+            isStandard="true"
             name="Biotop">
       </pageProvider>
    </extension>
@@ -36,6 +36,14 @@
             id="org.polymap.biotop.BiotopFilterProvider"
             name="org.polymap.biotop.BiotopFilterProvider">
       </filterProvider>
+   </extension>
+   <extension
+         point="org.polymap.core.data.featureOperations">
+      <featureOperation
+            class="org.polymap.biotop.model.importer.ShapeImportOperation"
+            id="org.polymap.biotop.importer.ShapeImportOperation"
+            label="Shapefile-Import (sbk_xx.shp)">
+      </featureOperation>
    </extension>
 
 </plugin>

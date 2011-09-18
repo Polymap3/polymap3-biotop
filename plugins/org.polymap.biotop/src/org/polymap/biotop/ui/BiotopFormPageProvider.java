@@ -28,10 +28,16 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Shell;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
+
 import org.eclipse.ui.forms.widgets.Section;
 
+import org.polymap.biotop.BiotopPlugin;
 import org.polymap.biotop.model.AktivitaetValue;
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
@@ -42,6 +48,7 @@ import org.polymap.core.data.ui.featuretable.DefaultFeatureTableColumn;
 import org.polymap.core.data.ui.featuretable.FeatureTableViewer;
 import org.polymap.core.model.EntityType;
 import org.polymap.core.project.ui.util.SimpleFormData;
+import org.polymap.core.workbench.PolymapWorkbench;
 
 import org.polymap.rhei.data.entityfeature.CompositesFeatureContentProvider;
 import org.polymap.rhei.data.entityfeature.PropertyAdapter;
@@ -196,7 +203,21 @@ public class BiotopFormPageProvider
         }
 
         public Action[] getEditorActions() {
-            return null;
+            // zoom flurstuecke
+            ImageDescriptor icon = BiotopPlugin.imageDescriptorFromPlugin( 
+                    BiotopPlugin.PLUGIN_ID, "icons/find_flurstuecke.gif" );
+            Action action1 = new Action( "mit Flurstücken/Eigentümern verschneiden", icon ) {
+
+                public String getToolTipText() {
+                    return "verschneiden mit Flurstücken/Eigentümern";
+                }
+
+                public void runWithEvent( Event ev ) {
+                    Shell shell = PolymapWorkbench.getShellToParentOn();
+                    MessageDialog.openInformation( shell, "Information", "Keine Flurstücksinformationen verfügbar." );
+                }
+            };
+            return new Action[] { action1 };
         }
 
     }
@@ -287,27 +308,28 @@ public class BiotopFormPageProvider
 //            EntityType biotoptypType = biotoptypenProp.getComplexType();
 
             // columns
-            final EntityType<BiotoptypValue> biotoptypType = BiotopRepository.instance().entityType( BiotoptypValue.class );
+            final EntityType<BiotoptypValue> type = 
+                    BiotopRepository.instance().entityType( BiotoptypValue.class );
 //            for (Property prop : biotoptypType.getProperties()) {
 //                viewer.addColumn( new PropertyDescriptorAdapter( prop ), true );
 //            }
 
-            PropertyDescriptor prop = new PropertyDescriptorAdapter( biotoptypType.getProperty( "nummer" ) );
+            PropertyDescriptor prop = new PropertyDescriptorAdapter( type.getProperty( "biotoptypArtNr" ) );
             viewer.addColumn( new DefaultFeatureTableColumn( prop )
                      .setHeader( "Nummer" ));
-            prop = new PropertyDescriptorAdapter( biotoptypType.getProperty( "unternummer" ) );
+            prop = new PropertyDescriptorAdapter( type.getProperty( "unternummer" ) );
             viewer.addColumn( new DefaultFeatureTableColumn( prop )
                      .setHeader( "Unternummer" ));
-            prop = new PropertyDescriptorAdapter( biotoptypType.getProperty( "flaechenprozent" ) );
+            prop = new PropertyDescriptorAdapter( type.getProperty( "flaechenprozent" ) );
             viewer.addColumn( new DefaultFeatureTableColumn( prop )
                      .setHeader( "Prozent" ));
-            prop = new PropertyDescriptorAdapter( biotoptypType.getProperty( "pflegerueckstand" ) );
+            prop = new PropertyDescriptorAdapter( type.getProperty( "pflegerueckstand" ) );
             viewer.addColumn( new DefaultFeatureTableColumn( prop )
                      .setHeader( "Pflegerückstand" ));
 
             // content
             viewer.setContent( new CompositesFeatureContentProvider(
-                    biotop.biotoptypen().get(), biotoptypType ) );
+                    biotop.biotoptypen().get(), type ) );
 
 //            viewer.setContent( new IFeatureContentProvider() {
 //                public Object[] getElements( Object input ) {
