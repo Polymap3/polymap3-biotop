@@ -1,4 +1,4 @@
-/*
+/* 
  * polymap.org
  * Copyright 2010, Falko Br‰utigam, and other contributors as indicated
  * by the @authors tag.
@@ -20,27 +20,29 @@ package org.polymap.biotop.model.constant;
 import org.polymap.rhei.model.ConstantWithSynonyms;
 
 /**
- * Provides 'Schutzstatus' constants.
  *
+ * 
  * @author <a href="http://www.polymap.de">Falko Br‰utigam</a>
  */
-public class Schutzstatus
+public class Pflegezustand
         extends ConstantWithSynonyms<String> {
 
     /** Provides access to the elements of this type. */
-    public static final Type<Schutzstatus,String> all = new Type<Schutzstatus,String>();
+    public static final Type<Pflegezustand,String> all = new Type<Pflegezustand,String>();
+    
+    public static final Pflegezustand gut = new Pflegezustand( 0, "gut", "" );
 
-    public static final Schutzstatus para_26_30 = new Schutzstatus( 0, "ß26/ß30", "" );
+    public static final Pflegezustand maessig = new Pflegezustand( 1, "m‰ﬂig", "" );
 
-    public static final Schutzstatus wertvoll = new Schutzstatus( 1, "wertvoll", "" );
+    public static final Pflegezustand schlecht = new Pflegezustand( 2, "schlecht", "" );
 
-
+    
     // instance *******************************************
-
+    
     private String          description;
-
-
-    private Schutzstatus( int id, String label, String description, String... synonyms ) {
+    
+    
+    private Pflegezustand( int id, String label, String description, String... synonyms ) {
         super( id, label, synonyms );
         this.description = description;
         all.add( this );
@@ -49,5 +51,5 @@ public class Schutzstatus
     protected String normalizeValue( String value ) {
         return value.trim().toLowerCase();
     }
-
+    
 }

@@ -166,21 +166,21 @@ public interface BiotopComposite
     Property<String>            ausbildung();
 
     @Optional
+    Property<Integer>           pflegezustand();
+
+    @Optional
     @ImportColumn("Pflege_Entwicklung")
     Property<String>            pflegeEntwicklung();
 
-    @Optional
-    @ImportColumn("Teilfläche")
-    Property<String>            teilflaeche();
+//    @Optional
+//    @ImportColumn("Teilfläche")
+//    Property<String>            teilflaeche();
 
     @Optional
     Property<String>            bt_code();
 
     @Optional
     Property<String>            wert();
-
-    @Optional
-    Property<Integer>           biotoptyp();
 
     @Optional
     Property<String>            biotopkuerzel();
@@ -217,6 +217,10 @@ public interface BiotopComposite
     /** Letzte Prüfung der Daten. */
     @Optional
     Property<Boolean>           geprueft();
+
+    /** Leitbiotoptyp */
+    @Optional
+    Property<String>            biotoptypArtNr();
 
     @Optional
     @UseDefaults

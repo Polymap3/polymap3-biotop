@@ -16,18 +16,22 @@
 package org.polymap.biotop.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
-import org.opengis.feature.type.PropertyDescriptor;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.eclipse.swt.SWT;
+import org.qi4j.api.query.Query;
+
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -40,22 +44,10 @@ import org.eclipse.jface.resource.ImageDescriptor;
 
 import org.eclipse.ui.forms.widgets.Section;
 
-import org.polymap.biotop.BiotopPlugin;
-import org.polymap.biotop.model.BiotopComposite;
-import org.polymap.biotop.model.BiotopRepository;
-import org.polymap.biotop.model.BiotoptypValue;
-import org.polymap.biotop.model.constant.Erhaltungszustand;
-import org.polymap.biotop.model.constant.Status;
-
-import org.polymap.core.data.ui.featuretable.DefaultFeatureTableColumn;
-import org.polymap.core.data.ui.featuretable.FeatureTableViewer;
-import org.polymap.core.model.EntityType;
 import org.polymap.core.project.ui.util.SimpleFormData;
 import org.polymap.core.workbench.PolymapWorkbench;
 
-import org.polymap.rhei.data.entityfeature.CompositesFeatureContentProvider;
 import org.polymap.rhei.data.entityfeature.PropertyAdapter;
-import org.polymap.rhei.data.entityfeature.PropertyDescriptorAdapter;
 import org.polymap.rhei.field.IntegerValidator;
 import org.polymap.rhei.field.NumberValidator;
 import org.polymap.rhei.field.PicklistFormField;
@@ -68,6 +60,14 @@ import org.polymap.rhei.form.IFormEditorPageSite;
 import org.polymap.rhei.form.IFormEditorToolkit;
 import org.polymap.rhei.form.IFormPageProvider;
 
+import org.polymap.biotop.BiotopPlugin;
+import org.polymap.biotop.model.BiotopComposite;
+import org.polymap.biotop.model.BiotopRepository;
+import org.polymap.biotop.model.BiotoptypArtComposite;
+import org.polymap.biotop.model.constant.Erhaltungszustand;
+import org.polymap.biotop.model.constant.Schutzstatus;
+import org.polymap.biotop.model.constant.Status;
+
 /**
  *
  *
@@ -76,7 +76,7 @@ import org.polymap.rhei.form.IFormPageProvider;
 public class BiotopFormPageProvider
         implements IFormPageProvider {
 
-    private static Log log = LogFactory.getLog( BiotopFormPageProvider.class );
+    static Log log = LogFactory.getLog( BiotopFormPageProvider.class );
 
     static final int                FIELD_OFFSET_H = 5;
     static final int                FIELD_OFFSET_V = 1;
@@ -88,8 +88,9 @@ public class BiotopFormPageProvider
         List<IFormEditorPage> result = new ArrayList();
         if (feature.getType().getName().getLocalPart().equalsIgnoreCase( "biotop" )) {
             result.add( new BaseFormEditorPage( feature, formEditor.getFeatureStore() ) );
-            result.add( new TypFormEditorPage( feature, formEditor.getFeatureStore() ) );
+            result.add( new BiotoptypFormEditorPage( feature, formEditor.getFeatureStore() ) );
             result.add( new PflanzenFormPage( feature, formEditor.getFeatureStore() ) );
+            result.add( new PilzeFormPage( feature, formEditor.getFeatureStore() ) );
         }
         return result;
     }
@@ -156,14 +157,20 @@ public class BiotopFormPageProvider
             idsSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
                     .left( 50 ).right( 100 ).top( 0, 0 ).create() );
 
-            // statusSection
-            Section statusSection = createStatusSection( site.getPageBody() );
-            statusSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 0 ).right( 50 ).top( leftSection ).create() );
+            // geometrySection
+            Section geomSection = createGeometrySection( site.getPageBody() );
+            geomSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
+                    .left( 0 ).right( 50 ).top( leftSection ).bottom( 100 ).create() );
+
+            // biotoptyp
+            Section btSection = createBiotoptypSection( site.getPageBody() );
+            btSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
+                    .left( 50 ).right( 100 ).top( idsSection ).create() );
 
             layouter.newLayout();
         }
 
+        
         protected Section createLeftSection( Composite parent ) {
             Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
             section.setText( "Basisdaten" );
@@ -188,23 +195,18 @@ public class BiotopFormPageProvider
                     new PicklistFormField( Erhaltungszustand.all ), null, "Erhaltungszustand" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PropertyAdapter( biotop.numGeom() ),
-                    new StringFormField(), new IntegerValidator(),
-                    "Teilflächen" ) ).setEnabled( false );
+                    new PropertyAdapter( biotop.schutzstatus() ),
+                    new PicklistFormField( Schutzstatus.all ), null, "Schutzstatus" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PropertyAdapter( biotop.flaeche() ),
-                    new StringFormField(), new NumberValidator( Double.class, locale, 12, 2 ),
-                    "Gesamtfläche (m²)" ) ).setEnabled( false );
+                    new PropertyAdapter( biotop.status() ),
+                    new PicklistFormField( Status.all ), null, "Status" ) );
 
-            layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PropertyAdapter( biotop.umfang() ),
-                    new StringFormField(), new NumberValidator( Double.class, locale, 12, 2 ),
-                    "Umfang/Länge (m)" ) ).setEnabled( false );
 
             return section;
         }
 
+        
         protected Section createIdsSection( Composite parent ) {
             Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
             section.setText( "IDs" );
@@ -233,18 +235,29 @@ public class BiotopFormPageProvider
             return section;
         }
 
-        protected Section createStatusSection( Composite parent ) {
+        
+        protected Section createGeometrySection( Composite parent ) {
             Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
-            section.setText( "Status" );
+            section.setText( "GIS" );
 
             Composite client = tk.createComposite( section );
             client.setLayout( layouter.newLayout() );
             section.setClient( client );
 
-            // properties
             layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PropertyAdapter( biotop.status() ),
-                    new PicklistFormField( Status.all ), null, "Status" ) );
+                    new PropertyAdapter( biotop.numGeom() ),
+                    new StringFormField(), new IntegerValidator(),
+                    "Teilflächen" ) ).setEnabled( false );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.flaeche() ),
+                    new StringFormField(), new NumberValidator( Double.class, locale, 12, 2 ),
+                    "Gesamtfläche (m²)" ) ).setEnabled( false );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.umfang() ),
+                    new StringFormField(), new NumberValidator( Double.class, locale, 12, 2 ),
+                    "Umfang/Länge (m)" ) ).setEnabled( false );
 
 //            AktivitaetValue loeschung = biotop.loeschung().get();
 //            field = site.newFormField( client, new PropertyAdapter( loeschung.bemerkung() ),
@@ -255,6 +268,75 @@ public class BiotopFormPageProvider
             return section;
         }
 
+        
+        protected Section createBiotoptypSection( Composite parent ) {
+            Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
+            section.setText( "Leitbiotoptyp" );
+
+            Composite client = tk.createComposite( section );
+            client.setLayout( layouter.newLayout() );
+            section.setClient( client );
+
+            BiotopRepository repo = BiotopRepository.instance();
+
+            // biotoptyp picklist
+            String nummer = biotop.biotoptypArtNr().get();
+            BiotoptypArtComposite current = null;
+            Query<BiotoptypArtComposite> biotoptypen = repo.findEntities( BiotoptypArtComposite.class, null, 0, -1 );
+            Map<String,String> map = new HashMap();
+            for (BiotoptypArtComposite comp : biotoptypen) {
+                map.put( comp.name().get(), comp.nummer().get() );
+                if (comp.nummer().get().equals( nummer )) {
+                    current = comp;
+                }
+            }
+            PicklistFormField picklist = new PicklistFormField( map );
+            picklist.setTextEditable( false );
+            picklist.addModifyListener( new ModifyListener() {
+                public void modifyText( ModifyEvent ev ) {
+//                    try {
+//                        site.reloadEditor();
+//                    }
+//                    catch (Exception e) {
+//                        log.warn( "", e );
+//                    }
+                }
+            });
+            
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.biotoptypArtNr() ),
+                    picklist, null, "Biotoptyp" ) );
+
+            if (current != null) {
+                layouter.setFieldLayoutData( site.newFormField( client, 
+                        new PropertyAdapter( current.nummer() ),
+                        new StringFormField(), null, "Nummer" ) )
+                        .setEnabled( false );
+
+                layouter.setFieldLayoutData( site.newFormField( client, 
+                        new PropertyAdapter( current.code() ),
+                        new StringFormField(), null, "Code" ) )
+                        .setEnabled( false );
+
+                layouter.setFieldLayoutData( site.newFormField( client, 
+                        new PropertyAdapter( current.schutz26() ),
+                        new StringFormField(), new IntegerValidator(), "Schutz §26" ) )
+                        .setEnabled( false );
+
+                layouter.setFieldLayoutData( site.newFormField( client, 
+                        new PropertyAdapter( current.nummer26() ),
+                        new StringFormField(), new IntegerValidator(), "Nummer §26" ) )
+                        .setEnabled( false );
+
+                layouter.setFieldLayoutData( site.newFormField( client, 
+                        new PropertyAdapter( current.ffh_Relevanz() ),
+                        new StringFormField(), new IntegerValidator(), "FFH-Relevanz" ) )
+                        .setEnabled( false );
+            }
+            return section;
+        }
+
+        
         public Action[] getEditorActions() {
             // zoom flurstuecke
             ImageDescriptor icon = BiotopPlugin.imageDescriptorFromPlugin( 
@@ -271,146 +353,6 @@ public class BiotopFormPageProvider
                 }
             };
             return new Action[] { action1 };
-        }
-
-    }
-
-
-    /**
-     * The standard page for {@link AntragComposite}.
-     */
-    public static class TypFormEditorPage
-            implements IFormEditorPage {
-
-        private Feature                 feature;
-
-        private FeatureStore            fs;
-
-        private BiotopComposite         biotop;
-
-        IFormEditorPageSite             site;
-
-        private IFormEditorToolkit      tk;
-
-        private DefaultFormPageLayouter layouter;
-
-
-        protected TypFormEditorPage( Feature feature, FeatureStore featureStore ) {
-            this.feature = feature;
-            this.fs = featureStore;
-            this.biotop = BiotopRepository.instance().findEntity(
-                    BiotopComposite.class, feature.getIdentifier().getID() );
-        }
-
-        public void dispose() {
-            log.debug( "..." );
-        }
-
-        public String getId() {
-            return getClass().getName();
-        }
-
-        public String getTitle() {
-            return "Typ/Schutz/Pflege";
-        }
-
-        public void createFormContent( IFormEditorPageSite _site ) {
-            log.debug( "createFormContent(): feature= " + feature );
-            site = _site;
-            tk = site.getToolkit();
-            layouter = new DefaultFormPageLayouter();
-
-            //site.setFormTitle( "Biotop: " + biotop.objnr().get() );
-            FormLayout layout = new FormLayout();
-            site.getPageBody().setLayout( layout );
-
-            Section leftSection = createTypenSection( site.getPageBody() );
-            leftSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 0 ).right( 100 ).top( 0, 0 ).bottom( 50 ).create() );
-
-            Section statusSection = createStatusSection( site.getPageBody() );
-            statusSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 0 ).right( 50 ).top( leftSection ).bottom( 100 ).create() );
-
-        }
-
-        protected Section createStatusSection( Composite parent ) {
-            Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
-            section.setText( "Schutzstatus" );
-
-            Composite client = tk.createComposite( section );
-            client.setLayout( new FormLayout() );
-            section.setClient( client );
-
-            return section;
-        }
-
-        protected Section createTypenSection( Composite parent ) {
-            Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
-            section.setText( "Biotoptypen" );
-
-            Composite client = tk.createComposite( section );
-            client.setLayout( new FormLayout() );
-            section.setClient( client );
-
-            FeatureTableViewer viewer = new FeatureTableViewer( client, SWT.NONE );
-            viewer.getTable().setLayoutData( new SimpleFormData().fill().create() );
-
-//            EntityType biotopType = BiotopRepository.instance().entityType( BiotopComposite.class );
-//            CollectionProperty biotoptypenProp = (CollectionProperty)biotopType.getProperty( "biotoptypen" );
-//            EntityType biotoptypType = biotoptypenProp.getComplexType();
-
-            // columns
-            final EntityType<BiotoptypValue> type = 
-                    BiotopRepository.instance().entityType( BiotoptypValue.class );
-//            for (Property prop : biotoptypType.getProperties()) {
-//                viewer.addColumn( new PropertyDescriptorAdapter( prop ), true );
-//            }
-
-            PropertyDescriptor prop = new PropertyDescriptorAdapter( type.getProperty( "biotoptypArtNr" ) );
-            viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                     .setHeader( "Nummer" ));
-            prop = new PropertyDescriptorAdapter( type.getProperty( "unternummer" ) );
-            viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                     .setHeader( "Unternummer" ));
-            prop = new PropertyDescriptorAdapter( type.getProperty( "flaechenprozent" ) );
-            viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                     .setHeader( "Prozent" ));
-            prop = new PropertyDescriptorAdapter( type.getProperty( "pflegerueckstand" ) );
-            viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                     .setHeader( "Pflegerückstand" ));
-
-            // content
-            viewer.setContent( new CompositesFeatureContentProvider(
-                    biotop.biotoptypen().get(), type ) );
-
-//            viewer.setContent( new IFeatureContentProvider() {
-//                public Object[] getElements( Object input ) {
-//                    log.info( "getElements(): input=" + input );
-//                    List<IFeatureTableElement> result = new ArrayList();
-//
-//                    for (final BiotoptypValue biotoptyp : biotop.biotoptypen().get()) {
-//                        result.add( new IFeatureTableElement() {
-//                            public Object getValue( String name )
-//                            throws Exception {
-//                                return biotoptypType.getProperty( name ).getValue( biotoptyp );
-//                            }
-//                        });
-//                    }
-//                    return result.toArray();
-//                }
-//                public void inputChanged( Viewer _viewer, Object oldInput, Object newInput ) {
-//                }
-//                public void dispose() {
-//                }
-//            });
-            viewer.setInput( biotop.biotoptypen().get() );
-
-            return section;
-        }
-
-        public Action[] getEditorActions() {
-            return null;
         }
 
     }

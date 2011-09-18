@@ -23,7 +23,6 @@ import org.polymap.rhei.model.ConstantWithSynonyms;
  * Provides 'Erhaltungszustand' constants.
  * 
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
- * @version ($Revision$)
  */
 public class Erhaltungszustand
         extends ConstantWithSynonyms<String> {

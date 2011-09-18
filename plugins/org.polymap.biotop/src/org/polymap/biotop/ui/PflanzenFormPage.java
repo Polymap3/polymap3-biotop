@@ -18,6 +18,8 @@ import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.PropertyDescriptor;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.qi4j.api.query.Query;
 import org.qi4j.api.query.QueryExpressions;
 import org.qi4j.api.query.grammar.BooleanExpression;
@@ -92,7 +94,7 @@ public class PflanzenFormPage
         tk = site.getToolkit();
         layouter = new DefaultFormPageLayouter();
 
-        //site.setFormTitle( "Biotop: " + biotop.objnr().get() );
+        site.setFormTitle( "Biotop: " + StringUtils.abbreviate( biotop.name().get(), 25 ) );
         FormLayout layout = new FormLayout();
         site.getPageBody().setLayout( layout );
 
@@ -103,9 +105,8 @@ public class PflanzenFormPage
 
 
     protected Section createPflanzenSection( Composite parent ) {
-        Section section = tk.createSection( parent, Section.TITLE_BAR | Section.TREE_NODE );
+        Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
         section.setText( "Pflanzen" );
-        section.setExpanded( true );
 
         Composite client = tk.createComposite( section );
         client.setLayout( new FormLayout() );

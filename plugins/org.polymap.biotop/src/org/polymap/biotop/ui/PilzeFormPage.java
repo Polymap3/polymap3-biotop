@@ -16,6 +16,9 @@ package org.polymap.biotop.ui;
 
 import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
+
+import org.apache.commons.lang.StringUtils;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -73,7 +76,7 @@ public class PilzeFormPage
     }
 
     public String getTitle() {
-        return "Moose/Flechten/Pilze";
+        return "Moose-Flechten-Pilze";
     }
 
     public void createFormContent( IFormEditorPageSite _site ) {
@@ -81,7 +84,7 @@ public class PilzeFormPage
         tk = site.getToolkit();
         layouter = new DefaultFormPageLayouter();
 
-        //site.setFormTitle( "Biotop: " + biotop.objnr().get() );
+        site.setFormTitle( "Biotop: " + StringUtils.abbreviate( biotop.name().get(), 25 ) );
         FormLayout layout = new FormLayout();
         site.getPageBody().setLayout( layout );
 
