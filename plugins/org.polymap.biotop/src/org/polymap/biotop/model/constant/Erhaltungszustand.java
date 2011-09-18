@@ -20,7 +20,7 @@ package org.polymap.biotop.model.constant;
 import org.polymap.rhei.model.ConstantWithSynonyms;
 
 /**
- * Provides 'Kostenbescheidtyp' constants.
+ * Provides 'Erhaltungszustand' constants.
  * 
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  * @version ($Revision$)
@@ -31,17 +31,11 @@ public class Erhaltungszustand
     /** Provides access to the elements of this type. */
     public static final Type<Erhaltungszustand,String> all = new Type<Erhaltungszustand,String>();
     
-    public static final Erhaltungszustand VKV = new Erhaltungszustand( 10, "Vorläufiger Kostenbescheid", 
-            "Gemäß § 15 Abs. 1 SächsVwKG wird mit der Bearbeitung des Antrages erst nach Zahlung des Kostenvorschusses begonnen. Nach Vornahme der Amtshandlung ergeht unter Beachtung des bezahlten Kostenvorschusses eine endgültige Kostenentscheidung. Wird der Kostenvorschuss in der gesetzten Frist nicht bezahlt, wird der Antrag gemäß § 15 Abs. 1 SächsVwKG als zurückgenommen behandelt. Die dafür zu erhebende Gebühr wird gemäß § 10 Abs. 2 SächsVwKG festgesetzt.",
-            "vkv" );
+    public static final Erhaltungszustand guenstig = new Erhaltungszustand( 0, "günstig", "günstig" );
 
-    public static final Erhaltungszustand VRK = new Erhaltungszustand( 20, "Kostenbescheid", 
-            "Detaillierte Informationen zur Gebührenfestsetzung entnehmen Sie bitte der Anlage.",
-            "vrk" );
+    public static final Erhaltungszustand unzureichend = new Erhaltungszustand( 1, "ungünstig/unzureichend", "unzureichend" );
 
-    public static final Erhaltungszustand VRR = new Erhaltungszustand( 30, "Rechnung", 
-            "Detaillierte Informationen über die Rechnungspositionen entnehmen Sie bitte der Anlage.",
-            "vrr" );
+    public static final Erhaltungszustand schlecht = new Erhaltungszustand( 2, "ungünstig/schlecht", "schlecht" );
 
     
     // instance *******************************************

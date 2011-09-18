@@ -22,8 +22,6 @@ import java.security.Principal;
 
 import net.refractions.udig.catalog.IGeoResource;
 
-import org.opengis.filter.Filter;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,8 +43,6 @@ import org.polymap.rhei.data.entityfeature.catalog.EntityGeoResourceImpl;
 import org.polymap.rhei.filter.IFilter;
 import org.polymap.rhei.filter.IFilterEditorSite;
 import org.polymap.rhei.filter.IFilterProvider;
-import org.polymap.rhei.filter.TransientFilter;
-
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopEntityProvider;
 import org.polymap.biotop.model.BiotopRepository;
@@ -78,9 +74,9 @@ public class BiotopFilterProvider
 
             List<IFilter> result = new ArrayList();
 
-            result.add( new TransientFilter(
-                    "__allFilter__", layer,
-                    "Alle", null, Filter.INCLUDE, Integer.MAX_VALUE ) );
+//            result.add( new TransientFilter(
+//                    "__allFilter__", layer,
+//                    "Alle", null, Filter.INCLUDE, Integer.MAX_VALUE ) );
 
             result.add( new MeineFilter() );
 

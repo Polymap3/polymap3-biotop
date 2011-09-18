@@ -112,6 +112,10 @@ public interface BiotopComposite
     @Computed
     Property<Double>            umfang();
 
+    /** Anzahl der Teil-Geometrien. Wird aus der Geometry errechnet. */
+    @Computed
+    Property<Integer>           numGeom();
+
     /** Interne Objektnummer - laufende Nummer. */
     @Optional
     Property<String>            objnr();
@@ -183,14 +187,17 @@ public interface BiotopComposite
 
     /** @see Erhaltungszustand */
     @Optional
+    @UseDefaults
     Property<Integer>           erhaltungszustand();
 
     /** @see Schutzstatus */
     @Optional
+    @UseDefaults
     Property<Integer>           schutzstatus();
 
     /** @see Status */
     @Optional
+    @UseDefaults
     Property<Integer>           status();
 
     @Optional
@@ -201,7 +208,7 @@ public interface BiotopComposite
 
     /** Wenn {@link #status()} <code>nicht_aktiv</code>, dann Wann, Wer, Warum gelöscht. */
     @Optional
-    Property<AktivitaetValue>   löschung();
+    Property<AktivitaetValue>   loeschung();
 
     /** Letzte Bekanntmachung. */
     @Optional
@@ -256,6 +263,7 @@ public interface BiotopComposite
 
         private PropertyInfo        flaecheInfo = new GenericPropertyInfo( BiotopComposite.class, "flaeche" );
         private PropertyInfo        umfangInfo = new GenericPropertyInfo( BiotopComposite.class, "umfang" );
+        private PropertyInfo        numGeomInfo = new GenericPropertyInfo( BiotopComposite.class, "numGeom" );
 //        private PropertyInfo        bearbeitetInfo = new GenericPropertyInfo( BiotopComposite.class, "bearbeitet" );
 //        private PropertyInfo        bearbeiterInfo = new GenericPropertyInfo( BiotopComposite.class, "bearbeiter" );
 
@@ -274,6 +282,15 @@ public interface BiotopComposite
                 public Object get() {
                     Geometry geom = geom().get();
                     return geom != null ? geom.getLength() : -1;
+                }
+            };
+        }
+
+        public Property<Integer> numGeom() {
+            return new ComputedPropertyInstance( numGeomInfo ) {
+                public Object get() {
+                    Geometry geom = geom().get();
+                    return geom != null ? geom.getNumGeometries() : -1;
                 }
             };
         }

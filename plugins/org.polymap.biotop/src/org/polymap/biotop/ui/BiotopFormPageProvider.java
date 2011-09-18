@@ -17,15 +17,18 @@ package org.polymap.biotop.ui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.PropertyDescriptor;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -38,10 +41,10 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.forms.widgets.Section;
 
 import org.polymap.biotop.BiotopPlugin;
-import org.polymap.biotop.model.AktivitaetValue;
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
 import org.polymap.biotop.model.BiotoptypValue;
+import org.polymap.biotop.model.constant.Erhaltungszustand;
 import org.polymap.biotop.model.constant.Status;
 
 import org.polymap.core.data.ui.featuretable.DefaultFeatureTableColumn;
@@ -53,6 +56,8 @@ import org.polymap.core.workbench.PolymapWorkbench;
 import org.polymap.rhei.data.entityfeature.CompositesFeatureContentProvider;
 import org.polymap.rhei.data.entityfeature.PropertyAdapter;
 import org.polymap.rhei.data.entityfeature.PropertyDescriptorAdapter;
+import org.polymap.rhei.field.IntegerValidator;
+import org.polymap.rhei.field.NumberValidator;
 import org.polymap.rhei.field.PicklistFormField;
 import org.polymap.rhei.field.StringFormField;
 import org.polymap.rhei.field.TextFormField;
@@ -106,6 +111,8 @@ public class BiotopFormPageProvider
         private IFormEditorToolkit      tk;
 
         private DefaultFormPageLayouter layouter;
+        
+        private Locale                  locale = Locale.GERMAN;
 
 
         protected BaseFormEditorPage( Feature feature, FeatureStore featureStore ) {
@@ -133,7 +140,7 @@ public class BiotopFormPageProvider
             tk = site.getToolkit();
             layouter = new DefaultFormPageLayouter();
 
-            site.setFormTitle( "Biotop: " + biotop.objnr().get() );
+            site.setFormTitle( "Biotop: " + StringUtils.abbreviate( biotop.name().get(), 25 ) );
             site.setActivePage( getId() );
             FormLayout layout = new FormLayout();
             site.getPageBody().setLayout( layout );
@@ -143,10 +150,15 @@ public class BiotopFormPageProvider
             leftSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
                     .left( 0 ).right( 50 ).top( 0, 0 ).create() );
 
+            // idsSection
+            Section idsSection = createIdsSection( site.getPageBody() );
+            idsSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
+                    .left( 50 ).right( 100 ).top( 0, 0 ).create() );
+
             // statusSection
             Section statusSection = createStatusSection( site.getPageBody() );
             statusSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 50 ).right( 100 ).top( 0, 0 ).create() );
+                    .left( 0 ).right( 50 ).top( leftSection ).create() );
 
             layouter.newLayout();
         }
@@ -161,22 +173,62 @@ public class BiotopFormPageProvider
             section.setClient( client );
 
             // properties
-            Composite field = site.newFormField( client, new PropertyAdapter( biotop.objnr() ),
-                    new StringFormField(), null, "Biotopnummer" );
-            layouter.setFieldLayoutData( field );
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.name() ),
+                    new StringFormField(), null, "Name" ) );
 
-            field = site.newFormField( client, new PropertyAdapter( biotop.objnr_sbk() ),
-                    new StringFormField(), null, "Objekt-Nr. (SBK)" );
-            layouter.setFieldLayoutData( field );
+            Composite field = layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.beschreibung() ),
+                    new TextFormField(), null, "Beschreibung" ) );
+            ((FormData)field.getLayoutData()).height = 80;
 
-            field = site.newFormField( client, new PropertyAdapter( biotop.objnr_landkreise() ),
-                    new StringFormField(), null, "Objekt-Nr. (LKs)" );
-            layouter.setFieldLayoutData( field );
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.erhaltungszustand() ),
+                    new PicklistFormField( Erhaltungszustand.all ), null, "Erhaltungszustand" ) );
 
-            field = site.newFormField( client, new PropertyAdapter( biotop.beschreibung() ),
-                    new TextFormField(), null, "Beschreibung" );
-            layouter.setFieldLayoutData( field, 50 );
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.numGeom() ),
+                    new StringFormField(), new IntegerValidator(),
+                    "Teilflächen" ) ).setEnabled( false );
 
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.flaeche() ),
+                    new StringFormField(), new NumberValidator( Double.class, locale, 12, 2 ),
+                    "Gesamtfläche (m²)" ) ).setEnabled( false );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.umfang() ),
+                    new StringFormField(), new NumberValidator( Double.class, locale, 12, 2 ),
+                    "Umfang/Länge (m)" ) ).setEnabled( false );
+
+            return section;
+        }
+
+        protected Section createIdsSection( Composite parent ) {
+            Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
+            section.setText( "IDs" );
+            section.setExpanded( true );
+
+            Composite client = tk.createComposite( section );
+            client.setLayout( layouter.newLayout() );
+            section.setClient( client );
+
+            // properties
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.objnr() ),
+                    new StringFormField(), null, "Biotopnummer" ) ).setEnabled( false );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.objnr_landkreise() ),
+                    new StringFormField(), null, "Objekt-Nr. (LKs)" ) );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.objnr_sbk() ),
+                    new StringFormField(), null, "Objekt-Nr. (SBK)" ) );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.tk25() ),
+                    new StringFormField(), null, "TK25 Nr." ) );
             return section;
         }
 
@@ -189,15 +241,15 @@ public class BiotopFormPageProvider
             section.setClient( client );
 
             // properties
-            Composite field = site.newFormField( client, new PropertyAdapter( biotop.status() ),
-                    new PicklistFormField( Status.all ), null, "Status" );
-            layouter.setFieldLayoutData( field );
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.status() ),
+                    new PicklistFormField( Status.all ), null, "Status" ) );
 
-            AktivitaetValue loeschung = biotop.löschung().get();
-            field = site.newFormField( client, new PropertyAdapter( loeschung.bemerkung() ),
-                    new TextFormField(), null, "Begründung" );
-            layouter.setFieldLayoutData( field, 80 );
-            field.setEnabled( Status.nicht_aktuell.equals( biotop.status().get() ));
+//            AktivitaetValue loeschung = biotop.loeschung().get();
+//            field = site.newFormField( client, new PropertyAdapter( loeschung.bemerkung() ),
+//                    new TextFormField(), null, "Begründung" );
+//            layouter.setFieldLayoutData( field, 80 );
+//            field.setEnabled( Status.nicht_aktuell.equals( biotop.status().get() ));
 
             return section;
         }
