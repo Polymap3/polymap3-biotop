@@ -127,6 +127,12 @@ public class PflanzenFormPage
         prop = new PropertyDescriptorAdapter( compType.getProperty( "name" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
                  .setHeader( "Name" ));
+        prop = new PropertyDescriptorAdapter( compType.getProperty( "taxname" ) );
+        viewer.addColumn( new DefaultFeatureTableColumn( prop )
+                 .setHeader( "Taxname" ));
+        prop = new PropertyDescriptorAdapter( compType.getProperty( "schutzstatus" ) );
+        viewer.addColumn( new DefaultFeatureTableColumn( prop )
+                 .setHeader( "Schutzstatus" ));
         prop = new PropertyDescriptorAdapter( valueType.getProperty( "menge" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
                  .setHeader( "Menge" ));
