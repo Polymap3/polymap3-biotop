@@ -42,7 +42,7 @@
       <featureOperation
             class="org.polymap.biotop.model.importer.ShapeImportOperation"
             id="org.polymap.biotop.importer.ShapeImportOperation"
-            label="Shapefile-Import (sbk_xx.shp)">
+            label="Biotop: Shapefile-Import (sbk_xx.shp)">
       </featureOperation>
    </extension>
 

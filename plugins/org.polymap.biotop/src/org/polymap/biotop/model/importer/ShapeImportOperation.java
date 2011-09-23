@@ -27,7 +27,11 @@ import org.apache.commons.logging.LogFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -51,6 +55,11 @@ public class ShapeImportOperation
 
     private static Log log = LogFactory.getLog( ShapeImportOperation.class );
 
+    private static GeometryFactory  factory = new GeometryFactory();
+    
+    private static final double     bufferDistance = 5;
+    
+    
     public Status execute( IProgressMonitor monitor )
     throws Exception {
         monitor.beginTask( "Shapefile importieren", context.features().size() );
@@ -60,10 +69,12 @@ public class ShapeImportOperation
         Map<String,BiotopComposite> created = new HashMap();
         FeatureIterator<SimpleFeature> it = context.features().features();
         try {
-            GeometryFactory factory = new GeometryFactory();
 
             while (it.hasNext()) {
                 SimpleFeature feature = it.next();
+                Geometry featureGeom = (Geometry)feature.getDefaultGeometry();
+                List<Geometry> featurePolygons = asPolygons( featureGeom );
+
                 final Object objnr = feature.getAttribute( "OBJNR" );
                 final Object tk25 = feature.getAttribute( "TK25" );
                 
@@ -81,42 +92,15 @@ public class ShapeImportOperation
                     if (entity == null) {
                         entity = newEntity( feature );
                         created.put( key, entity );
-                        //log.info( "    entity created for key: " + key );
                         
-                        Geometry featureGeom = (Geometry)feature.getDefaultGeometry();
-                        MultiPolygon newGeom = null;
-                        if (featureGeom instanceof MultiPolygon) {
-                            newGeom = (MultiPolygon)featureGeom;
-                        }
-                        else if (featureGeom instanceof Polygon) {
-                            newGeom = factory.createMultiPolygon( new Polygon[] { (Polygon)featureGeom } );
-                        }
-                        else {
-                            throw new RuntimeException( "Unhandled feature geometry: " + featureGeom );
-                        }
-                        entity.geom().set( newGeom );
-                        //log.info( "    geometry created: " + newGeom );
+                        entity.geom().set( asMultiPolygon( featurePolygons ) );
                     }
                     else {
                         MultiPolygon geom = entity.geom().get();
+                        List<Geometry> polygons = asPolygons( geom );
+                        polygons.addAll( featurePolygons );
                         
-                        List<Geometry> polygons = asList( geom );
-                        
-                        Geometry featureGeom = (Geometry)feature.getDefaultGeometry();
-                        if (featureGeom instanceof Polygon) {
-                            polygons.add( featureGeom );
-                        }
-                        else if (featureGeom instanceof MultiPolygon) {
-                            polygons.addAll( asList( featureGeom ) );
-                        }
-                        else {
-                            throw new RuntimeException( "Unhandled feature geometry: " + featureGeom );
-                        }
-                        
-                        MultiPolygon newGeom = factory.createMultiPolygon( 
-                                polygons.toArray( new Polygon[polygons.size()] ) );
-                        entity.geom().set( newGeom );
-                        //log.info( "    geometry updated to: " + newGeom );
+                        entity.geom().set( asMultiPolygon( polygons ) );
                     }
                 }
                 if (monitor.isCanceled()) {
@@ -132,6 +116,54 @@ public class ShapeImportOperation
     }
 
     
+    protected MultiPolygon asMultiPolygon( List<Geometry> polygons ) {
+        Polygon[] array = new Polygon[polygons.size()];
+        int count = 0;
+        for (Geometry geom : polygons) {
+            array[count++] = (Polygon)geom;
+        }
+        return factory.createMultiPolygon( array );
+    }
+    
+    
+    /**
+     * Convert the given Geometry in a List of Polygons. Multi geometries are
+     * converted to a list. Points and Lines are buffered.
+     */
+    protected List<Geometry> asPolygons( Geometry featureGeom ) {
+        List<Geometry> polygons = new ArrayList();
+        // Polygon
+        if (featureGeom instanceof Polygon) {
+            polygons.add( featureGeom );
+        }
+        else if (featureGeom instanceof MultiPolygon) {
+            polygons.addAll( asList( featureGeom ) );
+        }
+        // Line
+        else if (featureGeom instanceof LineString) {
+            Geometry polygon = ((LineString)featureGeom).buffer( bufferDistance, 3 );
+            polygons.add( polygon );
+        }
+        else if (featureGeom instanceof MultiLineString) {
+            Geometry polygon = ((MultiLineString)featureGeom).buffer( bufferDistance, 3 );
+            polygons.addAll( asList( polygon ) );
+        }
+        // Point
+        else if (featureGeom instanceof Point) {
+            Geometry polygon = ((Point)featureGeom).buffer( bufferDistance*2, 3 );
+            polygons.add( polygon );
+        }
+        else if (featureGeom instanceof MultiPoint) {
+            Geometry polygon = ((MultiPoint)featureGeom).buffer( bufferDistance*2, 3 );
+            polygons.addAll( asList( polygon ) );
+        }
+        else {
+            throw new RuntimeException( "Unhandled feature geometry: " + featureGeom );
+        }
+        return polygons;
+    }
+
+
     protected List<Geometry> asList( Geometry geom ) {
         List<Geometry> result = new ArrayList();
         for (int i=0; i < geom.getNumGeometries(); i++) {
