@@ -230,6 +230,11 @@ public interface BiotopComposite
     @UseDefaults
     Property<Collection<PflanzeValue>> pflanzen();
 
+    /** Moose/Flechten/Pilze */
+    @Optional
+    @UseDefaults
+    Property<Collection<PilzeValue>> pilze();
+
     @Optional
     @ImportColumn("Nr_Naturraum")
     Property<String>            naturraumNr();

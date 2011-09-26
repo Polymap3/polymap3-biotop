@@ -37,7 +37,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
 
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
@@ -45,9 +44,12 @@ import org.polymap.biotop.model.BiotoptypArtComposite;
 import org.polymap.biotop.model.BiotoptypValue;
 import org.polymap.biotop.model.PflanzeValue;
 import org.polymap.biotop.model.PflanzenArtComposite;
+import org.polymap.biotop.model.PilzeArtComposite;
+import org.polymap.biotop.model.PilzeValue;
 
 import org.polymap.core.qi4j.QiModule.EntityCreator;
 import org.polymap.core.qi4j.event.AbstractModelChangeOperation;
+import org.polymap.core.runtime.SubMonitor;
 
 /**
  *
@@ -77,10 +79,10 @@ public class MdbImportOperation
         monitor.beginTask( getLabel(), 100 );
         Database db = Database.open( dbFile );
         try {
-            SubProgressMonitor sub = null;
+            SubMonitor sub = null;
             
             // BiotopComposite
-            sub = new SubProgressMonitor( monitor, 10 );
+            sub = new SubMonitor( monitor, 10 );
             importBiotopdaten( db.getTable( "Biotopdaten" ), sub );
             
 //            // BiotoptypArtComposite
@@ -89,11 +91,11 @@ public class MdbImportOperation
 //                    RevierComposite.class, "Nr_Biotoptyp", null );
 
             // Biotoptyp
-            sub = new SubProgressMonitor( monitor, 10 );
+            sub = new SubMonitor( monitor, 10 );
             importEntity( db.getTable( "Referenz_Biotoptypen" ), sub, 
                     BiotoptypArtComposite.class, "Nr_Biotoptyp", null );
 
-            sub = new SubProgressMonitor( monitor, 10 );
+            sub = new SubMonitor( monitor, 10 );
             importValue( db.getTable( "Biotoptypen" ), sub, BiotoptypValue.class,
                     new ValueCallback<BiotoptypValue>() {
                         public void fillValue( BiotopComposite biotop, BiotoptypValue value ) {
@@ -104,17 +106,32 @@ public class MdbImportOperation
             });
 
             // Pflanzen
-            sub = new SubProgressMonitor( monitor, 10 );
+            sub = new SubMonitor( monitor, 10 );
             importEntity( db.getTable( "Referenz_Pflanzen" ), sub, 
                     PflanzenArtComposite.class, "Nr_Planze", null );
 
-            sub = new SubProgressMonitor( monitor, 10 );
+            sub = new SubMonitor( monitor, 10 );
             importValue( db.getTable( "Pflanzen" ), sub, PflanzeValue.class,
                     new ValueCallback<PflanzeValue>() {
                         public void fillValue( BiotopComposite biotop, PflanzeValue value ) {
                             biotop.pflanzen().get().add( value );
                             biotop.status().set( biotop.status().get() );
                             log.info( "Pflanze added: " + biotop );
+                        }
+            });
+
+            // Moose/Flechten/Pilze
+            sub = new SubMonitor( monitor, 10 );
+            importEntity( db.getTable( "Referenz_Mo_Fle_pil" ), sub, 
+                    PilzeArtComposite.class, "Nr_Art", null );
+
+            sub = new SubMonitor( monitor, 10 );
+            importValue( db.getTable( "Mo_Fle_Pil" ), sub, PilzeValue.class,
+                    new ValueCallback<PilzeValue>() {
+                        public void fillValue( BiotopComposite biotop, PilzeValue value ) {
+                            biotop.pilze().get().add( value );
+                            biotop.status().set( biotop.status().get() );
+                            log.info( "Pilz added: " + biotop );
                         }
             });
 

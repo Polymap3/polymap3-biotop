@@ -25,6 +25,9 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.qi4j.api.query.QueryExpressions;
+import org.qi4j.api.query.grammar.BooleanExpression;
+
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -69,7 +72,6 @@ public class ShapeImportOperation
         Map<String,BiotopComposite> created = new HashMap();
         FeatureIterator<SimpleFeature> it = context.features().features();
         try {
-
             while (it.hasNext()) {
                 SimpleFeature feature = it.next();
                 Geometry featureGeom = (Geometry)feature.getDefaultGeometry();
@@ -88,13 +90,28 @@ public class ShapeImportOperation
                 }
                 else {
                     String key = objnr.toString() + tk25.toString();
+                    // search in local map
                     entity = created.get( key );
+                    // search database
+                    if (entity == null) {
+                        BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
+                        BooleanExpression expr = QueryExpressions.and(
+                                QueryExpressions.eq( template.objnr_sbk(), objnr.toString() ),
+                                QueryExpressions.eq( template.tk25(), tk25.toString() ) );
+                        entity = repo.findEntities( BiotopComposite.class, expr, 0, 1 ).find();
+                        if (entity != null) {
+                            created.put( key, entity );
+                            log.info( "found entity in db: " + entity );
+                        }
+                    }
+                    // create entity
                     if (entity == null) {
                         entity = newEntity( feature );
                         created.put( key, entity );
                         
                         entity.geom().set( asMultiPolygon( featurePolygons ) );
                     }
+                    // update geometry
                     else {
                         MultiPolygon geom = entity.geom().get();
                         List<Geometry> polygons = asPolygons( geom );

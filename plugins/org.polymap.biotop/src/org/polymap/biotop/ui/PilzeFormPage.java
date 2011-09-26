@@ -16,8 +16,13 @@ package org.polymap.biotop.ui;
 
 import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
+import org.opengis.feature.type.PropertyDescriptor;
 
 import org.apache.commons.lang.StringUtils;
+
+import org.qi4j.api.query.Query;
+import org.qi4j.api.query.QueryExpressions;
+import org.qi4j.api.query.grammar.BooleanExpression;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormLayout;
@@ -27,9 +32,12 @@ import org.eclipse.jface.action.Action;
 
 import org.eclipse.ui.forms.widgets.Section;
 
+import org.polymap.core.data.ui.featuretable.DefaultFeatureTableColumn;
 import org.polymap.core.data.ui.featuretable.FeatureTableViewer;
+import org.polymap.core.model.EntityType;
 import org.polymap.core.project.ui.util.SimpleFormData;
 
+import org.polymap.rhei.data.entityfeature.PropertyDescriptorAdapter;
 import org.polymap.rhei.form.DefaultFormPageLayouter;
 import org.polymap.rhei.form.IFormEditorPage;
 import org.polymap.rhei.form.IFormEditorPageSite;
@@ -37,6 +45,8 @@ import org.polymap.rhei.form.IFormEditorToolkit;
 
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
+import org.polymap.biotop.model.PilzeArtComposite;
+import org.polymap.biotop.model.PilzeValue;
 
 /**
  * 
@@ -106,36 +116,36 @@ public class PilzeFormPage
         FeatureTableViewer viewer = new FeatureTableViewer( client, SWT.NONE );
         viewer.getTable().setLayoutData( new SimpleFormData().fill().create() );
 
-//        // entity types
-//        final BiotopRepository repo = BiotopRepository.instance();
-//        final EntityType<PflanzeValue> valueType = repo.entityType( PflanzeValue.class );
-//        final EntityType<PflanzenArtComposite> compType = repo.entityType( PflanzenArtComposite.class );
-//
-//        // columns
-//        PropertyDescriptor prop = new PropertyDescriptorAdapter( valueType.getProperty( "pflanzenArtNr" ) );
-//        viewer.addColumn( new DefaultFeatureTableColumn( prop )
-//                 .setHeader( "Nummer" ));
-//        prop = new PropertyDescriptorAdapter( compType.getProperty( "name" ) );
-//        viewer.addColumn( new DefaultFeatureTableColumn( prop )
-//                 .setHeader( "Name" ));
-//        prop = new PropertyDescriptorAdapter( valueType.getProperty( "menge" ) );
-//        viewer.addColumn( new DefaultFeatureTableColumn( prop )
-//                 .setHeader( "Menge" ));
-//        prop = new PropertyDescriptorAdapter( valueType.getProperty( "mengenstatusNr" ) );
-//        viewer.addColumn( new DefaultFeatureTableColumn( prop )
-//                 .setHeader( "MengenstatusNr" ));
-//
-//        // content
-//        viewer.setContent( new LinkedCompositesContentProvider<PflanzeValue,PflanzenArtComposite>(
-//                biotop.pflanzen().get(), valueType, compType ) {
-//                    protected PflanzenArtComposite linkedElement( PflanzeValue elm ) {
-//                        PflanzenArtComposite template = QueryExpressions.templateFor( PflanzenArtComposite.class );
-//                        BooleanExpression expr = QueryExpressions.eq( template.nummer(), elm.pflanzenArtNr().get() );
-//                        Query<PflanzenArtComposite> matches = repo.findEntities( PflanzenArtComposite.class, expr, 0 , 1 );
-//                        return matches.find();
-//                    }
-//        });
-//        viewer.setInput( biotop.pflanzen().get() );
+        // entity types
+        final BiotopRepository repo = BiotopRepository.instance();
+        final EntityType<PilzeValue> valueType = repo.entityType( PilzeValue.class );
+        final EntityType<PilzeArtComposite> compType = repo.entityType( PilzeArtComposite.class );
+
+        // columns
+        PropertyDescriptor prop = new PropertyDescriptorAdapter( valueType.getProperty( "artNr" ) );
+        viewer.addColumn( new DefaultFeatureTableColumn( prop )
+                 .setHeader( "Nummer" ));
+        prop = new PropertyDescriptorAdapter( compType.getProperty( "name" ) );
+        viewer.addColumn( new DefaultFeatureTableColumn( prop )
+                 .setHeader( "Name" ));
+        prop = new PropertyDescriptorAdapter( valueType.getProperty( "menge" ) );
+        viewer.addColumn( new DefaultFeatureTableColumn( prop )
+                 .setHeader( "Menge" ));
+        prop = new PropertyDescriptorAdapter( valueType.getProperty( "mengenstatusNr" ) );
+        viewer.addColumn( new DefaultFeatureTableColumn( prop )
+                 .setHeader( "MengenstatusNr" ));
+
+        // content
+        viewer.setContent( new LinkedCompositesContentProvider<PilzeValue,PilzeArtComposite>(
+                biotop.pilze().get(), valueType, compType ) {
+                    protected PilzeArtComposite linkedElement( PilzeValue elm ) {
+                        PilzeArtComposite template = QueryExpressions.templateFor( PilzeArtComposite.class );
+                        BooleanExpression expr = QueryExpressions.eq( template.nummer(), elm.artNr().get() );
+                        Query<PilzeArtComposite> matches = repo.findEntities( PilzeArtComposite.class, expr, 0 , 1 );
+                        return matches.find();
+                    }
+        });
+        viewer.setInput( biotop.pflanzen().get() );
 
         return section;
     }
