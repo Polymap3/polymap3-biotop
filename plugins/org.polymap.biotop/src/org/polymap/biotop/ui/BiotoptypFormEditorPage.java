@@ -4,8 +4,6 @@ import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.PropertyDescriptor;
 
-import org.apache.commons.lang.StringUtils;
-
 import org.qi4j.api.query.Query;
 import org.qi4j.api.query.QueryExpressions;
 import org.qi4j.api.query.grammar.BooleanExpression;
@@ -82,7 +80,7 @@ public class BiotoptypFormEditorPage
         tk = site.getToolkit();
         layouter = new DefaultFormPageLayouter();
 
-        site.setFormTitle( "Biotop: " + StringUtils.abbreviate( biotop.name().get(), 25 ) );
+        site.setFormTitle( "Biotop: " + biotop.objnr().get() );
         FormLayout layout = new FormLayout();
         site.getPageBody().setLayout( layout );
 

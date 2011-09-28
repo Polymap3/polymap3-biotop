@@ -35,6 +35,8 @@ import org.polymap.core.qi4j.QiModuleAssembler;
 import org.polymap.core.qi4j.idgen.HRIdentityGeneratorService;
 import org.polymap.core.runtime.Polymap;
 
+import org.polymap.biotop.model.idgen.BiotopnummerGeneratorService;
+
 /**
  *
  *
@@ -122,8 +124,9 @@ public class BiotopRepositoryAssembler
 
         domainModule.addServices( HRIdentityGeneratorService.class );
 
-//        domainModule.addServices( AntragsnummerGeneratorService.class )
-//                .identifiedBy( "antragsnummer" );
+        // additional services
+        domainModule.addServices( BiotopnummerGeneratorService.class )
+                .identifiedBy( "biotopnummer" );
     }
 
 

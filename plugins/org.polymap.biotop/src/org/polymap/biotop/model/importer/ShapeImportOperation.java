@@ -192,22 +192,21 @@ public class ShapeImportOperation
     
     protected BiotopComposite newEntity( final SimpleFeature feature )
     throws Exception {
-        return BiotopRepository.instance().newEntity( 
-                BiotopComposite.class, null, new EntityCreator<BiotopComposite>() {
-                    public void create( BiotopComposite instance ) throws Exception {
-                        Object objnr = feature.getAttribute( "OBJNR" );
-                        instance.objnr_sbk().set( objnr != null ? objnr.toString() : null );
+        return BiotopRepository.instance().newBiotop( new EntityCreator<BiotopComposite>() {
+            public void create( BiotopComposite instance ) throws Exception {
+                Object objnr = feature.getAttribute( "OBJNR" );
+                instance.objnr_sbk().set( objnr != null ? objnr.toString() : null );
 
-                        Object tk25 = feature.getAttribute( "TK25" );
-                        instance.tk25().set( tk25 != null ? tk25.toString() : null );
-                        
-                        Object value = feature.getAttribute( "BT_CODE" );
-                        instance.bt_code().set( value != null ? value.toString() : null );
+                Object tk25 = feature.getAttribute( "TK25" );
+                instance.tk25().set( tk25 != null ? tk25.toString() : null );
 
-                        value = feature.getAttribute( "WERT" );
-                        instance.wert().set( value != null ? value.toString() : null );
-                    }
-                });
+                Object value = feature.getAttribute( "BT_CODE" );
+                instance.bt_code().set( value != null ? value.toString() : null );
+
+                value = feature.getAttribute( "WERT" );
+                instance.wert().set( value != null ? value.toString() : null );
+            }
+        });
     }
 
 }

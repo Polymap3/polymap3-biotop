@@ -24,7 +24,6 @@ import java.util.Map;
 import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -142,7 +141,7 @@ public class BiotopFormPageProvider
             tk = site.getToolkit();
             layouter = new DefaultFormPageLayouter();
 
-            site.setFormTitle( "Biotop: " + StringUtils.abbreviate( biotop.name().get(), 25 ) );
+            site.setFormTitle( "Biotop: " + biotop.objnr().get() );
             site.setActivePage( getId() );
             FormLayout layout = new FormLayout();
             site.getPageBody().setLayout( layout );
@@ -221,9 +220,9 @@ public class BiotopFormPageProvider
                     new PropertyAdapter( biotop.objnr() ),
                     new StringFormField(), null, "Biotopnummer" ) ).setEnabled( false );
 
-            layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PropertyAdapter( biotop.objnr_landkreise() ),
-                    new StringFormField(), null, "Objekt-Nr. (LKs)" ) );
+//            layouter.setFieldLayoutData( site.newFormField( client, 
+//                    new PropertyAdapter( biotop.objnr_landkreise() ),
+//                    new StringFormField(), null, "Objekt-Nr. (LKs)" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
                     new PropertyAdapter( biotop.objnr_sbk() ),

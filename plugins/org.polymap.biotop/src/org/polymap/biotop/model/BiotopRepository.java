@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.qi4j.api.query.Query;
 import org.qi4j.api.query.grammar.BooleanExpression;
+import org.qi4j.api.service.ServiceReference;
 import org.qi4j.api.unitofwork.ConcurrentEntityModificationException;
 import org.qi4j.api.unitofwork.UnitOfWorkCompletionException;
 import org.qi4j.api.value.ValueBuilder;
@@ -41,6 +42,9 @@ import org.polymap.core.qi4j.QiModuleAssembler;
 import org.polymap.core.runtime.Polymap;
 
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
+
+import org.polymap.biotop.model.constant.Status;
+import org.polymap.biotop.model.idgen.BiotopnummerGeneratorService;
 
 /**
  * 
@@ -164,6 +168,26 @@ public class BiotopRepository
     
     public <T> ValueBuilder<T> newValueBuilder( Class<T> type ) {
         return assembler.getModule().valueBuilderFactory().newValueBuilder( type );
+    }
+    
+    
+    public BiotopComposite newBiotop( final EntityCreator<BiotopComposite> creator )
+    throws Exception {
+        return newEntity( BiotopComposite.class, null, new EntityCreator<BiotopComposite>() {
+            public void create( BiotopComposite instance )
+            throws Exception {
+                // objnr
+                ServiceReference<BiotopnummerGeneratorService> service = 
+                        assembler.getModule().serviceFinder().findService( BiotopnummerGeneratorService.class );
+                instance.objnr().set( service.get().generate() );
+                // status
+                instance.status().set( Status.aktuell.id );
+
+                if (creator != null) {
+                    creator.create( instance );
+                }
+            }
+        });
     }
     
 }
