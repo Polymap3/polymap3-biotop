@@ -236,6 +236,10 @@ public interface BiotopComposite
     Property<Collection<PilzeValue>> pilze();
 
     @Optional
+    @UseDefaults
+    Property<Collection<TierValue>> tiere();
+
+    @Optional
     @ImportColumn("Nr_Naturraum")
     Property<String>            naturraumNr();
 

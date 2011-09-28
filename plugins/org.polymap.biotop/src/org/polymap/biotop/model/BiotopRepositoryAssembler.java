@@ -81,29 +81,18 @@ public class BiotopRepositoryAssembler
                 BiotopComposite.class,
                 BiotoptypArtComposite.class,
                 PflanzenArtComposite.class,
-                PilzeArtComposite.class
+                PilzeArtComposite.class,
+                TierArtComposite.class
         );
 //        domainModule.addTransients(
-//                CreateCatalogEntryOperation.class,
-//                AntragImportOperation.class,
-//                PersonImportOperation.class,
-//                BearbschrittImportOperation.class,
-//                VermesserImportOperation.class,
-//                GemarkungImportOperation.class,
-//                TeilantragOperation.class,
-//                BelegImportOperation.class,
-//                BelegPosImportOperation.class,
-//                BelegPosDataImportOperation.class
 //        );
         domainModule.addValues(
                 AktivitaetValue.class,
                 BiotoptypValue.class,
                 PflanzeValue.class,
-                PilzeValue.class
+                PilzeValue.class,
+                TierValue.class
         );
-
-//        domainModule.addServices( FactoryService.class )
-//                .visibleIn( Visibility.application );
 
         // persistence: workspace/Lucene
         File root = new File( Polymap.getWorkspacePath().toFile(), "data" );

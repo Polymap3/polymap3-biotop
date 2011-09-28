@@ -90,6 +90,7 @@ public class BiotopFormPageProvider
             result.add( new BiotoptypFormEditorPage( feature, formEditor.getFeatureStore() ) );
             result.add( new PflanzenFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new PilzeFormPage( feature, formEditor.getFeatureStore() ) );
+            result.add( new TiereFormPage( feature, formEditor.getFeatureStore() ) );
         }
         return result;
     }

@@ -46,7 +46,7 @@ import org.polymap.rhei.filter.IFilterProvider;
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopEntityProvider;
 import org.polymap.biotop.model.BiotopRepository;
-import org.polymap.biotop.model.BiotoptypValue;
+import org.polymap.biotop.model.TierValue;
 import org.polymap.biotop.model.constant.Status;
 
 /**
@@ -88,17 +88,17 @@ public class BiotopFilterProvider
                 }
             });
 
-            result.add( new AbstractEntityFilter( "__biotoptypen__", layer, "mit Biotoptypen", null, 1000, BiotopComposite.class ) {
+            result.add( new AbstractEntityFilter( "__tiere__", layer, "mit Tieren", null, 1000, BiotopComposite.class ) {
                 protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
                     BiotopRepository repo = BiotopRepository.instance();
                     BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
 
-                    ValueBuilder<BiotoptypValue> builder = repo.newValueBuilder( BiotoptypValue.class );
-                    BiotoptypValue prototype = builder.prototype();
-                    prototype.unternummer().set( "*" );
+                    ValueBuilder<TierValue> builder = repo.newValueBuilder( TierValue.class );
+                    TierValue prototype = builder.prototype();
+                    prototype.tierArtNr().set( "*" );
 
-                    ContainsPredicate<BiotoptypValue> predicate = QueryExpressions.contains(
-                            template.biotoptypen(), builder.newInstance() );
+                    ContainsPredicate<TierValue> predicate = QueryExpressions.contains(
+                            template.tiere(), builder.newInstance() );
                     log.debug( "Predicate:" + predicate );
                     return repo.findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
                 }

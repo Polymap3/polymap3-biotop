@@ -46,6 +46,8 @@ import org.polymap.biotop.model.PflanzeValue;
 import org.polymap.biotop.model.PflanzenArtComposite;
 import org.polymap.biotop.model.PilzeArtComposite;
 import org.polymap.biotop.model.PilzeValue;
+import org.polymap.biotop.model.TierArtComposite;
+import org.polymap.biotop.model.TierValue;
 
 import org.polymap.core.qi4j.QiModule.EntityCreator;
 import org.polymap.core.qi4j.event.AbstractModelChangeOperation;
@@ -85,11 +87,6 @@ public class MdbImportOperation
             sub = new SubMonitor( monitor, 10 );
             importBiotopdaten( db.getTable( "Biotopdaten" ), sub );
             
-//            // BiotoptypArtComposite
-//            sub = new SubProgressMonitor( monitor, 10 );
-//            importEntity( db.getTable( "Referenz_Reviere" ), sub, 
-//                    RevierComposite.class, "Nr_Biotoptyp", null );
-
             // Biotoptyp
             sub = new SubMonitor( monitor, 10 );
             importEntity( db.getTable( "Referenz_Biotoptypen" ), sub, 
@@ -101,7 +98,6 @@ public class MdbImportOperation
                         public void fillValue( BiotopComposite biotop, BiotoptypValue value ) {
                             biotop.biotoptypen().get().add( value );
                             biotop.status().set( biotop.status().get() );
-                            log.info( "Biotoptyp added: " + biotop );
                         }
             });
 
@@ -116,7 +112,6 @@ public class MdbImportOperation
                         public void fillValue( BiotopComposite biotop, PflanzeValue value ) {
                             biotop.pflanzen().get().add( value );
                             biotop.status().set( biotop.status().get() );
-                            log.info( "Pflanze added: " + biotop );
                         }
             });
 
@@ -131,7 +126,20 @@ public class MdbImportOperation
                         public void fillValue( BiotopComposite biotop, PilzeValue value ) {
                             biotop.pilze().get().add( value );
                             biotop.status().set( biotop.status().get() );
-                            log.info( "Pilz added: " + biotop );
+                        }
+            });
+
+            // Tiere
+            sub = new SubMonitor( monitor, 10 );
+            importEntity( db.getTable( "Referenz_Tiere" ), sub, 
+                    TierArtComposite.class, "Nr_Tier", null );
+
+            sub = new SubMonitor( monitor, 10 );
+            importValue( db.getTable( "Tiere" ), sub, TierValue.class,
+                    new ValueCallback<TierValue>() {
+                        public void fillValue( BiotopComposite biotop, TierValue value ) {
+                            biotop.tiere().get().add( value );
+                            biotop.status().set( biotop.status().get() );
                         }
             });
 
@@ -189,10 +197,10 @@ public class MdbImportOperation
         
         // data rows
         Map<String, Object> row = null;
+        int count = 0;
         while ((row = table.getNextRow()) != null) {
             if (idColumn != null) {
                 Object id = row.get( idColumn );
-                log.info( "    ID: " + id );
             }
             final Map<String, Object> builderRow = row;
             
@@ -208,8 +216,13 @@ public class MdbImportOperation
             if (monitor.isCanceled()) {
                 throw new RuntimeException( "Operation canceled." );
             }
-            monitor.worked( 1 );
+            if ((++count % 100) == 0) {
+                monitor.worked( 100 );
+                monitor.setTaskName( "Objekte: " + count );
+            }
         }
+        log.info( "Imported: " + type + " -> " + count );
+        monitor.done();
     }
 
 
@@ -231,6 +244,7 @@ public class MdbImportOperation
         
         // data rows
         Map<String, Object> row = null;
+        int count = 0;
         while ((row = table.getNextRow()) != null) {
             BiotopComposite biotop = findBiotop( row );
 
@@ -248,11 +262,16 @@ public class MdbImportOperation
             if (callback != null) {
                 callback.fillValue( biotop, instance );
             }
+            
             if (monitor.isCanceled()) {
                 throw new RuntimeException( "Operation canceled." );
             }
-            monitor.worked( 1 );
+            if ((++count % 100) == 0) {
+                monitor.worked( 100 );
+                monitor.setTaskName( "Objekte: " + count );
+            }
         }
+        log.info( "Imported: " + type + " -> " + count );
         monitor.done();
     }
 
