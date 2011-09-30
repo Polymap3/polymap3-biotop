@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.text.NumberFormat;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -51,6 +52,8 @@ import org.polymap.biotop.model.BiotopComposite;
 public interface BiotopnummerGeneratorService
         extends ServiceComposite {
 
+    public static final String          DEFAULT_PREFIX = "14522-";  //Mittelsachsen
+    
     /**
      * Generate the next {@link BiotopComposite#objnr()}.
      */
@@ -62,14 +65,22 @@ public interface BiotopnummerGeneratorService
 
         private static final Log log = LogFactory.getLog( BiotopnummerGeneratorService.class );
 
-        private int         count;
+        private int             count;
         
-        private String      prefix;
+        private String          prefix;
         
-        private File        file;
+        private File            file;
+        
+        private NumberFormat    nf;
 
         
         public Mixin() {
+            nf = NumberFormat.getIntegerInstance();
+            nf.setGroupingUsed( false );
+            nf.setMinimumIntegerDigits( 5 );
+            nf.setMaximumIntegerDigits( 5 );
+            nf.setMaximumFractionDigits( 0 );
+            
             InputStreamReader in = null; 
             try {
                 file = new File( Polymap.getWorkspacePath().toFile(), "BiotopnummerGenerator.json" );
@@ -83,7 +94,7 @@ public interface BiotopnummerGeneratorService
                 }
                 else {
                     count = 1;
-                    prefix = "14522-";  //Mittelsachsen
+                    prefix = DEFAULT_PREFIX; 
                 }
             }
             catch (Exception e) {
@@ -96,7 +107,7 @@ public interface BiotopnummerGeneratorService
 
 
         public synchronized String generate() {
-            String result = prefix + count++;
+            String result = prefix + nf.format( count++ );
             log.debug( "generated ID: " + result );
             
             storeCount();
