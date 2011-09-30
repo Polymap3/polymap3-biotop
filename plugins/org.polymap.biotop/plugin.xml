@@ -2,7 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.polymap.core.qi4j.moduleAssemblers">
+         point="org.polymap.core.model.moduleAssemblers">
       <assembler
             class="org.polymap.biotop.model.BiotopRepositoryAssembler">
       </assembler>

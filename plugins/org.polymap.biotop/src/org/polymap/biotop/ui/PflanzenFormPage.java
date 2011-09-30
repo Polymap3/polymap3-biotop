@@ -26,7 +26,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import org.eclipse.jface.action.Action;
-
 import org.eclipse.ui.forms.widgets.Section;
 
 import org.polymap.core.data.ui.featuretable.DefaultFeatureTableColumn;
@@ -133,10 +132,11 @@ public class PflanzenFormPage
                  .setHeader( "Schutzstatus" ));
         prop = new PropertyDescriptorAdapter( valueType.getProperty( "menge" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                 .setHeader( "Menge" ));
+                 .setHeader( "Menge" ) );
+//                 .setEditing( true ) );
         prop = new PropertyDescriptorAdapter( valueType.getProperty( "mengenstatusNr" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                 .setHeader( "MengenstatusNr" ));
+                 .setHeader( "MengenstatusNr" ) );
 
         // content
         viewer.setContent( new LinkedCompositesContentProvider<PflanzeValue,PflanzenArtComposite>(

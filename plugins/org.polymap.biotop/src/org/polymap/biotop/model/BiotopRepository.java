@@ -15,13 +15,16 @@
  */
 package org.polymap.biotop.model;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+
+import net.refractions.udig.catalog.CatalogPluginSession;
+import net.refractions.udig.catalog.IService;
+
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import net.refractions.udig.catalog.CatalogPluginSession;
-import net.refractions.udig.catalog.IService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +35,8 @@ import org.qi4j.api.service.ServiceReference;
 import org.qi4j.api.unitofwork.ConcurrentEntityModificationException;
 import org.qi4j.api.unitofwork.UnitOfWorkCompletionException;
 import org.qi4j.api.value.ValueBuilder;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.polymap.core.model.CompletionException;
 import org.polymap.core.model.ConcurrentModificationException;
@@ -139,6 +144,59 @@ public class BiotopRepository
             OperationSupport.instance().removeOperationSaveListener( operationListener );
             operationListener = null;
         }
+        if (biotopService != null) {
+            biotopService.dispose( new NullProgressMonitor() );
+        }
+        // check ThreadLocal;
+        // code from http://blog.igorminar.com/2009/03/identifying-threadlocal-memory-leaks-in.html
+        try {
+            Thread thread = Thread.currentThread();
+
+            Field threadLocalsField = Thread.class.getDeclaredField( "threadLocals" );
+            threadLocalsField.setAccessible( true );
+
+            Class threadLocalMapKlazz = Class.forName( "java.lang.ThreadLocal$ThreadLocalMap" );
+            Field tableField = threadLocalMapKlazz.getDeclaredField( "table" );
+            tableField.setAccessible( true );
+
+            Object table = tableField.get( threadLocalsField.get( thread ) );
+
+            int threadLocalCount = Array.getLength( table );
+            StringBuilder sb = new StringBuilder();
+            StringBuilder classSb = new StringBuilder();
+
+            int leakCount = 0;
+
+            for (int i = 0; i < threadLocalCount; i++) {
+                Object entry = Array.get( table, i );
+                if (entry != null) {
+                    Field valueField = entry.getClass().getDeclaredField( "value" );
+                    valueField.setAccessible( true );
+                    Object value = valueField.get( entry );
+                    if (value != null) {
+                        classSb.append( value.getClass().getName() ).append( ", " );
+                    }
+                    else {
+                        classSb.append( "null, " );
+                    }
+                    leakCount++;
+                }
+            }
+
+            sb.append( "possible ThreadLocal leaks: " ).append( leakCount ).append( " of " ).append(
+                    threadLocalCount ).append( " = [" ).append(
+                    classSb.substring( 0, classSb.length() - 2 ) ).append( "] " );
+
+            log.info( sb );
+        }
+        catch (Exception e) {
+            log.warn( "", e );
+        }
+        
+        super.done();
+        
+        log.info( "Running GC ..." );
+        Runtime.getRuntime().gc();
     }
 
 
