@@ -26,14 +26,15 @@ import org.qi4j.api.unitofwork.UnitOfWorkFactory;
 import org.qi4j.bootstrap.ApplicationAssembly;
 import org.qi4j.bootstrap.LayerAssembly;
 import org.qi4j.bootstrap.ModuleAssembly;
-import org.qi4j.entitystore.lucene.LuceneEntityStoreInfo;
-import org.qi4j.entitystore.lucene.LuceneEntityStoreQueryService;
-import org.qi4j.entitystore.lucene.LuceneEntityStoreService;
 
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModuleAssembler;
 import org.polymap.core.qi4j.idgen.HRIdentityGeneratorService;
 import org.polymap.core.runtime.Polymap;
+
+import org.polymap.rhei.data.entitystore.lucene.LuceneEntityStoreInfo;
+import org.polymap.rhei.data.entitystore.lucene.LuceneEntityStoreQueryService;
+import org.polymap.rhei.data.entitystore.lucene.LuceneEntityStoreService;
 
 import org.polymap.biotop.model.idgen.BiotopnummerGeneratorService;
 

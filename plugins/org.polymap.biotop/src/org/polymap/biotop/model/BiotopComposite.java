@@ -16,6 +16,7 @@
 package org.polymap.biotop.model;
 
 import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,10 +33,14 @@ import org.qi4j.api.property.PropertyInfo;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
+
 import org.polymap.core.qi4j.QiEntity;
 import org.polymap.core.qi4j.event.ModelChangeSupport;
 import org.polymap.core.qi4j.event.PropertyChangeSupport;
 
+import org.polymap.biotop.model.constant.Erhaltungszustand;
+import org.polymap.biotop.model.constant.Schutzstatus;
+import org.polymap.biotop.model.constant.Status;
 import org.polymap.biotop.model.importer.ImportColumn;
 
 /**
@@ -132,6 +137,9 @@ public interface BiotopComposite
     @Optional
     @ImportColumn("TK25")
     Property<String>            tk25();
+
+    @Optional
+    Property<String>            unr();
 
     @Optional
     @ImportColumn("Lage_TK25")

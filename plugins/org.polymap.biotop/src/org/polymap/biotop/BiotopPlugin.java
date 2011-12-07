@@ -1,7 +1,15 @@
 package org.polymap.biotop;
 
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import java.net.URL;
+
 import org.osgi.framework.BundleContext;
+
+import org.eclipse.swt.graphics.Image;
+
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -14,15 +22,16 @@ public class BiotopPlugin extends AbstractUIPlugin {
 	// The shared instance
 	private static BiotopPlugin plugin;
 	
+	
 	public BiotopPlugin() {
 	}
 
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
+	public void start( BundleContext context ) throws Exception {
+		super.start( context );
 		plugin = this;
 	}
 
-	public void stop(BundleContext context) throws Exception {
+	public void stop( BundleContext context ) throws Exception {
 		plugin = null;
 		super.stop(context);
 	}
@@ -30,5 +39,29 @@ public class BiotopPlugin extends AbstractUIPlugin {
 	public static BiotopPlugin getDefault() {
 		return plugin;
 	}
+
+	
+	public Image imageForDescriptor( ImageDescriptor imageDescriptor, String key ) {
+        ImageRegistry images = getImageRegistry();
+        Image image = images.get( key );
+        if (image == null || image.isDisposed()) {
+            images.put( key, imageDescriptor );
+            image = images.get( key );
+        }
+        return image;
+    }
+
+    
+    public Image imageForName( String resName ) {
+        ImageRegistry images = getImageRegistry();
+        Image image = images.get( resName );
+        if (image == null || image.isDisposed()) {
+            URL res = getBundle().getResource( resName );
+            assert res != null : "Image resource not found: " + resName;
+            images.put( resName, ImageDescriptor.createFromURL( res ) );
+            image = images.get( resName );
+        }
+        return image;
+    }
 
 }

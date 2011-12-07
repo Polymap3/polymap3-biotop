@@ -23,6 +23,7 @@ import org.qi4j.api.query.QueryExpressions;
 import org.qi4j.api.query.grammar.BooleanExpression;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import org.eclipse.jface.action.Action;
@@ -30,6 +31,7 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import org.polymap.core.data.ui.featuretable.DefaultFeatureTableColumn;
 import org.polymap.core.data.ui.featuretable.FeatureTableViewer;
+import org.polymap.core.data.ui.featuretable.IFeatureTableElement;
 import org.polymap.core.model.EntityType;
 import org.polymap.core.project.ui.util.SimpleFormData;
 
@@ -109,8 +111,8 @@ public class PflanzenFormPage
         client.setLayout( new FormLayout() );
         section.setClient( client );
 
-        FeatureTableViewer viewer = new FeatureTableViewer( client, SWT.NONE );
-        viewer.getTable().setLayoutData( new SimpleFormData().fill().create() );
+        final FeatureTableViewer viewer = new FeatureTableViewer( client, SWT.NONE );
+        viewer.getTable().setLayoutData( new SimpleFormData().fill().right( 100, -40 ).create() );
 
         // entity types
         final BiotopRepository repo = BiotopRepository.instance();
@@ -120,7 +122,7 @@ public class PflanzenFormPage
         // columns
         PropertyDescriptor prop = new PropertyDescriptorAdapter( valueType.getProperty( "pflanzenArtNr" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                 .setHeader( "Nummer" ));
+                 .setHeader( "Nummer" ) );
         prop = new PropertyDescriptorAdapter( compType.getProperty( "name" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
                  .setHeader( "Name" ));
@@ -150,6 +152,20 @@ public class PflanzenFormPage
         });
         viewer.setInput( biotop.pflanzen().get() );
 
+        // actions
+        final RemoveArtValueAction removeAction = new RemoveArtValueAction() {
+                public void run() {
+                    IFeatureTableElement[] sel = viewer.getSelectedElements();
+                    viewer.remove( sel );
+                }
+        };
+        viewer.addSelectionChangedListener( removeAction );
+        
+        Button removeBtn = new ActionButton( client, removeAction );
+        removeBtn.setLayoutData( new SimpleFormData()
+                .left( viewer.getTable(), SECTION_SPACING )
+                .top( 0 ).right( 100 ).height( 30 ).create() );
+        
         return section;
     }
 

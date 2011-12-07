@@ -15,7 +15,7 @@
  */
 package org.polymap.biotop.model.importer;
 
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.Map;
 
 import java.io.File;
@@ -96,8 +96,9 @@ public class MdbImportOperation
             importValue( db.getTable( "Biotoptypen" ), sub, BiotoptypValue.class,
                     new ValueCallback<BiotoptypValue>() {
                         public void fillValue( BiotopComposite biotop, BiotoptypValue value ) {
-                            biotop.biotoptypen().get().add( value );
-                            biotop.status().set( biotop.status().get() );
+                            Collection<BiotoptypValue> coll = biotop.biotoptypen().get();
+                            coll.add( value );
+                            biotop.biotoptypen().set( coll );
                         }
             });
 
@@ -110,8 +111,9 @@ public class MdbImportOperation
             importValue( db.getTable( "Pflanzen" ), sub, PflanzeValue.class,
                     new ValueCallback<PflanzeValue>() {
                         public void fillValue( BiotopComposite biotop, PflanzeValue value ) {
-                            biotop.pflanzen().get().add( value );
-                            biotop.status().set( biotop.status().get() );
+                            Collection<PflanzeValue> coll = biotop.pflanzen().get();
+                            coll.add( value );
+                            biotop.pflanzen().set( coll );
                         }
             });
 
@@ -124,8 +126,9 @@ public class MdbImportOperation
             importValue( db.getTable( "Mo_Fle_Pil" ), sub, PilzeValue.class,
                     new ValueCallback<PilzeValue>() {
                         public void fillValue( BiotopComposite biotop, PilzeValue value ) {
-                            biotop.pilze().get().add( value );
-                            biotop.status().set( biotop.status().get() );
+                            Collection<PilzeValue> coll = biotop.pilze().get();
+                            coll.add( value );
+                            biotop.pilze().set( coll );
                         }
             });
 
@@ -138,8 +141,9 @@ public class MdbImportOperation
             importValue( db.getTable( "Tiere" ), sub, TierValue.class,
                     new ValueCallback<TierValue>() {
                         public void fillValue( BiotopComposite biotop, TierValue value ) {
-                            biotop.tiere().get().add( value );
-                            biotop.status().set( biotop.status().get() );
+                            Collection<TierValue> coll = biotop.tiere().get();
+                            coll.add( value );
+                            biotop.tiere().set( coll );
                         }
             });
 
@@ -164,12 +168,13 @@ public class MdbImportOperation
         // data rows
         Map<String, Object> row = null;
         while ((row = table.getNextRow()) != null) {
-            BiotopComposite biotop = findBiotop( row );
-            if (biotop != null) {
-                importer.fillEntity( biotop, row );
-            }
-            else {
-                //log.warn( "No Biotop found for: " + row );
+            for (BiotopComposite biotop : findBiotop( row )) {
+                if (biotop != null) {
+                    importer.fillEntity( biotop, row );
+                }
+                else {
+                    //log.warn( "No Biotop found for: " + row );
+                }
             }
             if (monitor.isCanceled()) {
                 throw new RuntimeException( "Operation canceled." );
@@ -246,23 +251,24 @@ public class MdbImportOperation
         Map<String, Object> row = null;
         int count = 0;
         while ((row = table.getNextRow()) != null) {
-            BiotopComposite biotop = findBiotop( row );
+            for (BiotopComposite biotop : findBiotop( row )) {
 
-            if (biotop == null) {
-                //log.warn( "    No Biotop found for: " + row );
-                continue;
+                if (biotop == null) {
+                    //log.warn( "    No Biotop found for: " + row );
+                    continue;
+                }
+
+                ValueBuilder<T> builder = BiotopRepository.instance().newValueBuilder( type );
+                T prototype = builder.prototype();
+
+                importer.fillEntity( prototype, row );
+
+                T instance = builder.newInstance();
+                if (callback != null) {
+                    callback.fillValue( biotop, instance );
+                }
             }
 
-            ValueBuilder<T> builder = BiotopRepository.instance().newValueBuilder( type );
-            T prototype = builder.prototype();
-
-            importer.fillEntity( prototype, row );
-            
-            T instance = builder.newInstance();
-            if (callback != null) {
-                callback.fillValue( biotop, instance );
-            }
-            
             if (monitor.isCanceled()) {
                 throw new RuntimeException( "Operation canceled." );
             }
@@ -284,7 +290,7 @@ public class MdbImportOperation
     }
 
 
-    private BiotopComposite findBiotop( Map<String, Object> row ) {
+    private Iterable<BiotopComposite> findBiotop( Map<String, Object> row ) {
         BiotopRepository repo = BiotopRepository.instance();
         BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
 
@@ -295,11 +301,12 @@ public class MdbImportOperation
                 QueryExpressions.and( 
                         QueryExpressions.eq( template.objnr_sbk(), objnr_sbk ),
                         QueryExpressions.eq( template.tk25(), tk25 ) ),
-                        0, 1 );
+                        0, 100 );
+        return matches;
 
-        Iterator<BiotopComposite> it = matches.iterator();
-        BiotopComposite result = it.hasNext() ? it.next() : null;
-        return result;
+//        Iterator<BiotopComposite> it = matches.iterator();
+//        BiotopComposite result = it.hasNext() ? it.next() : null;
+//        return result;
     }
 
 

@@ -15,18 +15,12 @@
 package org.polymap.biotop.model.importer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.qi4j.api.query.QueryExpressions;
-import org.qi4j.api.query.grammar.BooleanExpression;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -46,10 +40,13 @@ import org.polymap.core.qi4j.QiModule.EntityCreator;
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
 
-
 /**
  * 
- *
+ * <p/>
+ * There is code to unify biotops with same OBJNR and TK25 into a
+ * {@link MultiPolygon}. Unfortunatelly they wanted one entity per Geometry.
+ * So this code is commented out.
+ * 
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 public class ShapeImportOperation
@@ -69,57 +66,66 @@ public class ShapeImportOperation
         
         BiotopRepository repo = BiotopRepository.instance();
         
-        Map<String,BiotopComposite> created = new HashMap();
+        //Map<String,BiotopComposite> created = new HashMap();
+        
         FeatureIterator<SimpleFeature> it = context.features().features();
         try {
             while (it.hasNext()) {
                 SimpleFeature feature = it.next();
                 Geometry featureGeom = (Geometry)feature.getDefaultGeometry();
                 List<Geometry> featurePolygons = asPolygons( featureGeom );
-
-                final Object objnr = feature.getAttribute( "OBJNR" );
-                final Object tk25 = feature.getAttribute( "TK25" );
                 
-                BiotopComposite entity = null;
-                
-                if (objnr == null || tk25 == null) {
-                    entity = newEntity( feature );
-                    // with objnr or tk25 null it is not referencable anyway
-                    created.put( entity.id(), entity );
-                    log.info( "    unmapped entity created: " + objnr + ", " + tk25 );
+                if (featurePolygons.size() > 1) {
+                    log.warn( "Diese Version von Biotop unterstützt keine Multi-Geometrien!" );
                 }
-                else {
-                    String key = objnr.toString() + tk25.toString();
+
+//                final Object objnr = feature.getAttribute( "OBJNR" );
+//                final Object tk25 = feature.getAttribute( "TK25" );
+//                final Object unr = feature.getAttribute( "UNR" );
+//                
+                BiotopComposite entity = null;
+//                
+//                if (objnr == null || tk25 == null || unr == null) {
+//                    entity = newEntity( feature );
+//                    // with objnr or tk25 null it is not referencable anyway
+//                    created.put( entity.id(), entity );
+//                    log.info( "    unmapped entity created: " + objnr + ", " + tk25 );
+//                }
+//                else {
+//                    String key = objnr.toString() + tk25.toString();
+                    
                     // search in local map
-                    entity = created.get( key );
-                    // search database
-                    if (entity == null) {
-                        BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
-                        BooleanExpression expr = QueryExpressions.and(
-                                QueryExpressions.eq( template.objnr_sbk(), objnr.toString() ),
-                                QueryExpressions.eq( template.tk25(), tk25.toString() ) );
-                        entity = repo.findEntities( BiotopComposite.class, expr, 0, 1 ).find();
-                        if (entity != null) {
-                            created.put( key, entity );
-                            log.info( "found entity in db: " + entity );
-                        }
-                    }
+                    entity = null;  //created.get( key );
+                    
+//                    // search database
+//                    if (entity == null) {
+//                        BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
+//                        BooleanExpression expr = QueryExpressions.and(
+//                                QueryExpressions.eq( template.objnr_sbk(), objnr.toString() ),
+//                                QueryExpressions.eq( template.tk25(), tk25.toString() ) );
+//                        entity = repo.findEntities( BiotopComposite.class, expr, 0, 1 ).find();
+//                        if (entity != null) {
+//                            created.put( key, entity );
+//                            log.info( "found entity in db: " + entity );
+//                        }
+//                    }
+
                     // create entity
                     if (entity == null) {
                         entity = newEntity( feature );
-                        created.put( key, entity );
+                        //created.put( key, entity );
                         
                         entity.geom().set( asMultiPolygon( featurePolygons ) );
                     }
-                    // update geometry
-                    else {
-                        MultiPolygon geom = entity.geom().get();
-                        List<Geometry> polygons = asPolygons( geom );
-                        polygons.addAll( featurePolygons );
-                        
-                        entity.geom().set( asMultiPolygon( polygons ) );
-                    }
-                }
+//                    // update geometry
+//                    else {
+//                        MultiPolygon geom = entity.geom().get();
+//                        List<Geometry> polygons = asPolygons( geom );
+//                        polygons.addAll( featurePolygons );
+//                        
+//                        entity.geom().set( asMultiPolygon( polygons ) );
+//                    }
+//                }
                 if (monitor.isCanceled()) {
                     return Status.Cancel;
                 }
@@ -199,6 +205,9 @@ public class ShapeImportOperation
 
                 Object tk25 = feature.getAttribute( "TK25" );
                 instance.tk25().set( tk25 != null ? tk25.toString() : null );
+
+                Object unr = feature.getAttribute( "UNR" );
+                instance.unr().set( unr != null ? unr.toString() : null );
 
                 Object value = feature.getAttribute( "BT_CODE" );
                 instance.bt_code().set( value != null ? value.toString() : null );
