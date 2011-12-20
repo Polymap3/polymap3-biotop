@@ -79,7 +79,7 @@ public class BiotopRepository
     protected IService                  biotopService;
     
 
-    protected BiotopRepository( QiModuleAssembler assembler ) {
+    public BiotopRepository( QiModuleAssembler assembler ) {
         super( assembler );
         log.debug( "Initializing Biotop module..." );
 
