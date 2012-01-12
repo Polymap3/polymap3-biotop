@@ -70,7 +70,7 @@ public class BiotopRepository
         return (BiotopRepository)Qi4jPlugin.Session.instance().module( BiotopRepository.class );
     }
 
-
+    
     // instance *******************************************
 
     private OperationSaveListener       operationListener = new OperationSaveListener();
@@ -88,8 +88,26 @@ public class BiotopRepository
         if (Polymap.getSessionDisplay() != null) {
             OperationSupport.instance().addOperationSaveListener( operationListener );
         }
+
+        initFeatureService();
         
-        // the Biotop service
+        // register with catalog
+        if (Polymap.getSessionDisplay() != null) {
+            Polymap.getSessionDisplay().asyncExec( new Runnable() {
+                public void run() {
+                    CatalogPluginSession.instance().getLocalCatalog().add( biotopService );
+                }
+            });
+        }
+    }
+
+    
+    protected void initFeatureService() {
+        biotopService = new BiotopLuceneService(); 
+    }
+    
+    
+    protected void initEntityService() {
         try {
             final CoordinateReferenceSystem crs = CRS.decode( "EPSG:31468" );
             final ReferencedEnvelope bounds = new ReferencedEnvelope( 4000000, 5000000, 5000000, 6000000, crs );
@@ -126,15 +144,6 @@ public class BiotopRepository
         }
         catch (Exception e) {
             throw new RuntimeException( e );
-        }
-        
-        // register with catalog
-        if (Polymap.getSessionDisplay() != null) {
-            Polymap.getSessionDisplay().asyncExec( new Runnable() {
-                public void run() {
-                    CatalogPluginSession.instance().getLocalCatalog().add( biotopService );
-                }
-            });
         }
     }
 
