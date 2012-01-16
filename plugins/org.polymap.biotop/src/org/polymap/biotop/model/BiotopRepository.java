@@ -47,6 +47,9 @@ import org.polymap.core.qi4j.QiModuleAssembler;
 import org.polymap.core.runtime.Polymap;
 
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
+import org.polymap.rhei.data.entityfeature.EntityProvider.FidsQueryProvider;
+import org.polymap.rhei.data.entitystore.lucene.LuceneEntityStoreService;
+import org.polymap.rhei.data.entitystore.lucene.LuceneQueryProvider;
 
 import org.polymap.biotop.model.constant.Status;
 import org.polymap.biotop.model.idgen.BiotopnummerGeneratorService;
@@ -79,7 +82,7 @@ public class BiotopRepository
     protected IService                  biotopService;
     
 
-    public BiotopRepository( QiModuleAssembler assembler ) {
+    public BiotopRepository( final QiModuleAssembler assembler ) {
         super( assembler );
         log.debug( "Initializing Biotop module..." );
 
@@ -94,12 +97,17 @@ public class BiotopRepository
             final CoordinateReferenceSystem crs = CRS.decode( "EPSG:31468" );
             final ReferencedEnvelope bounds = new ReferencedEnvelope( 4000000, 5000000, 5000000, 6000000, crs );
             
-            biotopService = new BiotopService( 
+            // build the queryProvider
+            ServiceReference<LuceneEntityStoreService> storeService = assembler.getModule().serviceFinder().findService( LuceneEntityStoreService.class );
+            LuceneEntityStoreService luceneStore = storeService.get();
+            FidsQueryProvider queryProvider = new LuceneQueryProvider( luceneStore.getStore() );
+
+            biotopService = new BiotopService(
                     // BiotopComposite
-                    new BiotopEntityProvider( this ),
+                    new BiotopEntityProvider( this, queryProvider ),
                     // BiotoptypArtComposite
                     new DefaultEntityProvider( this, BiotoptypArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" )) {
+                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" ), queryProvider ) {
                         public ReferencedEnvelope getBounds() {
                             return bounds;
                         }
@@ -112,7 +120,7 @@ public class BiotopRepository
                     },
                     // PflanzenArtComposite
                     new DefaultEntityProvider( this, PflanzenArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Pflanzenart" )) {
+                            new NameImpl( BiotopRepository.NAMESPACE, "Pflanzenart" ), queryProvider ) {
                         public ReferencedEnvelope getBounds() {
                             return bounds;
                         }

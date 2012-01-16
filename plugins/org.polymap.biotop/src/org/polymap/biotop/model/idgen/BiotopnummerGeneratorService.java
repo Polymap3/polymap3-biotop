@@ -108,7 +108,7 @@ public interface BiotopnummerGeneratorService
 
         public synchronized String generate() {
             String result = prefix + nf.format( count++ );
-            log.debug( "generated ID: " + result );
+            //log.debug( "generated ID: " + result );
             
             storeCount();
             return result;

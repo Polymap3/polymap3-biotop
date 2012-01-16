@@ -53,12 +53,17 @@ public class BiotopRepositoryAssembler
     private UnitOfWorkFactory           uowf;
 
     private Module                      module;
-
+    
 
     public BiotopRepositoryAssembler() {
     }
 
 
+    public Module getModule() {
+        return module;
+    }
+
+    
     protected void setApp( Application app ) {
         this.app = app;
         this.module = app.findModule( "application-layer", "biotop-module" );
@@ -122,11 +127,6 @@ public class BiotopRepositoryAssembler
 
     public void createInitData()
             throws Exception {
-    }
-
-
-    public Module getModule() {
-        return module;
     }
 
 }

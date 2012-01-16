@@ -40,8 +40,8 @@ public class BiotopEntityProvider
     private static Log log = LogFactory.getLog( BiotopEntityProvider.class );
 
 
-    public BiotopEntityProvider( QiModule repo ) {
-        super( repo, BiotopComposite.class, new NameImpl( BiotopRepository.NAMESPACE, "Biotop" ) );
+    public BiotopEntityProvider( QiModule repo, FidsQueryProvider queryProvider ) {
+        super( repo, BiotopComposite.class, new NameImpl( BiotopRepository.NAMESPACE, "Biotop" ), queryProvider );
     }
 
 
