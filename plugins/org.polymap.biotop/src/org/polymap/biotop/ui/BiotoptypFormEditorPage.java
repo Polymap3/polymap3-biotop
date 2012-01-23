@@ -103,7 +103,7 @@ public class BiotoptypFormEditorPage
         section.setClient( client );
         
         layouter.setFieldLayoutData( site.newFormField( client, 
-                new PropertyAdapter( biotop.pflegezustand() ),
+                new PropertyAdapter( biotop.pflegeZustand() ),
                 new PicklistFormField( Pflegezustand.all ), null, "Pflegezustand" ) );
 
         Composite field = layouter.setFieldLayoutData( site.newFormField( client, 
@@ -115,6 +115,10 @@ public class BiotoptypFormEditorPage
     }
 
     
+    /**
+     *
+     * @deprecated
+     */
     protected Section createTypenSection( Composite parent ) {
         Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
         section.setText( "Biotoptypen" );
@@ -135,9 +139,9 @@ public class BiotoptypFormEditorPage
         PropertyDescriptor prop = new PropertyDescriptorAdapter( valueType.getProperty( "biotoptypArtNr" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
                 .setHeader( "Nummer" ));
-//        prop = new PropertyDescriptorAdapter( valueType.getProperty( "unternummer" ) );
-//        viewer.addColumn( new DefaultFeatureTableColumn( prop )
-//                .setHeader( "Unternummer" ));
+        prop = new PropertyDescriptorAdapter( valueType.getProperty( "unternummer" ) );
+        viewer.addColumn( new DefaultFeatureTableColumn( prop )
+                .setHeader( "Unternummer" ));
         prop = new PropertyDescriptorAdapter( compType.getProperty( "name" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
                 .setHeader( "Name" ));

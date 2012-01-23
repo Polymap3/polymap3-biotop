@@ -174,11 +174,14 @@ public interface BiotopComposite
     Property<String>            ausbildung();
 
     @Optional
-    Property<Integer>           pflegezustand();
+    Property<Integer>           pflegeZustand();
 
     @Optional
     @ImportColumn("Pflege_Entwicklung")
     Property<String>            pflegeEntwicklung();
+
+    @Optional
+    Property<Boolean>           pflegeBedarf();
 
 //    @Optional
 //    @ImportColumn("Teilfläche")
@@ -230,6 +233,10 @@ public interface BiotopComposite
     /** Leitbiotoptyp */
     @Optional
     Property<String>            biotoptypArtNr();
+
+    /** Nur während Import: prozent für den aktuellen Biotoptyp. */
+    @Optional
+    Property<Double>            biotoptypArtProzent();
 
     @Optional
     @UseDefaults

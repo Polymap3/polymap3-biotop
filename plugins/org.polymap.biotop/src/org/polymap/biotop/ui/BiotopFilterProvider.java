@@ -16,6 +16,7 @@
 package org.polymap.biotop.ui;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,6 @@ import net.refractions.udig.catalog.IGeoResource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.qi4j.api.property.Property;
 import org.qi4j.api.query.Query;
 import org.qi4j.api.query.QueryExpressions;
@@ -199,7 +199,10 @@ public class BiotopFilterProvider
                     new CheckboxFormField(), null, "Geprüft" ) );
             
             site.addStandardLayout( site.newFormField( result, "erfasst", String.class,
-                    new StringFormField(), null, "Erfasst vor (Jahr)" ) );
+                    new StringFormField(), null, "Erfasst im Jahr" ) );
+            
+            site.addStandardLayout( site.newFormField( result, "bearbeitet", String.class,
+                    new StringFormField(), null, "Bearbeitet im Jahr" ) );
             
             site.addStandardLayout( site.newFormField( result, "erhaltung", String.class,
                     new PicklistFormField( Erhaltungszustand.all ), null, "Erhaltungszustand" ) );
@@ -219,7 +222,6 @@ public class BiotopFilterProvider
             Polymap.getSessionDisplay().asyncExec( new Runnable() {
                 public void run() {
                     statusField.setValue( Status.aktuell.id );
-                    pflegeField.setEnabled( false );
                 }
             });
             return result;
@@ -236,7 +238,8 @@ public class BiotopFilterProvider
             expr = andEquals( expr, template.schutzstatus(), (Integer)site.getFieldValue( "schutzstatus" ) );
             expr = andEquals( expr, template.geprueft(), (Boolean)site.getFieldValue( "geprueft" ) );
             expr = andEquals( expr, template.erhaltungszustand(), (Integer)site.getFieldValue( "erhaltung" ) );
-            expr = andEquals( expr, template.pflegezustand(), (Integer)site.getFieldValue( "pflege" ) );
+            expr = andEquals( expr, template.pflegeZustand(), (Integer)site.getFieldValue( "pflege" ) );
+            expr = andEquals( expr, template.pflegeBedarf(), (Boolean)site.getFieldValue( "pflegebedarf" ) );
             expr = andEquals( expr, template.naturraumNr(), (String)site.getFieldValue( "naturraum" ) );
 
             String value = site.getFieldValue( "biotoptypArtNr" );
@@ -247,7 +250,18 @@ public class BiotopFilterProvider
             
             value = site.getFieldValue( "erfasst" );
             if (value != null) {
-                expr = and( expr, QueryExpressions.le( template.erfassung().get().wann(), new Date() ) );
+                Date[] dates = yearFromTo( value );
+                expr = and( expr, QueryExpressions.and(
+                        QueryExpressions.gt( template.erfassung().get().wann(), dates[0] ),
+                        QueryExpressions.lt( template.erfassung().get().wann(), dates[1] ) ) );
+            }
+
+            value = site.getFieldValue( "bearbeitet" );
+            if (value != null) {
+                Date[] dates = yearFromTo( value );
+                expr = and( expr, QueryExpressions.and(
+                        QueryExpressions.gt( template.bearbeitung().get().wann(), dates[0] ),
+                        QueryExpressions.lt( template.bearbeitung().get().wann(), dates[1] ) ) );
             }
             return BiotopRepository.instance().findEntities( BiotopComposite.class, expr, 0, getMaxResults() );
         }
@@ -258,6 +272,16 @@ public class BiotopFilterProvider
 
         protected <T> BooleanExpression andEquals( BooleanExpression expr, Property<T> prop, T value ) {
             return value != null ? and( expr, eq( prop, value ) ) : expr;
+        }
+        
+        protected Date[] yearFromTo( String year ) {
+            Date[] result = new Date[2];
+            Calendar cal = Calendar.getInstance();
+            cal.set( Calendar.YEAR, Integer.parseInt( year ) );
+            result[0] = cal.getTime();
+            cal.add( Calendar.YEAR, 1 );
+            result[1] = cal.getTime();
+            return result;
         }
     }
     

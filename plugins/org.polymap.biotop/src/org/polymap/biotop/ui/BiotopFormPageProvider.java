@@ -16,7 +16,6 @@
 package org.polymap.biotop.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,10 +26,11 @@ import org.opengis.feature.Feature;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.qi4j.api.query.Query;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import static com.google.common.collect.Iterables.find;
+import com.google.common.collect.Maps;
 
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -47,6 +47,9 @@ import org.polymap.core.project.ui.util.SimpleFormData;
 import org.polymap.core.workbench.PolymapWorkbench;
 
 import org.polymap.rhei.data.entityfeature.PropertyAdapter;
+import org.polymap.rhei.field.CheckboxFormField;
+import org.polymap.rhei.field.FormFieldEvent;
+import org.polymap.rhei.field.IFormFieldListener;
 import org.polymap.rhei.field.IntegerValidator;
 import org.polymap.rhei.field.NumberValidator;
 import org.polymap.rhei.field.PicklistFormField;
@@ -64,6 +67,7 @@ import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
 import org.polymap.biotop.model.BiotoptypArtComposite;
 import org.polymap.biotop.model.constant.Erhaltungszustand;
+import org.polymap.biotop.model.constant.Pflegezustand;
 import org.polymap.biotop.model.constant.Schutzstatus;
 import org.polymap.biotop.model.constant.Status;
 
@@ -116,12 +120,14 @@ public class BiotopFormPageProvider
         
         private Locale                  locale = Locale.GERMAN;
 
+        private BiotopRepository        repo;
+
 
         protected BaseFormEditorPage( Feature feature, FeatureStore featureStore ) {
             this.feature = feature;
             this.fs = featureStore;
-            this.biotop = BiotopRepository.instance().findEntity(
-                    BiotopComposite.class, feature.getIdentifier().getID() );
+            this.repo = BiotopRepository.instance();
+            this.biotop = repo.findEntity( BiotopComposite.class, feature.getIdentifier().getID() );
         }
 
         public void dispose() {
@@ -169,6 +175,11 @@ public class BiotopFormPageProvider
             btSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
                     .left( 50 ).right( 100 ).top( idsSection ).create() );
 
+            // pflege
+            Section pflegeSection = createPflegeSection( site.getPageBody() );
+            pflegeSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
+                    .left( 50 ).right( 100 ).top( btSection ).create() );
+
             layouter.newLayout();
         }
 
@@ -190,7 +201,7 @@ public class BiotopFormPageProvider
             Composite field = layouter.setFieldLayoutData( site.newFormField( client, 
                     new PropertyAdapter( biotop.beschreibung() ),
                     new TextFormField(), null, "Beschreibung" ) );
-            ((FormData)field.getLayoutData()).height = 80;
+            ((FormData)field.getLayoutData()).height = 100;
 
             layouter.setFieldLayoutData( site.newFormField( client, 
                     new PropertyAdapter( biotop.erhaltungszustand() ),
@@ -273,72 +284,110 @@ public class BiotopFormPageProvider
         
         protected Section createBiotoptypSection( Composite parent ) {
             Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
-            section.setText( "Leitbiotoptyp" );
+            section.setText( "Biotoptyp" );
+            section.setExpanded( true );
 
             Composite client = tk.createComposite( section );
             client.setLayout( layouter.newLayout() );
             section.setClient( client );
 
-            BiotopRepository repo = BiotopRepository.instance();
-
             // biotoptyp picklist
-            String nummer = biotop.biotoptypArtNr().get();
-            BiotoptypArtComposite current = null;
-            Query<BiotoptypArtComposite> biotoptypen = repo.findEntities( BiotoptypArtComposite.class, null, 0, -1 );
-            Map<String,String> map = new HashMap();
-            for (BiotoptypArtComposite comp : biotoptypen) {
-                map.put( comp.name().get(), comp.nummer().get() );
-                if (comp.nummer().get().equals( nummer )) {
-                    current = comp;
+            final String nummer = biotop.biotoptypArtNr().get();
+            final BiotoptypArtComposite[] current = new BiotoptypArtComposite[1];
+            Map<String,String> nameNummer = Maps.transformValues( repo.biotoptypen(), new Function<BiotoptypArtComposite,String>() {
+                public String apply( BiotoptypArtComposite input ) {
+                    if (input.nummer().get().equals( nummer )) {
+                        current[0] = input;
+                    }
+                    return input.nummer().get();
                 }
-            }
-            PicklistFormField picklist = new PicklistFormField( map );
+            });
+
+            final PicklistFormField picklist = new PicklistFormField( nameNummer );
             picklist.setTextEditable( false );
-            picklist.addModifyListener( new ModifyListener() {
-                public void modifyText( ModifyEvent ev ) {
+//            picklist.addModifyListener( new ModifyListener() {
+//                public void modifyText( ModifyEvent ev ) {
 //                    try {
 //                        site.reloadEditor();
 //                    }
 //                    catch (Exception e) {
 //                        log.warn( "", e );
 //                    }
-                }
-            });
-            
-            layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PropertyAdapter( biotop.biotoptypArtNr() ),
-                    picklist, null, "Biotoptyp" ) );
+//                }
+//            });
 
-            if (current != null) {
+            if (current[0] != null) {
                 layouter.setFieldLayoutData( site.newFormField( client, 
-                        new PropertyAdapter( current.nummer() ),
-                        new StringFormField(), null, "Nummer" ) )
-                        .setEnabled( false );
+                        new PropertyAdapter( biotop.biotoptypArtNr() ),
+                        picklist, null, "Biotoptyp" ) );
 
                 layouter.setFieldLayoutData( site.newFormField( client, 
-                        new PropertyAdapter( current.code() ),
+                        new PropertyAdapter( current[0].code() ),
                         new StringFormField(), null, "Code" ) )
                         .setEnabled( false );
 
                 layouter.setFieldLayoutData( site.newFormField( client, 
-                        new PropertyAdapter( current.schutz26() ),
+                        new PropertyAdapter( current[0].schutz26() ),
                         new StringFormField(), new IntegerValidator(), "Schutz §26" ) )
                         .setEnabled( false );
 
                 layouter.setFieldLayoutData( site.newFormField( client, 
-                        new PropertyAdapter( current.nummer26() ),
+                        new PropertyAdapter( current[0].nummer26() ),
                         new StringFormField(), new IntegerValidator(), "Nummer §26" ) )
                         .setEnabled( false );
 
                 layouter.setFieldLayoutData( site.newFormField( client, 
-                        new PropertyAdapter( current.ffh_Relevanz() ),
+                        new PropertyAdapter( current[0].ffh_Relevanz() ),
                         new StringFormField(), new IntegerValidator(), "FFH-Relevanz" ) )
                         .setEnabled( false );
             }
+            
+            // update fields
+            site.addFieldListener( new IFormFieldListener() {
+                public void fieldChange( FormFieldEvent ev ) {
+                    if (ev.getFormField() == picklist) {
+                        final String nummerNeu = ev.getNewValue();
+                        BiotoptypArtComposite biotoptyp = find( repo.biotoptypen().values(), new Predicate<BiotoptypArtComposite>() {
+                            public boolean apply( BiotoptypArtComposite input ) {
+                                return input.nummer().get().equals( nummerNeu );
+                            }
+                        });
+                        site.setFieldValue( "code", biotoptyp.code().get() );
+                    }
+                }
+            });
             return section;
         }
 
         
+        protected Section createPflegeSection( Composite parent ) {
+            Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
+            section.setText( "Pflege" );
+            section.setExpanded( true );
+
+            Composite client = tk.createComposite( section );
+            client.setLayout( layouter.newLayout() );
+            section.setClient( client );
+            
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.pflegeZustand() ),
+                    new PicklistFormField( Pflegezustand.all ), null, "Pflegezustand" ) );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.pflegeBedarf() ),
+                    new CheckboxFormField(), null, "Pflegebedarf" ) );
+
+            Composite field = layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.pflegeEntwicklung() ),
+                    new TextFormField(), null, "Pflege/Entwicklung" ) );
+            ((FormData)field.getLayoutData()).height = 100;
+            
+            layouter.newLayout();
+            
+            return section;
+        }
+
+
         public Action[] getEditorActions() {
             // zoom flurstuecke
             ImageDescriptor icon = BiotopPlugin.imageDescriptorFromPlugin( 

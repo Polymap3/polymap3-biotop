@@ -16,6 +16,7 @@
 package org.polymap.biotop.model.importer;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 import java.io.File;
@@ -38,6 +39,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import org.polymap.biotop.model.AktivitaetValue;
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
 import org.polymap.biotop.model.BiotoptypArtComposite;
@@ -96,6 +98,14 @@ public class MdbImportOperation
             importValue( db.getTable( "Biotoptypen" ), sub, BiotoptypValue.class,
                     new ValueCallback<BiotoptypValue>() {
                         public void fillValue( BiotopComposite biotop, BiotoptypValue value ) {
+                            Double current = biotop.biotoptypArtProzent().get();
+                            Double neu = value.flaechenprozent().get();
+                            if (biotop.biotoptypArtNr().get() == null
+                                    || current == null || current.compareTo( neu ) < 0) {
+                                biotop.biotoptypArtNr().set( value.biotoptypArtNr().get() );
+                                biotop.biotoptypArtProzent().set( neu );
+                            }
+                            
                             Collection<BiotoptypValue> coll = biotop.biotoptypen().get();
                             coll.add( value );
                             biotop.biotoptypen().set( coll );
@@ -166,11 +176,33 @@ public class MdbImportOperation
                 BiotopComposite.class, table );
         
         // data rows
-        Map<String, Object> row = null;
+        Map<String,Object> row = null;
         while ((row = table.getNextRow()) != null) {
             for (BiotopComposite biotop : findBiotop( row )) {
                 if (biotop != null) {
                     importer.fillEntity( biotop, row );
+                    
+                    // Erfassung
+                    Date erfasst = (Date)row.get( "Erfassung" );
+                    if (erfasst != null) {
+                        ValueBuilder<AktivitaetValue> builder = BiotopRepository.instance().newValueBuilder( AktivitaetValue.class );
+                        AktivitaetValue prototype = builder.prototype();
+                        prototype.wann().set( erfasst );
+                        prototype.wer().set( "SBK" );
+                        prototype.bemerkung().set( "Import aus SBK" );
+                        biotop.erfassung().set( builder.newInstance() );
+                    }
+
+                    // Eingabe -> Bearbeitung
+                    Date eingabe = (Date)row.get( "Eingabe" );
+                    if (eingabe != null) {
+                        ValueBuilder<AktivitaetValue> builder = BiotopRepository.instance().newValueBuilder( AktivitaetValue.class );
+                        AktivitaetValue prototype = builder.prototype();
+                        prototype.wann().set( eingabe );
+                        prototype.wer().set( "SBK" );
+                        prototype.bemerkung().set( "Import aus SBK" );
+                        biotop.bearbeitung().set( builder.newInstance() );
+                    }
                 }
                 else {
                     //log.warn( "No Biotop found for: " + row );
