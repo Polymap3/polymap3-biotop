@@ -15,6 +15,9 @@
  */
 package org.polymap.biotop.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
@@ -254,6 +257,17 @@ public class BiotopRepository
                 }
             }
         });
+    }
+
+
+    public Map<String,BiotoptypArtComposite> biotoptypen() {
+        Map<String,BiotoptypArtComposite> result = new HashMap();
+        Query<BiotoptypArtComposite> entities = findEntities( 
+                BiotoptypArtComposite.class, null, 0, 1000 );
+        for (BiotoptypArtComposite entity : entities) {
+            result.put( entity.name().get(), entity );
+        }
+        return result;
     }
     
 }

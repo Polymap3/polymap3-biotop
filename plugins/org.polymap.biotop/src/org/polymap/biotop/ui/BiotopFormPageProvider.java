@@ -147,6 +147,8 @@ public class BiotopFormPageProvider
             FormLayout layout = new FormLayout();
             site.getPageBody().setLayout( layout );
 
+            //site.getPageBody().se
+            
             // leftSection
             Section leftSection = createLeftSection( site.getPageBody() );
             leftSection.setLayoutData( new SimpleFormData( SECTION_SPACING )

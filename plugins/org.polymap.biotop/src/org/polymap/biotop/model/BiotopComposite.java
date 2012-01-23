@@ -224,6 +224,7 @@ public interface BiotopComposite
 
     /** Letzte Prüfung der Daten. */
     @Optional
+    @UseDefaults
     Property<Boolean>           geprueft();
 
     /** Leitbiotoptyp */
