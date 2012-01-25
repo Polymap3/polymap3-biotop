@@ -55,11 +55,11 @@ import org.polymap.biotop.model.importer.ImportColumn;
     BiotopComposite.Mixin.class,
     PropertyChangeSupport.Mixin.class,
     ModelChangeSupport.Mixin.class,
-    QiEntity.Mixin.class
-//    JsonState.Mixin.class
+    QiEntity.Mixin.class,
+    JsonState.Mixin.class
 } )
 public interface BiotopComposite
-    extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
+    extends QiEntity, JsonState, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
     
 //    [INFO] MdbImportOperation -     column: TK25 - INT
 //    [INFO] MdbImportOperation -     column: Objektnummer - TEXT
@@ -183,6 +183,11 @@ public interface BiotopComposite
     @Optional
     Property<Boolean>           pflegeBedarf();
 
+    /** Früher in {@link BiotoptypValue}. */
+    @Optional
+    Property<Integer>           pflegeRueckstand();
+
+
 //    @Optional
 //    @ImportColumn("Teilfläche")
 //    Property<String>            teilflaeche();
@@ -234,12 +239,20 @@ public interface BiotopComposite
     @Optional
     Property<String>            biotoptypArtNr();
 
-    /** Nur während Import: prozent für den aktuellen Biotoptyp. */
-    @Optional
-    Property<Double>            biotoptypArtProzent();
+//    /** Nur während Import: prozent für den aktuellen Biotoptyp. */
+//    @Optional
+//    Property<Double>            biotoptypArtProzent();
 
+    /**
+     * Mehrere Geometrien pro Biotop werden beim Import aufgelöst, so auch
+     * die damit verbundenen Biotoptypen. Es gibt nur noch einen Biotoptyp
+     * pro Biotop in {@link #biotoptypArtNr()}.
+     * <p/>
+     * Siehe auch: <a href="http://polymap.org/biotop/ticket/32">Ticket #32</a> 
+     */
     @Optional
     @UseDefaults
+    @Deprecated
     Property<Collection<BiotoptypValue>> biotoptypen();
 
     @Optional

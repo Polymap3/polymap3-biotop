@@ -18,6 +18,7 @@ package org.polymap.biotop.model.importer;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import java.io.File;
 
@@ -33,6 +34,7 @@ import org.qi4j.api.value.ValueComposite;
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.Table;
+
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -70,11 +72,14 @@ public class MdbImportOperation
 
     private String[]            tableNames;
 
+    private BiotopRepository    repo;
+
 
     protected MdbImportOperation( File dbFile, String[] tableNames ) {
         super( "MS-Access-Daten importieren" );
         this.dbFile = dbFile;
         this.tableNames = tableNames;
+        this.repo = BiotopRepository.instance();
     }
 
 
@@ -89,29 +94,6 @@ public class MdbImportOperation
             sub = new SubMonitor( monitor, 10 );
             importBiotopdaten( db.getTable( "Biotopdaten" ), sub );
             
-            // Biotoptyp
-            sub = new SubMonitor( monitor, 10 );
-            importEntity( db.getTable( "Referenz_Biotoptypen" ), sub, 
-                    BiotoptypArtComposite.class, "Nr_Biotoptyp", null );
-
-            sub = new SubMonitor( monitor, 10 );
-            importValue( db.getTable( "Biotoptypen" ), sub, BiotoptypValue.class,
-                    new ValueCallback<BiotoptypValue>() {
-                        public void fillValue( BiotopComposite biotop, BiotoptypValue value ) {
-                            Double current = biotop.biotoptypArtProzent().get();
-                            Double neu = value.flaechenprozent().get();
-                            if (biotop.biotoptypArtNr().get() == null
-                                    || current == null || current.compareTo( neu ) < 0) {
-                                biotop.biotoptypArtNr().set( value.biotoptypArtNr().get() );
-                                biotop.biotoptypArtProzent().set( neu );
-                            }
-                            
-                            Collection<BiotoptypValue> coll = biotop.biotoptypen().get();
-                            coll.add( value );
-                            biotop.biotoptypen().set( coll );
-                        }
-            });
-
             // Pflanzen
             sub = new SubMonitor( monitor, 10 );
             importEntity( db.getTable( "Referenz_Pflanzen" ), sub, 
@@ -157,6 +139,41 @@ public class MdbImportOperation
                         }
             });
 
+            // Biotoptyp (als letztes damit Biotope vollständig kopiert werden)
+            sub = new SubMonitor( monitor, 10 );
+            importEntity( db.getTable( "Referenz_Biotoptypen" ), sub, 
+                    BiotoptypArtComposite.class, "Nr_Biotoptyp", null );
+
+            sub = new SubMonitor( monitor, 10 );
+            final AtomicInteger copied = new AtomicInteger( 0 );
+            importValue( db.getTable( "Biotoptypen" ), sub, BiotoptypValue.class,
+                    new ValueCallback<BiotoptypValue>() {
+                        public void fillValue( final BiotopComposite biotop, final BiotoptypValue value ) {
+                            // set biotoptype
+                            if (biotop.biotoptypArtNr().get() == null) {
+                                biotop.biotoptypArtNr().set( value.biotoptypArtNr().get() );
+                            }
+                            // copy biotop
+                            else {
+                                try {
+                                    BiotopComposite copy = repo.newBiotop( new EntityCreator<BiotopComposite>() {
+                                        public void create( BiotopComposite prototype ) throws Exception {
+                                            prototype.copyStateFrom( biotop );
+                                            prototype.objnr().set( repo.biotopnummern.get().generate() );
+                                            
+                                            prototype.biotoptypArtNr().set( value.biotoptypArtNr().get() );
+                                            prototype.pflegeRueckstand().set( value.pflegerueckstand().get() );
+                                        }
+                                    });
+                                    copied.incrementAndGet();
+                                }
+                                catch (Exception e) {
+                                    throw new RuntimeException( e );
+                                }
+                            }
+                        }
+            });
+            log.info( "Copies of BiotopComposite: " + copied.intValue() );
         }
         finally {
             db.close();
@@ -241,15 +258,14 @@ public class MdbImportOperation
             }
             final Map<String, Object> builderRow = row;
             
-            EntityCreator<T> creator = new EntityCreator<T>() {
-                public void create( T builderInstance ) throws Exception {
-                    importer.fillEntity( builderInstance, builderRow );
+            repo.newEntity( type, null, new EntityCreator<T>() {
+                public void create( T prototype ) throws Exception {
+                    importer.fillEntity( prototype, builderRow );
                     if (callback != null) {
-                        callback.fillEntity( builderInstance );
+                        callback.fillEntity( prototype );
                     }
                 }
-            };
-            BiotopRepository.instance().newEntity( type, null, creator );
+            } );
             if (monitor.isCanceled()) {
                 throw new RuntimeException( "Operation canceled." );
             }
@@ -283,19 +299,17 @@ public class MdbImportOperation
         Map<String, Object> row = null;
         int count = 0;
         while ((row = table.getNextRow()) != null) {
+            // build value
+            ValueBuilder<T> builder = BiotopRepository.instance().newValueBuilder( type );
+            importer.fillEntity( builder.prototype(), row );
+            T instance = builder.newInstance();
+            
+            // callback for all biotops
             for (BiotopComposite biotop : findBiotop( row )) {
-
                 if (biotop == null) {
                     //log.warn( "    No Biotop found for: " + row );
                     continue;
                 }
-
-                ValueBuilder<T> builder = BiotopRepository.instance().newValueBuilder( type );
-                T prototype = builder.prototype();
-
-                importer.fillEntity( prototype, row );
-
-                T instance = builder.newInstance();
                 if (callback != null) {
                     callback.fillValue( biotop, instance );
                 }
@@ -323,7 +337,6 @@ public class MdbImportOperation
 
 
     private Iterable<BiotopComposite> findBiotop( Map<String, Object> row ) {
-        BiotopRepository repo = BiotopRepository.instance();
         BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
 
         String objnr_sbk = row.get( "Objektnummer" ).toString();

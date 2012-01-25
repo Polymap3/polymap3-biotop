@@ -91,7 +91,7 @@ public class BiotopFormPageProvider
         List<IFormEditorPage> result = new ArrayList();
         if (feature.getType().getName().getLocalPart().equalsIgnoreCase( "biotop" )) {
             result.add( new BaseFormEditorPage( feature, formEditor.getFeatureStore() ) );
-            result.add( new BiotoptypFormEditorPage( feature, formEditor.getFeatureStore() ) );
+            //result.add( new BiotoptypFormEditorPage( feature, formEditor.getFeatureStore() ) );
             result.add( new PflanzenFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new PilzeFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new TiereFormPage( feature, formEditor.getFeatureStore() ) );
@@ -165,20 +165,20 @@ public class BiotopFormPageProvider
             idsSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
                     .left( 50 ).right( 100 ).top( 0, 0 ).create() );
 
-            // geometrySection
-            Section geomSection = createGeometrySection( site.getPageBody() );
-            geomSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 0 ).right( 50 ).top( leftSection ).bottom( 100 ).create() );
+            // pflege
+            Section pflegeSection = createPflegeSection( site.getPageBody() );
+            pflegeSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
+                    .left( 0 ).right( 50 ).top( leftSection ).create() );
 
             // biotoptyp
             Section btSection = createBiotoptypSection( site.getPageBody() );
             btSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
                     .left( 50 ).right( 100 ).top( idsSection ).create() );
 
-            // pflege
-            Section pflegeSection = createPflegeSection( site.getPageBody() );
-            pflegeSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 50 ).right( 100 ).top( btSection ).create() );
+            // geometrySection
+            Section geomSection = createGeometrySection( site.getPageBody() );
+            geomSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
+                    .left( 50 ).right( 100 ).top( btSection ).bottom( 100 ).create() );
 
             layouter.newLayout();
         }

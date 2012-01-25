@@ -199,21 +199,21 @@ public class ShapeImportOperation
     protected BiotopComposite newEntity( final SimpleFeature feature )
     throws Exception {
         return BiotopRepository.instance().newBiotop( new EntityCreator<BiotopComposite>() {
-            public void create( BiotopComposite instance ) throws Exception {
+            public void create( BiotopComposite prototype ) throws Exception {
                 Object objnr = feature.getAttribute( "OBJNR" );
-                instance.objnr_sbk().set( objnr != null ? objnr.toString() : null );
+                prototype.objnr_sbk().set( objnr != null ? objnr.toString() : null );
 
                 Object tk25 = feature.getAttribute( "TK25" );
-                instance.tk25().set( tk25 != null ? tk25.toString() : null );
+                prototype.tk25().set( tk25 != null ? tk25.toString() : null );
 
                 Object unr = feature.getAttribute( "UNR" );
-                instance.unr().set( unr != null ? unr.toString() : null );
+                prototype.unr().set( unr != null ? unr.toString() : null );
 
                 Object value = feature.getAttribute( "BT_CODE" );
-                instance.bt_code().set( value != null ? value.toString() : null );
+                prototype.bt_code().set( value != null ? value.toString() : null );
 
                 value = feature.getAttribute( "WERT" );
-                instance.wert().set( value != null ? value.toString() : null );
+                prototype.wert().set( value != null ? value.toString() : null );
             }
         });
     }
