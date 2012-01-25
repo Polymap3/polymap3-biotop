@@ -294,7 +294,7 @@ public class BiotopFormPageProvider
             // biotoptyp picklist
             final String nummer = biotop.biotoptypArtNr().get();
             final BiotoptypArtComposite[] current = new BiotoptypArtComposite[1];
-            Map<String,String> nameNummer = Maps.transformValues( repo.biotoptypen(), new Function<BiotoptypArtComposite,String>() {
+            Map<String,String> nameNummer = Maps.transformValues( repo.btNamen(), new Function<BiotoptypArtComposite,String>() {
                 public String apply( BiotoptypArtComposite input ) {
                     if (input.nummer().get().equals( nummer )) {
                         current[0] = input;
@@ -347,7 +347,7 @@ public class BiotopFormPageProvider
                 public void fieldChange( FormFieldEvent ev ) {
                     if (ev.getFormField() == picklist) {
                         final String nummerNeu = ev.getNewValue();
-                        BiotoptypArtComposite biotoptyp = find( repo.biotoptypen().values(), new Predicate<BiotoptypArtComposite>() {
+                        BiotoptypArtComposite biotoptyp = find( repo.btNamen().values(), new Predicate<BiotoptypArtComposite>() {
                             public boolean apply( BiotoptypArtComposite input ) {
                                 return input.nummer().get().equals( nummerNeu );
                             }

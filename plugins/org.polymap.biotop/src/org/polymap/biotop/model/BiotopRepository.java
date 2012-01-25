@@ -77,10 +77,14 @@ public class BiotopRepository
 
     // instance *******************************************
 
-    private OperationSaveListener       operationListener = new OperationSaveListener();
+    private OperationSaveListener               operationListener = new OperationSaveListener();
     
+    private Map<String,BiotoptypArtComposite>   btNamen;
+
+    private Map<String,BiotoptypArtComposite>   btNummern;
+
     /** Allow direct access for operations. */
-    protected IService                  biotopService;
+    protected IService                          biotopService;
     
     public ServiceReference<BiotopnummerGeneratorService> biotopnummern;
     
@@ -254,15 +258,31 @@ public class BiotopRepository
     }
 
 
-    public Map<String,BiotoptypArtComposite> biotoptypen() {
-        Query<BiotoptypArtComposite> entities = findEntities( 
-                BiotoptypArtComposite.class, null, 0, 1000 );
+    public Map<String,BiotoptypArtComposite> btNamen() {
+        if (btNamen == null) {
+            Query<BiotoptypArtComposite> entities = findEntities( 
+                    BiotoptypArtComposite.class, null, 0, 1000 );
 
-        Map<String,BiotoptypArtComposite> result = new HashMap();
-        for (BiotoptypArtComposite entity : entities) {
-            result.put( entity.name().get(), entity );
+            btNamen = new HashMap();
+            for (BiotoptypArtComposite entity : entities) {
+                btNamen.put( entity.name().get(), entity );
+            }
         }
-        return result;
+        return btNamen;
+    }
+    
+
+    public BiotoptypArtComposite btForNummer( String nummer ) {
+        if (btNummern == null) {
+            Query<BiotoptypArtComposite> entities = findEntities( 
+                    BiotoptypArtComposite.class, null, 0, 1000 );
+
+            btNummern = new HashMap();
+            for (BiotoptypArtComposite entity : btNamen().values()) {
+                btNummern.put( entity.nummer().get(), entity );
+            }
+        }
+        return btNummern.get( nummer );
     }
     
 }

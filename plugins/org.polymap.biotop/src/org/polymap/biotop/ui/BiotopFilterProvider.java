@@ -185,7 +185,7 @@ public class BiotopFilterProvider
             site.addStandardLayout( site.newFormField( result, "objnr_sbk", String.class,
                     new StringFormField(), null, "Objekt-Nr. (SBK)" ) );
             
-            Map<String,BiotoptypArtComposite> typen = BiotopRepository.instance().biotoptypen();
+            Map<String,BiotoptypArtComposite> typen = BiotopRepository.instance().btNamen();
             site.addStandardLayout( site.newFormField( result, "biotoptypArtNr", String.class,
                     new PicklistFormField( typen.keySet() ), null, "Biotoptyp" ) );
             
@@ -244,7 +244,7 @@ public class BiotopFilterProvider
 
             String value = site.getFieldValue( "biotoptypArtNr" );
             if (value != null) {
-                BiotoptypArtComposite entity = BiotopRepository.instance().biotoptypen().get( value );
+                BiotoptypArtComposite entity = BiotopRepository.instance().btNamen().get( value );
                 expr = and( expr, eq( template.biotoptypArtNr(), entity.nummer().get() ) );
             }
             
