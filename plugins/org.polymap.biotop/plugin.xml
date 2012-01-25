@@ -45,5 +45,31 @@
             label="Biotop: Shapefile-Import (sbk_xx.shp)">
       </featureOperation>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.polymap.biotop.BiotopPerspectiveFactory"
+            id="org.polymap.biotop.BiotopPerspective"
+            name="Biotop">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.rap.ui.branding">
+      <branding
+            defaultEntrypointId="org.polymap.biotop.entrypoint"
+            id="org.polymap.biotop.branding"
+            servletName="biotop"
+            themeId="org.eclipse.rap.rwt.theme.Default"
+            title="POLYMAP3|Biotop">
+      </branding>
+   </extension>
+   <extension
+         point="org.eclipse.rap.ui.entrypoint">
+      <entrypoint
+            class="org.polymap.biotop.BiotopWorkbench"
+            id="org.polymap.biotop.entrypoint"
+            parameter="biotop">
+      </entrypoint>
+   </extension>
 
 </plugin>
