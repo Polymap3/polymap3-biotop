@@ -57,11 +57,11 @@ public class BiotopEntityProvider
     private static Log log = LogFactory.getLog( BiotopEntityProvider.class );
 
     /** 
-     * The property names/values of the feature type provided. 
+     * The properties (name/type) of the feature type provided. 
      */
     private enum PROP {
         Biotopnummer( String.class ), 
-        SBK( String.class, "SBK/TK25" ), 
+        SBK( String.class, "SBK/TK25/UNr." ), 
         Name( String.class ), 
         Beschreibung( String.class ), 
         Biotoptyp( String.class ), 
@@ -99,7 +99,7 @@ public class BiotopEntityProvider
 
     public BiotopComposite newEntity( final EntityCreator<BiotopComposite> creator )
     throws Exception {
-        return ((BiotopRepository)repo).newBiotop( null );
+        return ((BiotopRepository)repo).newBiotop( creator );
     }
 
 
@@ -126,6 +126,27 @@ public class BiotopEntityProvider
                 if (input.getPropertyName().equals( PROP.Wert.toString() )) {
                     return getFactory( data ).property( "wert" );
                 }
+                else if (input.getPropertyName().equals( PROP.Biotopnummer.toString() )) {
+                    return getFactory( data ).property( "objnr" );
+                }
+                else if (input.getPropertyName().equals( PROP.Beschreibung.toString() )) {
+                    return getFactory( data ).property( "beschreibung" );
+                }
+                else if (input.getPropertyName().equals( PROP.Name.toString() )) {
+                    return getFactory( data ).property( "name" );
+                }
+                else if (input.getPropertyName().equals( PROP.SBK.toString() )) {
+                    throw new RuntimeException( "Das Feld ist errechnet und kann nicht durchsucht werden: " + PROP.SBK.toString() );
+                }
+                else if (input.getPropertyName().equals( PROP.Biotoptyp.toString() )) {
+                    throw new RuntimeException( "Das Feld ist errechnet und kann nicht durchsucht werden: " + PROP.Biotoptyp.toString() );
+                }
+                else if (input.getPropertyName().equals( PROP.Geprueft.toString() )) {
+                    throw new RuntimeException( "Das Feld ist errechnet und kann nicht durchsucht werden: " + PROP.Geprueft.toString() );
+                }
+                else if (input.getPropertyName().equals( PROP.Archiv.toString() )) {
+                    throw new RuntimeException( "Das Feld ist errechnet und kann nicht durchsucht werden: " + PROP.Archiv.toString() );
+                }
                 return input;
             }
         }, null );
@@ -141,7 +162,8 @@ public class BiotopEntityProvider
         try {
             fb.set( getDefaultGeometry(), biotop.geom().get() );
             fb.set( PROP.Biotopnummer.toString(), biotop.objnr().get() );
-            fb.set( PROP.SBK.toString(), Joiner.on( "/" ).join( biotop.objnr_sbk().get(), biotop.tk25().get() ) );
+            fb.set( PROP.SBK.toString(), Joiner.on( "/" ).useForNull( "-" )
+                    .join( biotop.objnr_sbk().get(), biotop.tk25().get(), biotop.unr().get() ) );
             fb.set( PROP.Name.toString(), biotop.name().get() );
             fb.set( PROP.Beschreibung.toString(), biotop.beschreibung().get() );
             fb.set( PROP.Biotoptyp.toString(), biotop.biotoptypArtNr().get() );
@@ -163,20 +185,26 @@ public class BiotopEntityProvider
     public void modifyFeature( Entity entity, String propName, Object value )
     throws Exception {
         BiotopComposite biotop = (BiotopComposite)entity;
-        if (propName.equals( PROP.Name.toString() )) {
+        if (propName.equals( getDefaultGeometry() )) {
+            biotop.geom().set( (MultiPolygon)value );
+        }
+        else if (propName.equals( PROP.Name.toString() )) {
             biotop.name().set( (String)value );
         }
-        if (propName.equals( PROP.Beschreibung.toString() )) {
+        else if (propName.equals( PROP.Beschreibung.toString() )) {
             biotop.beschreibung().set( (String)value );
         }
-        if (propName.equals( PROP.Biotoptyp.toString() )) {
+        else if (propName.equals( PROP.Biotoptyp.toString() )) {
             biotop.biotoptypArtNr().set( (String)value );
         }
-        if (propName.equals( PROP.Geprueft.toString() )) {
+        else if (propName.equals( PROP.Geprueft.toString() )) {
             biotop.geprueft().set( value.equals( "ja" ) );
         }
-        if (propName.equals( PROP.Archiv.toString() )) {
+        else if (propName.equals( PROP.Archiv.toString() )) {
             biotop.status().set( value.equals( "ja" ) ? Status.nicht_aktuell.id : Status.aktuell.id );
+        }
+        else {
+            throw new RuntimeException( "Unhandled property: " + propName );
         }
     }
 
