@@ -16,7 +16,6 @@
 package org.polymap.biotop.model;
 
 import java.util.Collection;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,14 +29,12 @@ import org.qi4j.api.property.ComputedPropertyInstance;
 import org.qi4j.api.property.GenericPropertyInfo;
 import org.qi4j.api.property.Property;
 import org.qi4j.api.property.PropertyInfo;
-
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import org.polymap.core.qi4j.QiEntity;
 import org.polymap.core.qi4j.event.ModelChangeSupport;
 import org.polymap.core.qi4j.event.PropertyChangeSupport;
-
 import org.polymap.biotop.model.constant.Erhaltungszustand;
 import org.polymap.biotop.model.constant.Schutzstatus;
 import org.polymap.biotop.model.constant.Status;
@@ -335,6 +332,29 @@ public interface BiotopComposite
             };
         }
 
+//        public void beforeCompletion()
+//        throws UnitOfWorkCompletionException {
+//            EntityState entityState = EntityInstance.getEntityInstance( composite ).entityState();
+//            //return qi4j.getEntityState( composite ).lastModified();
+//            
+//            // hope that Qi4J lets run just one UoW completion at once; otherwise we have
+//            // race consitions between check and set of lastModified property between the
+//            // threads
+//            
+//            switch (entityState.status()) {
+//                case NEW:
+//                case UPDATED:
+//            Principal user = Polymap.instance().getUser();
+//            
+//            ValueBuilder<AktivitaetValue> builder = BiotopRepository.instance().newValueBuilder( AktivitaetValue.class );
+//            AktivitaetValue prototype = builder.prototype();
+//            prototype.wann().set( new Date() );
+//            prototype.wer().set( user.getName() );
+//            prototype.bemerkung().set( "" );
+//            bearbeitung().set( builder.newInstance() );
+//        }
+
+        
 //        public Property<Date> bearbeitet() {
 //            return new ComputedPropertyInstance( groesseInfo ) {
 //                public Object get() {

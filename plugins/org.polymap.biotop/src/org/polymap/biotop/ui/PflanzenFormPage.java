@@ -46,7 +46,6 @@ import org.polymap.biotop.model.BiotopRepository;
 import org.polymap.biotop.model.PflanzeValue;
 import org.polymap.biotop.model.PflanzenArtComposite;
 
-
 /**
  * 
  *
