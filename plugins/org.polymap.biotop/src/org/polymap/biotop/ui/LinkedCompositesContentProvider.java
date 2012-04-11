@@ -93,6 +93,10 @@ public abstract class LinkedCompositesContentProvider<T extends Composite,L exte
             this.linked = linkedElement( composite );
         }
 
+        public T getComposite() {
+            return composite;
+        }
+
         public Object getValue( String name ) {
             try {
                 log.debug( "getValue(): name=" + name );

@@ -22,6 +22,8 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 
+import org.polymap.core.workbench.PolymapWorkbench;
+
 import org.polymap.biotop.BiotopPlugin;
 
 /**
@@ -29,14 +31,14 @@ import org.polymap.biotop.BiotopPlugin;
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public class RemoveArtValueAction
+public abstract class RemoveValueArtAction
         extends Action
         implements ISelectionChangedListener {
 
-    private static Log log = LogFactory.getLog( RemoveArtValueAction.class );
+    private static Log log = LogFactory.getLog( RemoveValueArtAction.class );
 
     
-    public RemoveArtValueAction() {
+    public RemoveValueArtAction() {
         super( "Löschen" );
         setToolTipText( "Eintrag löschen" );
         setImageDescriptor( BiotopPlugin.imageDescriptorFromPlugin(
@@ -47,8 +49,21 @@ public class RemoveArtValueAction
 
     public void selectionChanged( SelectionChangedEvent ev ) {
         IStructuredSelection sel = (IStructuredSelection)ev.getSelection();
-        log.info( "selection: " + sel.size() );
+        log.debug( "selection: " + sel.size() );
         setEnabled( !sel.isEmpty() );
+    }
+
+
+    protected abstract void execute() throws Exception;
+    
+    public void run() {
+        try {
+            execute();
+        }
+        catch (Exception e) {
+            PolymapWorkbench.handleError( BiotopPlugin.PLUGIN_ID, this, e.getLocalizedMessage(), e );
+            //throw new RuntimeException( e );
+        }
     }
 
 }

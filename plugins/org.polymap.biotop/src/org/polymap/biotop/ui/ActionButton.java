@@ -30,7 +30,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.polymap.biotop.BiotopPlugin;
 
 /**
- * 
+ * Push button that delegates to a given IAction. 
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */

@@ -90,8 +90,9 @@ public class BiotopRepositoryAssembler
                 PilzeArtComposite.class,
                 TierArtComposite.class
         );
-//        domainModule.addTransients(
-//        );
+        domainModule.addTransients(
+                PflanzeComposite.class
+        );
         domainModule.addValues(
                 AktivitaetValue.class,
                 BiotoptypValue.class,

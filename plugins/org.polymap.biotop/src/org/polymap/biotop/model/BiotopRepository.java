@@ -21,22 +21,25 @@ import java.util.Map;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
-import net.refractions.udig.catalog.CatalogPluginSession;
-import net.refractions.udig.catalog.IService;
-
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import net.refractions.udig.catalog.CatalogPluginSession;
+import net.refractions.udig.catalog.IService;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.qi4j.api.entity.EntityComposite;
 import org.qi4j.api.query.Query;
 import org.qi4j.api.query.grammar.BooleanExpression;
 import org.qi4j.api.service.ServiceReference;
 import org.qi4j.api.unitofwork.ConcurrentEntityModificationException;
 import org.qi4j.api.unitofwork.UnitOfWorkCompletionException;
+import org.qi4j.api.value.ValueComposite;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.polymap.core.model.CompletionException;
@@ -285,4 +288,16 @@ public class BiotopRepository
         return btNummern.get( nummer );
     }
     
+
+    public <V extends ValueComposite,A extends EntityComposite,C extends ValueArtComposite<V,A>> 
+            C createValueArt( 
+                    Class<C> cl, 
+                    V value, 
+                    ValueArtFinder<V,A> artFinder ) {
+        
+        C result = assembler.getModule().transientBuilderFactory().newTransient( cl );
+        result.init( value, artFinder );
+        return result;
+    }
+
 }
