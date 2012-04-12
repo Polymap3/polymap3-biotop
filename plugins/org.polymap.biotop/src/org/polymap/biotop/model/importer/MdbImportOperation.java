@@ -18,8 +18,6 @@ package org.polymap.biotop.model.importer;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import java.io.File;
 
 import org.apache.commons.logging.Log;
@@ -44,15 +42,8 @@ import org.eclipse.core.runtime.Status;
 import org.polymap.biotop.model.AktivitaetValue;
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
-import org.polymap.biotop.model.BiotoptypArtComposite;
-import org.polymap.biotop.model.BiotoptypValue;
-import org.polymap.biotop.model.PflanzeValue;
-import org.polymap.biotop.model.PflanzenArtComposite;
-import org.polymap.biotop.model.PilzeArtComposite;
-import org.polymap.biotop.model.PilzeValue;
-import org.polymap.biotop.model.TierArtComposite;
-import org.polymap.biotop.model.TierValue;
-
+import org.polymap.biotop.model.GefahrArtComposite;
+import org.polymap.biotop.model.GefahrValue;
 import org.polymap.core.qi4j.QiModule.EntityCreator;
 import org.polymap.core.qi4j.event.AbstractModelChangeOperation;
 import org.polymap.core.runtime.SubMonitor;
@@ -90,98 +81,113 @@ public class MdbImportOperation
         try {
             SubMonitor sub = null;
             
-            // BiotopComposite
+//            // BiotopComposite
+//            sub = new SubMonitor( monitor, 10 );
+//            importBiotopdaten( db.getTable( "Biotopdaten" ), sub );
+//            
+//            // Pflanzen
+//            sub = new SubMonitor( monitor, 10 );
+//            importEntity( db.getTable( "Referenz_Pflanzen" ), sub, 
+//                    PflanzenArtComposite.class, "Nr_Planze", null );
+//
+//            sub = new SubMonitor( monitor, 10 );
+//            importValue( db.getTable( "Pflanzen" ), sub, PflanzeValue.class,
+//                    new ValueCallback<PflanzeValue>() {
+//                        public void fillValue( BiotopComposite biotop, PflanzeValue value ) {
+//                            Collection<PflanzeValue> coll = biotop.pflanzen().get();
+//                            coll.add( value );
+//                            biotop.pflanzen().set( coll );
+//                        }
+//            });
+//
+//            // Moose/Flechten/Pilze
+//            sub = new SubMonitor( monitor, 10 );
+//            importEntity( db.getTable( "Referenz_Mo_Fle_pil" ), sub, 
+//                    PilzArtComposite.class, "Nr_Art", null );
+//
+//            sub = new SubMonitor( monitor, 10 );
+//            importValue( db.getTable( "Mo_Fle_Pil" ), sub, PilzValue.class,
+//                    new ValueCallback<PilzValue>() {
+//                        public void fillValue( BiotopComposite biotop, PilzValue value ) {
+//                            Collection<PilzValue> coll = biotop.pilze().get();
+//                            coll.add( value );
+//                            biotop.pilze().set( coll );
+//                        }
+//            });
+//
+//            // Tiere
+//            sub = new SubMonitor( monitor, 10 );
+//            importEntity( db.getTable( "Referenz_Tiere" ), sub, 
+//                    TierArtComposite.class, "Nr_Tier", null );
+//
+//            sub = new SubMonitor( monitor, 10 );
+//            importValue( db.getTable( "Tiere" ), sub, TierValue.class,
+//                    new ValueCallback<TierValue>() {
+//                        public void fillValue( BiotopComposite biotop, TierValue value ) {
+//                            Collection<TierValue> coll = biotop.tiere().get();
+//                            coll.add( value );
+//                            biotop.tiere().set( coll );
+//                        }
+//            });
+//
+            // Gefahr
             sub = new SubMonitor( monitor, 10 );
-            importBiotopdaten( db.getTable( "Biotopdaten" ), sub );
-            
-            // Pflanzen
-            sub = new SubMonitor( monitor, 10 );
-            importEntity( db.getTable( "Referenz_Pflanzen" ), sub, 
-                    PflanzenArtComposite.class, "Nr_Planze", null );
+            importEntity( db.getTable( "Referenz_Beeinträchtigung" ), sub, 
+                    GefahrArtComposite.class, "Nr_Beeinträchtigung", null );
 
             sub = new SubMonitor( monitor, 10 );
-            importValue( db.getTable( "Pflanzen" ), sub, PflanzeValue.class,
-                    new ValueCallback<PflanzeValue>() {
-                        public void fillValue( BiotopComposite biotop, PflanzeValue value ) {
-                            Collection<PflanzeValue> coll = biotop.pflanzen().get();
-                            coll.add( value );
-                            biotop.pflanzen().set( coll );
-                        }
+            importValue( db.getTable( "Beeinträchtigung_Gefährdung" ), sub, GefahrValue.class,
+                    new ValueCallback<GefahrValue>() {
+                public void fillValue( BiotopComposite biotop, GefahrValue value ) {
+                    Collection<GefahrValue> coll = biotop.gefahr().get();
+                    coll.add( value );
+                    biotop.gefahr().set( coll );
+                }
             });
 
-            // Moose/Flechten/Pilze
-            sub = new SubMonitor( monitor, 10 );
-            importEntity( db.getTable( "Referenz_Mo_Fle_pil" ), sub, 
-                    PilzeArtComposite.class, "Nr_Art", null );
-
-            sub = new SubMonitor( monitor, 10 );
-            importValue( db.getTable( "Mo_Fle_Pil" ), sub, PilzeValue.class,
-                    new ValueCallback<PilzeValue>() {
-                        public void fillValue( BiotopComposite biotop, PilzeValue value ) {
-                            Collection<PilzeValue> coll = biotop.pilze().get();
-                            coll.add( value );
-                            biotop.pilze().set( coll );
-                        }
-            });
-
-            // Tiere
-            sub = new SubMonitor( monitor, 10 );
-            importEntity( db.getTable( "Referenz_Tiere" ), sub, 
-                    TierArtComposite.class, "Nr_Tier", null );
-
-            sub = new SubMonitor( monitor, 10 );
-            importValue( db.getTable( "Tiere" ), sub, TierValue.class,
-                    new ValueCallback<TierValue>() {
-                        public void fillValue( BiotopComposite biotop, TierValue value ) {
-                            Collection<TierValue> coll = biotop.tiere().get();
-                            coll.add( value );
-                            biotop.tiere().set( coll );
-                        }
-            });
-
-            // Biotoptyp (als letztes damit Biotope vollständig kopiert werden)
-            sub = new SubMonitor( monitor, 10 );
-            importEntity( db.getTable( "Referenz_Biotoptypen" ), sub, 
-                    BiotoptypArtComposite.class, "Nr_Biotoptyp", null );
-
-            sub = new SubMonitor( monitor, 10 );
-            final AtomicInteger copied = new AtomicInteger( 0 );
-            importValue( db.getTable( "Biotoptypen" ), sub, BiotoptypValue.class,
-                    new ValueCallback<BiotoptypValue>() {
-                        public void fillValue( final BiotopComposite biotop, final BiotoptypValue value ) {
-                            String unr = value.unternummer().get();
-                            assert unr != null : "Value-Unternummer == null";
-                            String bunr = biotop.unr().get();
-                            assert bunr != null : "Biotop-Unternummer == null";
-                            
-                            if (unr.equals( bunr )) {
-                                // set nummer
-                                if (biotop.biotoptypArtNr().get() == null) {
-                                    biotop.biotoptypArtNr().set( value.biotoptypArtNr().get() );
-                                    biotop.pflegeRueckstand().set( value.pflegerueckstand().get() );
-                                }
-                                // biotop exists -> copy biotop
-                                else {
-                                    try {
-                                        BiotopComposite copy = repo.newBiotop( new EntityCreator<BiotopComposite>() {
-                                            public void create( BiotopComposite prototype ) throws Exception {
-                                                prototype.copyStateFrom( biotop );
-                                                prototype.objnr().set( repo.biotopnummern.get().generate() );
-
-                                                prototype.biotoptypArtNr().set( value.biotoptypArtNr().get() );
-                                                prototype.pflegeRueckstand().set( value.pflegerueckstand().get() );
-                                            }
-                                        });
-                                        copied.incrementAndGet();
-                                    }
-                                    catch (Exception e) {
-                                        throw new RuntimeException( e );
-                                    }
-                                }
-                            }
-                        }
-            });
-            log.info( "Copies of BiotopComposite: " + copied.intValue() );
+//            // Biotoptyp (als letztes damit Biotope vollständig kopiert werden)
+//            sub = new SubMonitor( monitor, 10 );
+//            importEntity( db.getTable( "Referenz_Biotoptypen" ), sub, 
+//                    BiotoptypArtComposite.class, "Nr_Biotoptyp", null );
+//
+//            sub = new SubMonitor( monitor, 10 );
+//            final AtomicInteger copied = new AtomicInteger( 0 );
+//            importValue( db.getTable( "Biotoptypen" ), sub, BiotoptypValue.class,
+//                    new ValueCallback<BiotoptypValue>() {
+//                        public void fillValue( final BiotopComposite biotop, final BiotoptypValue value ) {
+//                            String unr = value.unternummer().get();
+//                            assert unr != null : "Value-Unternummer == null";
+//                            String bunr = biotop.unr().get();
+//                            assert bunr != null : "Biotop-Unternummer == null";
+//                            
+//                            if (unr.equals( bunr )) {
+//                                // set nummer
+//                                if (biotop.biotoptypArtNr().get() == null) {
+//                                    biotop.biotoptypArtNr().set( value.biotoptypArtNr().get() );
+//                                    biotop.pflegeRueckstand().set( value.pflegerueckstand().get() );
+//                                }
+//                                // biotop exists -> copy biotop
+//                                else {
+//                                    try {
+//                                        BiotopComposite copy = repo.newBiotop( new EntityCreator<BiotopComposite>() {
+//                                            public void create( BiotopComposite prototype ) throws Exception {
+//                                                prototype.copyStateFrom( biotop );
+//                                                prototype.objnr().set( repo.biotopnummern.get().generate() );
+//
+//                                                prototype.biotoptypArtNr().set( value.biotoptypArtNr().get() );
+//                                                prototype.pflegeRueckstand().set( value.pflegerueckstand().get() );
+//                                            }
+//                                        });
+//                                        copied.incrementAndGet();
+//                                    }
+//                                    catch (Exception e) {
+//                                        throw new RuntimeException( e );
+//                                    }
+//                                }
+//                            }
+//                        }
+//            });
+//            log.info( "Copies of BiotopComposite: " + copied.intValue() );
         }
         finally {
             db.close();

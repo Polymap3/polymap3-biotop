@@ -23,58 +23,58 @@ import org.polymap.core.data.ui.featuretable.FeatureTableViewer;
 import org.polymap.core.model.EntityType;
 import org.polymap.rhei.data.entityfeature.PropertyDescriptorAdapter;
 import org.polymap.biotop.model.BiotopRepository;
-import org.polymap.biotop.model.PilzArtComposite;
-import org.polymap.biotop.model.PilzComposite;
-import org.polymap.biotop.model.PilzValue;
+import org.polymap.biotop.model.GefahrArtComposite;
+import org.polymap.biotop.model.GefahrComposite;
+import org.polymap.biotop.model.GefahrValue;
 
 /**
  * 
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public class PilzeFormPage
-        extends ValueArtFormPage<PilzValue,PilzArtComposite,PilzComposite> {
+public class GefahrFormPage
+        extends ValueArtFormPage<GefahrValue,GefahrArtComposite,GefahrComposite> {
 
-    protected PilzeFormPage( Feature feature, FeatureStore featureStore ) {
+    protected GefahrFormPage( Feature feature, FeatureStore featureStore ) {
         super( feature, featureStore );
     }
 
     public String getTitle() {
-        return "Moose-Flechten-Pilze";
+        return "Gefährdungen";
     }
 
-    public Class<PilzArtComposite> getArtType() {
-        return PilzArtComposite.class;
+    public Class<GefahrArtComposite> getArtType() {
+        return GefahrArtComposite.class;
     }
 
-    public Iterable<PilzComposite> getElements() {
-        return PilzComposite.forEntity( biotop );
+    public Iterable<GefahrComposite> getElements() {
+        return GefahrComposite.forEntity( biotop );
     }
 
-    public PilzComposite newElement( PilzArtComposite art ) {
-        return PilzComposite.newInstance( art );
+    public GefahrComposite newElement( GefahrArtComposite art ) {
+        return GefahrComposite.newInstance( art );
     }
 
-    public void updateElements( Collection<PilzComposite> coll ) {
-        PilzComposite.updateEntity( biotop, coll );
+    public void updateElements( Collection<GefahrComposite> coll ) {
+        GefahrComposite.updateEntity( biotop, coll );
     }
 
-    public EntityType<PilzComposite> addViewerColumns( FeatureTableViewer viewer ) {
+    public EntityType<GefahrComposite> addViewerColumns( FeatureTableViewer viewer ) {
         // entity types
         final BiotopRepository repo = BiotopRepository.instance();
-        final EntityType<PilzComposite> type = repo.entityType( PilzComposite.class );
+        final EntityType<GefahrComposite> type = repo.entityType( GefahrComposite.class );
 
         // columns
         PropertyDescriptorAdapter prop = null;
         prop = new PropertyDescriptorAdapter( type.getProperty( "name" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
                  .setHeader( "Name" ));
-        prop = new PropertyDescriptorAdapter( type.getProperty( "menge" ) );
-        viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                 .setHeader( "Menge" ));
-        prop = new PropertyDescriptorAdapter( type.getProperty( "mengenstatusNr" ) );
-        viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                 .setHeader( "MengenstatusNr" ));
+//        prop = new PropertyDescriptorAdapter( type.getProperty( "menge" ) );
+//        viewer.addColumn( new DefaultFeatureTableColumn( prop )
+//                 .setHeader( "Menge" ));
+//        prop = new PropertyDescriptorAdapter( type.getProperty( "mengenstatusNr" ) );
+//        viewer.addColumn( new DefaultFeatureTableColumn( prop )
+//                 .setHeader( "MengenstatusNr" ));
 
         return type;
     }

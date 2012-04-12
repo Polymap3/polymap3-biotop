@@ -138,6 +138,45 @@ public class BiotopRepository
                         public String getDefaultGeometry() {
                             throw new RuntimeException( "not yet implemented." );
                         }
+                    },
+                    // PilzArtComposite
+                    new DefaultEntityProvider( this, PilzArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Pilzart" ), queryProvider ) {
+                        public ReferencedEnvelope getBounds() {
+                            return bounds;
+                        }
+                        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
+                            return crs;
+                        }
+                        public String getDefaultGeometry() {
+                            throw new RuntimeException( "not yet implemented." );
+                        }
+                    },
+                    // TierArtComposite
+                    new DefaultEntityProvider( this, TierArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Tierart" ), queryProvider ) {
+                        public ReferencedEnvelope getBounds() {
+                            return bounds;
+                        }
+                        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
+                            return crs;
+                        }
+                        public String getDefaultGeometry() {
+                            throw new RuntimeException( "not yet implemented." );
+                        }
+                    },
+                    // GefahrArtComposite
+                    new DefaultEntityProvider( this, GefahrArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Gefährdungen" ), queryProvider ) {
+                        public ReferencedEnvelope getBounds() {
+                            return bounds;
+                        }
+                        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
+                            return crs;
+                        }
+                        public String getDefaultGeometry() {
+                            throw new RuntimeException( "not yet implemented." );
+                        }
                     });
         }
         catch (Exception e) {

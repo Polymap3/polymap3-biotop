@@ -39,41 +39,25 @@ import org.polymap.biotop.model.importer.ImportColumn;
     PropertyChangeSupport.Concern.class
 } )
 @Mixins( {
-    PilzeArtComposite.Mixin.class,
+    GefahrArtComposite.Mixin.class,
     PropertyChangeSupport.Mixin.class,
     ModelChangeSupport.Mixin.class,
     QiEntity.Mixin.class
 //    JsonState.Mixin.class
 } )
-public interface PilzeArtComposite
-        extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
+public interface GefahrArtComposite
+    extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
 
-//    [INFO] MdbImportOperation - Table: Referenz_Mo_Fle_Pil
-//    [INFO] MdbImportOperation -     column: Nr_Art - INT
-//    [INFO] MdbImportOperation -     column: Nr_Artengruppe_Pflanzen - BYTE
-//    [INFO] MdbImportOperation -     column: TAXNR - TEXT
-//    [INFO] MdbImportOperation -     column: TAXNAME - TEXT
-//    [INFO] MdbImportOperation -     column: DEUTSCHNAME - TEXT
-//    [INFO] MdbImportOperation -     column: Nummer_RLSachsen - BYTE
+//    INFO] MdbImportOperation - Table: Referenz_Beeinträchtigung
+//    [INFO] MdbImportOperation -     column: Nr_Beeinträchtigung - BYTE
+//    [INFO] MdbImportOperation -     column: Beeinträchtigung - TEXT
     
     @Optional
-    @ImportColumn("Nr_Art")
+    @ImportColumn("Nr_Beeinträchtigung")
     Property<String>            nummer();
 
     @Optional
-    @ImportColumn("Nr_Artengruppe_Pflanzen")
-    Property<String>            artengruppeNr();
-
-    @Optional
-    @ImportColumn("TAXNR")
-    Property<Integer>           taxnr();
-
-    @Optional
-    @ImportColumn("TAXNAME")
-    Property<String>            taxname();
-
-    @Optional
-    @ImportColumn("DEUTSCHNAME")
+    @ImportColumn("Beeinträchtigung")
     Property<String>            name();
 
 
@@ -81,7 +65,7 @@ public interface PilzeArtComposite
      * Methods and transient fields.
      */
     public static abstract class Mixin
-            implements PilzeArtComposite {
+            implements GefahrArtComposite {
 
         private static Log log = LogFactory.getLog( Mixin.class );
 

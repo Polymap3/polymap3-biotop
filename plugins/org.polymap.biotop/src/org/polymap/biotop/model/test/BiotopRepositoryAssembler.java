@@ -35,8 +35,8 @@ import org.polymap.biotop.model.BiotoptypArtComposite;
 import org.polymap.biotop.model.BiotoptypValue;
 import org.polymap.biotop.model.PflanzeValue;
 import org.polymap.biotop.model.PflanzenArtComposite;
-import org.polymap.biotop.model.PilzeArtComposite;
-import org.polymap.biotop.model.PilzeValue;
+import org.polymap.biotop.model.PilzArtComposite;
+import org.polymap.biotop.model.PilzValue;
 import org.polymap.biotop.model.TierArtComposite;
 import org.polymap.biotop.model.TierValue;
 import org.polymap.biotop.model.idgen.BiotopnummerGeneratorService;
@@ -75,7 +75,7 @@ public class BiotopRepositoryAssembler {
                 BiotopComposite.class,
                 BiotoptypArtComposite.class,
                 PflanzenArtComposite.class,
-                PilzeArtComposite.class,
+                PilzArtComposite.class,
                 TierArtComposite.class
         );
 //        domainModule.addTransients(
@@ -84,7 +84,7 @@ public class BiotopRepositoryAssembler {
                 AktivitaetValue.class,
                 BiotoptypValue.class,
                 PflanzeValue.class,
-                PilzeValue.class,
+                PilzValue.class,
                 TierValue.class
         );
 

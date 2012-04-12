@@ -87,8 +87,9 @@ public class BiotopRepositoryAssembler
                 BiotopComposite.class,
                 BiotoptypArtComposite.class,
                 PflanzenArtComposite.class,
-                PilzeArtComposite.class,
-                TierArtComposite.class
+                PilzArtComposite.class,
+                TierArtComposite.class,
+                GefahrArtComposite.class
         );
 //        domainModule.addTransients(
 //                PflanzeComposite.class,
@@ -98,8 +99,9 @@ public class BiotopRepositoryAssembler
                 AktivitaetValue.class,
                 BiotoptypValue.class,
                 PflanzeValue.class,
-                PilzeValue.class,
-                TierValue.class
+                PilzValue.class,
+                TierValue.class,
+                GefahrValue.class
         );
 
         // persistence: workspace/Lucene

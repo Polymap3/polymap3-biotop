@@ -86,6 +86,9 @@ public abstract class ValueArtComposite<V extends ValueComposite,A extends Entit
     public A art() {
         if (art == null) {
             art = artFinder.find( value() );
+            if (art == null) {
+                throw new IllegalStateException( "Keine Art gefunden für: " + value() );
+            }
         }
         return art;
     }

@@ -263,7 +263,7 @@ public interface BiotopComposite
     /** Moose/Flechten/Pilze */
     @Optional
     @UseDefaults
-    Property<Collection<PilzeValue>> pilze();
+    Property<Collection<PilzValue>> pilze();
 
     /**
      * @see TierComposite
@@ -271,6 +271,13 @@ public interface BiotopComposite
     @Optional
     @UseDefaults
     Property<Collection<TierValue>> tiere();
+
+    /**
+     * @see GefahrComposite
+     */
+    @Optional
+    @UseDefaults
+    Property<Collection<GefahrValue>> gefahr();
 
     @Optional
     @ImportColumn("Nr_Naturraum")

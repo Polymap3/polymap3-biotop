@@ -28,7 +28,7 @@ import org.polymap.biotop.model.importer.ImportColumn;
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public interface PilzeValue
+public interface PilzValue
         extends ValueComposite, Composite {
     
 //    [INFO] MdbImportOperation - Table: Mo_Fle_Pil

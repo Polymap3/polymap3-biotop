@@ -59,6 +59,7 @@ import org.polymap.biotop.model.BiotopEntityProvider;
 import org.polymap.biotop.model.BiotopRepository;
 import org.polymap.biotop.model.BiotoptypArtComposite;
 import org.polymap.biotop.model.PflanzeValue;
+import org.polymap.biotop.model.PilzValue;
 import org.polymap.biotop.model.TierValue;
 import org.polymap.biotop.model.constant.Erhaltungszustand;
 import org.polymap.biotop.model.constant.Pflegezustand;
@@ -83,6 +84,7 @@ public class BiotopFilterProvider
         this.layer = _layer;
         log.debug( "addFilters(): layer= " + layer );
 
+        final BiotopRepository repo = BiotopRepository.instance();
         IGeoResource geores = layer.getGeoResource();
 
         if (geores instanceof EntityGeoResourceImpl
@@ -106,9 +108,21 @@ public class BiotopFilterProvider
                 }
             });
 
+            result.add( new AbstractEntityFilter( "__pilze__", layer, "mit Pilzen", null, 10000, BiotopComposite.class ) {
+                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
+                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
+
+                    ValueBuilder<PilzValue> builder = repo.newValueBuilder( PilzValue.class );
+                    builder.prototype().artNr().set( "*" );
+
+                    ContainsPredicate<PilzValue> predicate = QueryExpressions.contains(
+                            template.pilze(), builder.newInstance() );
+                    return repo.findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
+                }
+            });
+
             result.add( new AbstractEntityFilter( "__tiere__", layer, "mit Tieren", null, 10000, BiotopComposite.class ) {
                 protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
-                    BiotopRepository repo = BiotopRepository.instance();
                     BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
 
                     ValueBuilder<TierValue> builder = repo.newValueBuilder( TierValue.class );
@@ -124,7 +138,6 @@ public class BiotopFilterProvider
 
             result.add( new AbstractEntityFilter( "__pflanzen__", layer, "mit Pflanzen", null, 10000, BiotopComposite.class ) {
                 protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
-                    BiotopRepository repo = BiotopRepository.instance();
                     BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
 
                     ValueBuilder<PflanzeValue> builder = repo.newValueBuilder( PflanzeValue.class );
@@ -160,7 +173,7 @@ public class BiotopFilterProvider
             extends AbstractEntityFilter {
 
         public StandardFilter( ILayer layer ) {
-            super( "__biotop--", layer, "Naturschutz", null, 15000, BiotopComposite.class );
+            super( "__biotop--", layer, "Naturschutz...", null, 15000, BiotopComposite.class );
         }
         
         public boolean hasControl() {
