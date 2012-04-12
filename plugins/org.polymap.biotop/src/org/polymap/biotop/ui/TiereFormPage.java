@@ -51,15 +51,15 @@ public class TiereFormPage
     }
 
     public Iterable<TierComposite> getElements() {
-        return biotop.getTiere2();
+        return TierComposite.forEntity( biotop );
     }
 
     public TierComposite newElement( TierArtComposite art ) {
-        return biotop.newTier2( art );
+        return TierComposite.newInstance( art );
     }
 
     public void updateElements( Collection<TierComposite> coll ) {
-        biotop.setTiere2( coll );
+        TierComposite.updateEntity( biotop, coll );
     }
 
     public EntityType<TierComposite> addViewerColumns( FeatureTableViewer viewer ) {

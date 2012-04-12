@@ -179,7 +179,7 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
             model.put( elm.id(), elm );
         }
         viewer.setContent( new CompositesFeatureContentProvider( model.values(), type ) );
-        viewer.setInput( biotop.getPflanzen2() );
+        viewer.setInput( model );
 
         // add action
         Query<A> arten = repo.findEntities( getArtType(), null, 0, 10000 );
@@ -188,7 +188,6 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
                 assert sel != null;
                 model.put( sel.id(), newElement( sel ) );
                 dirty = true;
-                viewer.getTable().pack();
                 site.reloadEditor();
             }
         };

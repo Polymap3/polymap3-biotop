@@ -37,13 +37,10 @@ import org.qi4j.api.query.grammar.BooleanExpression;
 import org.qi4j.api.service.ServiceReference;
 import org.qi4j.api.unitofwork.ConcurrentEntityModificationException;
 import org.qi4j.api.unitofwork.UnitOfWorkCompletionException;
-import org.qi4j.api.value.ValueComposite;
-
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.polymap.core.model.CompletionException;
 import org.polymap.core.model.ConcurrentModificationException;
-import org.polymap.core.model.Entity;
 import org.polymap.core.operation.OperationSupport;
 import org.polymap.core.qi4j.Qi4jPlugin;
 import org.polymap.core.qi4j.QiModule;
@@ -289,15 +286,15 @@ public class BiotopRepository
     }
     
 
-    public <V extends ValueComposite,A extends Entity,C extends ValueArtComposite<V,A>> 
-            C createValueArt( 
-                    Class<C> cl, 
-                    V value, 
-                    ValueArtFinder<V,A> artFinder ) {
-        
-        C result = assembler.getModule().transientBuilderFactory().newTransient( cl );
-        result.init( value, artFinder );
-        return result;
-    }
+//    public <V extends ValueComposite,A extends Entity,C extends ValueArtComposite<V,A>> 
+//            C createValueArt( 
+//                    Class<C> cl, 
+//                    V value, 
+//                    ValueArtFinder<V,A> artFinder ) {
+//        
+//        C result = assembler.getModule().transientBuilderFactory().newTransient( cl );
+//        result.init( value, artFinder );
+//        return result;
+//    }
 
 }

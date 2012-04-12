@@ -120,7 +120,7 @@ public class PflanzenFormPage
     }
 
     public void doSubmit( IProgressMonitor monitor ) throws Exception {
-        if (model != null) { biotop.setPflanzen2( model.values() ); }
+        if (model != null) { PflanzeComposite.updateEntity( biotop, model.values() ); }
         dirty = false;
     }
 
@@ -181,19 +181,19 @@ public class PflanzenFormPage
 
         // model/content
         model = new HashMap();
-        for (PflanzeComposite elm : biotop.getPflanzen2()) {
+        for (PflanzeComposite elm : PflanzeComposite.forEntity( biotop )) {
             elm.addPropertyChangeListener( this );
             model.put( elm.id(), elm );
         }
         viewer.setContent( new CompositesFeatureContentProvider( model.values(), type ) );
-        viewer.setInput( biotop.getPflanzen2() );
+        viewer.setInput( model );
 
         // add action
         Query<PflanzenArtComposite> arten = repo.findEntities( PflanzenArtComposite.class, null, 0, 10000 );
         AddValueArtAction addAction = new AddValueArtAction<PflanzenArtComposite>( PflanzenArtComposite.class, arten ) {
             protected void execute( PflanzenArtComposite sel ) throws Exception {
                 assert sel != null;
-                model.put( sel.id(), biotop.newPflanze2( sel ) );
+                model.put( sel.id(), PflanzeComposite.newInstance( sel ) );
                 dirty = true;
                 viewer.getTable().pack();
                 site.reloadEditor();

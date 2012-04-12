@@ -15,10 +15,7 @@
  */
 package org.polymap.biotop.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,17 +29,8 @@ import org.qi4j.api.property.ComputedPropertyInstance;
 import org.qi4j.api.property.GenericPropertyInfo;
 import org.qi4j.api.property.Property;
 import org.qi4j.api.property.PropertyInfo;
-import org.qi4j.api.query.Query;
-import org.qi4j.api.query.QueryExpressions;
-import org.qi4j.api.query.grammar.BooleanExpression;
-import org.qi4j.api.value.ValueBuilder;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 import org.polymap.core.qi4j.QiEntity;
 import org.polymap.core.qi4j.event.ModelChangeSupport;
@@ -265,30 +253,24 @@ public interface BiotopComposite
     @Deprecated
     Property<Collection<BiotoptypValue>> biotoptypen();
 
+    /**
+     * @see PflanzeComposite
+     */
     @Optional
     @UseDefaults
     Property<Collection<PflanzeValue>> pflanzen();
-
-    public Collection<PflanzeComposite> getPflanzen2();
-
-    public PflanzeComposite newPflanze2( PflanzenArtComposite art );
-
-    public void setPflanzen2( Collection<PflanzeComposite> coll );
 
     /** Moose/Flechten/Pilze */
     @Optional
     @UseDefaults
     Property<Collection<PilzeValue>> pilze();
 
+    /**
+     * @see TierComposite
+     */
     @Optional
     @UseDefaults
     Property<Collection<TierValue>> tiere();
-
-    public Collection<TierComposite> getTiere2();
-
-    public TierComposite newTier2( TierArtComposite art );
-
-    public void setTiere2( Collection<TierComposite> coll );
 
     @Optional
     @ImportColumn("Nr_Naturraum")
@@ -332,88 +314,6 @@ public interface BiotopComposite
 //        private PropertyInfo        bearbeiterInfo = new GenericPropertyInfo( BiotopComposite.class, "bearbeiter" );
 
 
-        // Pflanzen ***************************************
-        
-        protected class PflanzenArtFinder 
-                implements ValueArtFinder<PflanzeValue,PflanzenArtComposite> {
-
-            public PflanzenArtComposite find( PflanzeValue value ) {
-                assert value != null;
-                PflanzenArtComposite template = QueryExpressions.templateFor( PflanzenArtComposite.class );
-                BooleanExpression expr = QueryExpressions.eq( template.nummer(), value.pflanzenArtNr().get() );
-                Query<PflanzenArtComposite> matches = repo.findEntities( PflanzenArtComposite.class, expr, 0 , 1 );
-                return matches.find();
-            }
-        }
-        
-        public Collection<PflanzeComposite> getPflanzen2() {
-            List<PflanzeComposite> result = new ArrayList( 256 );
-            for (PflanzeValue value : pflanzen().get()) {
-                result.add( repo.createValueArt( PflanzeComposite.class, value, new PflanzenArtFinder() ) );
-            }
-            return Collections.unmodifiableCollection( result );
-        }
-
-        public PflanzeComposite newPflanze2( final PflanzenArtComposite art ) {
-            assert art != null;
-            
-            ValueBuilder<PflanzeValue> builder = repo.newValueBuilder( PflanzeValue.class );
-            builder.prototype().pflanzenArtNr().set( art.nummer().get() );
-            PflanzeValue newValue = builder.newInstance();
-            
-            return repo.createValueArt( PflanzeComposite.class, newValue, new PflanzenArtFinder() );
-        }
-
-        public void setPflanzen2( Collection<PflanzeComposite> coll ) {
-            pflanzen().set( Collections2.transform( coll, new Function<PflanzeComposite,PflanzeValue>() {
-                public PflanzeValue apply( PflanzeComposite input ) {
-                    return input.value();
-                }
-            }));
-        }
-
-        
-        // Tiere ***************************************
-        
-        protected class TierArtFinder 
-                implements ValueArtFinder<TierValue,TierArtComposite> {
-
-            public TierArtComposite find( TierValue value ) {
-                assert value != null;
-                TierArtComposite template = QueryExpressions.templateFor( TierArtComposite.class );
-                BooleanExpression expr = QueryExpressions.eq( template.nummer(), value.tierArtNr().get() );
-                Query<TierArtComposite> matches = repo.findEntities( TierArtComposite.class, expr, 0 , 1 );
-                return matches.find();
-            }
-        }
-        
-        public Collection<TierComposite> getTiere2() {
-            List<TierComposite> result = new ArrayList( 256 );
-            for (TierValue value : tiere().get()) {
-                result.add( repo.createValueArt( TierComposite.class, value, new TierArtFinder() ) );
-            }
-            return Collections.unmodifiableCollection( result );
-        }
-
-        public TierComposite newTier2( final TierArtComposite art ) {
-            assert art != null;
-            
-            ValueBuilder<TierValue> builder = repo.newValueBuilder( TierValue.class );
-            builder.prototype().tierArtNr().set( art.nummer().get() );
-            TierValue newValue = builder.newInstance();
-            
-            return repo.createValueArt( TierComposite.class, newValue, new TierArtFinder() );
-        }
-
-        public void setTiere2( Collection<TierComposite> coll ) {
-            tiere().set( Collections2.transform( coll, new Function<TierComposite,TierValue>() {
-                public TierValue apply( TierComposite input ) {
-                    return input.value();
-                }
-            }));
-        }
-
-        
         public Property<Double> flaeche() {
             return new ComputedPropertyInstance( flaecheInfo ) {
                 public Object get() {

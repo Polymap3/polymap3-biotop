@@ -15,9 +15,19 @@
  */
 package org.polymap.biotop.model;
 
-import org.qi4j.api.common.Optional;
-import org.qi4j.api.mixin.Mixins;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.qi4j.api.property.Property;
+import org.qi4j.api.query.Query;
+import org.qi4j.api.query.QueryExpressions;
+import org.qi4j.api.query.grammar.BooleanExpression;
+import org.qi4j.api.value.ValueBuilder;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 
 /**
  * A Value/Art composite that combines {@link TierValue} and
@@ -25,92 +35,91 @@ import org.qi4j.api.property.Property;
  * 
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-@Mixins(
-        TierComposite.Mixin.class
-)
-public interface TierComposite
-    extends ValueArtComposite<TierValue,TierArtComposite> { 
+public class TierComposite
+        extends ValueArtComposite<TierValue,TierArtComposite> { 
 
-    //public boolean equals( Object obj );
-
-    @Optional
-    Property<String>            nummer();
-
-    @Optional
-    Property<String>            artengruppeNr();
-
-    @Optional
-    Property<String>            gattung();
-
-    @Optional
-    Property<String>            species();
-
-    @Optional
-    Property<String>            sysCode();
-
-    @Optional
-    Property<String>            name();
-
-    @Optional
-    Property<String>            schutzstatus();
-
-    /**
-     * @return {@link TierValue#menge()} 
-     */
-    @Optional
-    Property<Integer>           menge();
-
-    @Optional
-    Property<Double>            mengenstatusNr();
-
+    // factory ********************************************
     
-    /**
-     * Methods and transient fields.
-     */
-    public static abstract class Mixin
-            extends ValueArtComposite.Mixin<TierValue,TierArtComposite>
-            implements TierComposite {
+    protected static class TierArtFinder 
+            implements ValueArtFinder<TierValue,TierArtComposite> {
 
-        public String id() {
-            return art().id();
+        public TierArtComposite find( TierValue value ) {
+            assert value != null;
+            TierArtComposite template = QueryExpressions.templateFor( TierArtComposite.class );
+            BooleanExpression expr = QueryExpressions.eq( template.nummer(), value.tierArtNr().get() );
+            Query<TierArtComposite> matches = repo().findEntities( TierArtComposite.class, expr, 0 , 1 );
+            return matches.find();
         }
-        
-        public Property<String> nummer() {
-            return art().nummer();
-        }
-
-        public Property<String> artengruppeNr() {
-            return art().artengruppeNr();
-        }
-
-        public Property<String> gattung() {
-            return art().gattung();
-        }
-
-        public Property<String> species() {
-            return art().species();
-        }
-
-        public Property<String> sysCode() {
-            return art().sysCode();
-        }
-
-        public Property<String> name() {
-            return art().name();
-        }
-        
-        public Property<String> schutzstatus() {
-            return art().schutzstatus();    
-        }
-
-        public Property<Integer> menge() {
-            return new ValueProperty( TierValue.class, value().menge() );
-        }
-
-        public Property<Double> mengenstatusNr() {
-            return new ValueProperty( TierValue.class, value().mengenstatusNr() );
-        }
-
     }
-    
+
+    public static Collection<TierComposite> forEntity( BiotopComposite biotop ) {
+        List<TierComposite> result = new ArrayList( 256 );
+        for (TierValue value : biotop.tiere().get()) {
+            result.add( new TierComposite( value, new TierArtFinder() ) );
+        }
+        return Collections.unmodifiableCollection( result );
+    }
+
+    public static TierComposite newInstance( TierArtComposite art ) {
+        assert art != null;
+        ValueBuilder<TierValue> builder = repo().newValueBuilder( TierValue.class );
+        builder.prototype().tierArtNr().set( art.nummer().get() );
+        TierValue newValue = builder.newInstance();
+        return new TierComposite( newValue, new TierArtFinder() );
+    }
+
+    public static void updateEntity( BiotopComposite biotop, Collection<TierComposite> coll ) {
+        biotop.tiere().set( Collections2.transform( coll, new Function<TierComposite,TierValue>() {
+            public TierValue apply( TierComposite input ) {
+                return input.value();
+            }
+        }));
+    }
+
+    // instance *******************************************
+
+    private TierComposite( TierValue value, ValueArtFinder<TierValue, TierArtComposite> artFinder ) {
+        super( value, artFinder );
+    }
+
+    public String id() {
+        return art().id();
+    }
+
+    public Property<String> nummer() {
+        return art().nummer();
+    }
+
+    public Property<String> artengruppeNr() {
+        return art().artengruppeNr();
+    }
+
+    public Property<String> gattung() {
+        return art().gattung();
+    }
+
+    public Property<String> species() {
+        return art().species();
+    }
+
+    public Property<String> sysCode() {
+        return art().sysCode();
+    }
+
+    public Property<String> name() {
+        return art().name();
+    }
+
+    public Property<String> schutzstatus() {
+        return art().schutzstatus();    
+    }
+
+    public Property<Integer> menge() {
+        return new ValueProperty( TierValue.class, value().menge() );
+    }
+
+    public Property<Double> mengenstatusNr() {
+        return new ValueProperty( TierValue.class, value().mengenstatusNr() );
+    }
+
 }

@@ -118,6 +118,11 @@ public abstract class LinkedCompositesContentProvider<T extends Composite,L exte
             }
         }
 
+        public void setValue( String name, Object value ) {
+            // XXX Auto-generated method stub
+            throw new RuntimeException( "not yet implemented." );
+        }
+
         public String fid() {
             if (composite instanceof Entity) {
                 return ((Entity)composite).id();

@@ -15,9 +15,19 @@
  */
 package org.polymap.biotop.model;
 
-import org.qi4j.api.common.Optional;
-import org.qi4j.api.mixin.Mixins;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.qi4j.api.property.Property;
+import org.qi4j.api.query.Query;
+import org.qi4j.api.query.QueryExpressions;
+import org.qi4j.api.query.grammar.BooleanExpression;
+import org.qi4j.api.value.ValueBuilder;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 
 /**
  * A Value/Art composite that combines {@link PflanzeValue} and
@@ -25,85 +35,88 @@ import org.qi4j.api.property.Property;
  * 
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-@Mixins(
-        PflanzeComposite.Mixin.class
-)
-public interface PflanzeComposite
-    extends ValueArtComposite<PflanzeValue,PflanzenArtComposite> { 
+public class PflanzeComposite
+        extends ValueArtComposite<PflanzeValue,PflanzenArtComposite> { 
 
-    //public boolean equals( Object obj );
-
-    @Optional
-    Property<String>            nummer();
-
-    @Optional
-    Property<String>            artengruppeNr();
-
-    @Optional
-    Property<Integer>           taxnr();
-
-    @Optional
-    Property<String>            taxname();
-
-    @Optional
-    Property<String>            name();
-
-    @Optional
-    Property<String>            schutzstatus();
-
-    /**
-     * @return {@link PflanzeValue#menge()} 
-     */
-    @Optional
-    Property<Integer>           menge();
-
-    @Optional
-    Property<Double>            mengenstatusNr();
-
+    // factory ********************************************
     
-    /**
-     * Methods and transient fields.
-     */
-    public static abstract class Mixin
-            extends ValueArtComposite.Mixin<PflanzeValue,PflanzenArtComposite>
-            implements PflanzeComposite {
+    protected static class PflanzenArtFinder 
+            implements ValueArtFinder<PflanzeValue,PflanzenArtComposite> {
 
-        public String id() {
-            return art().id();
+        public PflanzenArtComposite find( PflanzeValue value ) {
+            assert value != null;
+            PflanzenArtComposite template = QueryExpressions.templateFor( PflanzenArtComposite.class );
+            BooleanExpression expr = QueryExpressions.eq( template.nummer(), value.pflanzenArtNr().get() );
+            Query<PflanzenArtComposite> matches = repo().findEntities( PflanzenArtComposite.class, expr, 0 , 1 );
+            return matches.find();
         }
-        
-        public Property<String> nummer() {
-            return art().nummer();
-        }
-
-        public Property<String> artengruppeNr() {
-            return art().artengruppeNr();
-        }
-
-        public Property<Integer> taxnr() {
-            return art().taxnr();
-        }
-
-        public Property<String> taxname() {
-            return art().taxname();
-        }
-
-        public Property<String> name() {
-            return art().name();
-        }
-        
-        public Property<String> schutzstatus() {
-            return art().schutzstatus();    
-        }
-
-        public Property<Integer> menge() {
-            return new ValueProperty( PflanzeValue.class, value().menge() );
-        }
-
-        public Property<Double> mengenstatusNr() {
-            return new ValueProperty( PflanzeValue.class, value().mengenstatusNr() );
-        }
-
     }
+
+    public static Collection<PflanzeComposite> forEntity( BiotopComposite biotop ) {
+        List<PflanzeComposite> result = new ArrayList( 256 );
+        for (PflanzeValue value : biotop.pflanzen().get()) {
+            result.add( new PflanzeComposite( value, new PflanzenArtFinder() ) );
+        }
+        return Collections.unmodifiableCollection( result );
+    }
+
+    public static PflanzeComposite newInstance( final PflanzenArtComposite art ) {
+        assert art != null;
+        ValueBuilder<PflanzeValue> builder = repo().newValueBuilder( PflanzeValue.class );
+        builder.prototype().pflanzenArtNr().set( art.nummer().get() );
+        PflanzeValue newValue = builder.newInstance();
+        return new PflanzeComposite( newValue, new PflanzenArtFinder() );
+    }
+
+    public static void updateEntity( BiotopComposite biotop, Collection<PflanzeComposite> coll ) {
+        biotop.pflanzen().set( Collections2.transform( coll, new Function<PflanzeComposite,PflanzeValue>() {
+            public PflanzeValue apply( PflanzeComposite input ) {
+                return input.value();
+            }
+        }));
+    }
+
+    // instance *******************************************
     
+    private PflanzeComposite( PflanzeValue value,
+            ValueArtFinder<PflanzeValue, PflanzenArtComposite> artFinder ) {
+        super( value, artFinder );
+    }
+
+    public String id() {
+        return art().id();
+    }
+
+    public Property<String> nummer() {
+        return art().nummer();
+    }
+
+    public Property<String> artengruppeNr() {
+        return art().artengruppeNr();
+    }
+
+    public Property<Integer> taxnr() {
+        return art().taxnr();
+    }
+
+    public Property<String> taxname() {
+        return art().taxname();
+    }
+
+    public Property<String> name() {
+        return art().name();
+    }
+
+    public Property<String> schutzstatus() {
+        return art().schutzstatus();    
+    }
+
+    public Property<Integer> menge() {
+        return new ValueProperty( PflanzeValue.class, value().menge() );
+    }
+
+    public Property<Double> mengenstatusNr() {
+        return new ValueProperty( PflanzeValue.class, value().mengenstatusNr() );
+    }
+
 }

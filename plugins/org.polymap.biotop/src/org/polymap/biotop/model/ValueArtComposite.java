@@ -20,7 +20,6 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.Type;
 
 import org.qi4j.api.common.QualifiedName;
-import org.qi4j.api.composite.TransientComposite;
 import org.qi4j.api.property.Property;
 import org.qi4j.api.property.StateHolder.StateVisitor;
 import org.qi4j.api.value.ValueBuilder;
@@ -42,145 +41,134 @@ import org.polymap.core.runtime.ListenerList;
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public interface ValueArtComposite<V extends ValueComposite,A extends Entity>
-    extends TransientComposite, Composite {
+public abstract class ValueArtComposite<V extends ValueComposite,A extends Entity>
+        implements Composite {
 
-    public void init( V value, ValueArtFinder<V,A> artFinder );
+    // factory / helper ***********************************
+    
+    protected static BiotopRepository repo() {
+        return BiotopRepository.instance();
+    }
+    
+    // instance *******************************************
+    
+    private V                       value;
 
-    public String id();
+    private ValueArtFinder<V,A>     artFinder;
 
-    public V value();
-    
-    public A art();
-    
-    public void addPropertyChangeListener( PropertyChangeListener l );
+    /** Caching the value returned by the {@link #artFinder}. */
+    private A                       art;
 
-    public void removePropertyChangeListener( PropertyChangeListener l );
+    private ListenerList<PropertyChangeListener> listeners = new ListenerList();
+
+
+    public ValueArtComposite( V _value, ValueArtFinder<V,A> _artFinder ) {
+        assert _value != null && _artFinder != null;
+        this.value = _value;
+        this.artFinder = _artFinder;
+    }
+
+    public abstract String id();
     
-    
+    public boolean equals( Object obj ) {
+        if (obj instanceof ValueArtComposite) {
+            ValueArtComposite rhs = (ValueArtComposite)obj;
+            return art() == rhs.art()
+            || art().equals( rhs.art() );
+        }
+        return false;
+    }
+
+    public V value() {
+        return value;  //valueProvider.get();
+    }
+
+    public A art() {
+        if (art == null) {
+            art = artFinder.find( value() );
+        }
+        return art;
+    }
+
+    public void addPropertyChangeListener( PropertyChangeListener l ) {
+        listeners.add( l );
+    }
+
+    public void removePropertyChangeListener( PropertyChangeListener l ) {
+        assert listeners != null;
+        listeners.remove( l );
+    }
+
+    protected void fireEvent( String propName, Object newValue, Object oldValue ) {
+        PropertyChangeEvent ev = new PropertyChangeEvent( this, propName, oldValue, newValue );
+        for (PropertyChangeListener l : listeners) {
+            l.propertyChange( ev );
+        }
+    }
+
     /**
-     * Methods and transient fields.
+     * Wraps a {@link Property} of an {@link ValueComposite}. Settings the
+     * property results in creating a new value, copying all properties but
+     * the new one. The caller does not have to deal wit it.
+     *
+     * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
      */
-    public static abstract class Mixin<V extends ValueComposite,A extends Entity>
-            implements ValueArtComposite<V,A> {
+    public class ValueProperty<T>
+            implements Property<T> {
 
-        private V                       value;
+        private Property<T>                     prop;
 
-        private ValueArtFinder<V,A>     artFinder;
-        
-        /** Caching the value returned by the {@link #artFinder}. */
-        private A                       art;
-        
-        private ListenerList<PropertyChangeListener> listeners = new ListenerList();
-        
-        
-        public void init( V _value, ValueArtFinder<V,A> _artFinder ) {
-            assert _value != null && _artFinder != null;
-            this.value = _value;
-            this.artFinder = _artFinder;
-        }
-        
-        public boolean equals( Object obj ) {
-            if (obj instanceof ValueArtComposite) {
-                ValueArtComposite rhs = (ValueArtComposite)obj;
-                return art() == rhs.art()
-                        || art().equals( rhs.art() );
-            }
-            return false;
-        }
-        
-        public V value() {
-            return value;  //valueProvider.get();
+        private Class<? extends ValueComposite> valueType;
+
+
+        public ValueProperty( Class<? extends ValueComposite> valueType, Property<T> prop ) {
+            assert prop != null && valueType != null;
+            this.prop = prop;
+            this.valueType = valueType;
         }
 
-        public A art() {
-            if (art == null) {
-                art = artFinder.find( value() );
-            }
-            return art;
+
+        // Property ***************************************
+
+        public T get() {
+            return prop.get();
         }
 
-        public void addPropertyChangeListener( PropertyChangeListener l ) {
-            listeners.add( l );
+        public void set( final T newValue )
+        throws IllegalArgumentException, IllegalStateException {
+            ValueBuilder<V> builder = (ValueBuilder<V>)BiotopRepository.instance().newValueBuilder( valueType );
+            final V prototype = builder.prototype();
+            value().state().visitProperties( new StateVisitor() {
+                public void visitProperty( QualifiedName visitedName, Object visitedValue ) {
+                    Property<Object> visitedProp = prototype.state().getProperty( visitedName );
+                    visitedProp.set( visitedName.equals( prop.qualifiedName() )
+                            ? newValue
+                                    : visitedValue );
+                }
+            });
+            value = builder.newInstance();
+            fireEvent( prop.qualifiedName().name(), newValue, null );
         }
 
-        public void removePropertyChangeListener( PropertyChangeListener l ) {
-            assert listeners != null;
-            listeners.remove( l );
+        public boolean isComputed() {
+            return prop.isComputed();
         }
 
-        protected void fireEvent( String propName, Object newValue, Object oldValue ) {
-            PropertyChangeEvent ev = new PropertyChangeEvent( this, propName, oldValue, newValue );
-            for (PropertyChangeListener l : listeners) {
-                l.propertyChange( ev );
-            }
-        }
-        
-        /**
-         * Wraps a {@link Property} of an {@link ValueComposite}. Settings the
-         * property results in creating a new value, copying all properties but
-         * the new one. The caller does not have to deal wit it.
-         *
-         * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
-         */
-        public class ValueProperty<T>
-                implements Property<T> {
-
-            private Property<T>                     prop;
-            
-            private Class<? extends ValueComposite> valueType;
-
-            
-            public ValueProperty( Class<? extends ValueComposite> valueType, Property<T> prop ) {
-                assert prop != null && valueType != null;
-                this.prop = prop;
-                this.valueType = valueType;
-            }
-
-
-            // Property ***************************************
-            
-            public T get() {
-                return prop.get();
-            }
-
-            public void set( final T newValue )
-                    throws IllegalArgumentException, IllegalStateException {
-                ValueBuilder<V> builder = (ValueBuilder<V>)BiotopRepository.instance().newValueBuilder( valueType );
-                final V prototype = builder.prototype();
-                value().state().visitProperties( new StateVisitor() {
-                    public void visitProperty( QualifiedName visitedName, Object visitedValue ) {
-                        Property<Object> visitedProp = prototype.state().getProperty( visitedName );
-                        visitedProp.set( visitedName.equals( prop.qualifiedName() )
-                                ? newValue
-                                : visitedValue );
-                    }
-                });
-                value = builder.newInstance();
-                fireEvent( prop.qualifiedName().name(), newValue, null );
-            }
-
-            public boolean isComputed() {
-                return prop.isComputed();
-            }
-
-            public boolean isImmutable() {
-                return prop.isImmutable();
-            }
-
-            public <I> I metaInfo( Class<I> infoType ) {
-                return prop.metaInfo( infoType );
-            }
-
-            public QualifiedName qualifiedName() {
-                return prop.qualifiedName();
-            }
-
-            public Type type() {
-                return prop.type();
-            }
+        public boolean isImmutable() {
+            return prop.isImmutable();
         }
 
+        public <I> I metaInfo( Class<I> infoType ) {
+            return prop.metaInfo( infoType );
+        }
+
+        public QualifiedName qualifiedName() {
+            return prop.qualifiedName();
+        }
+
+        public Type type() {
+            return prop.type();
+        }
     }
     
 }
