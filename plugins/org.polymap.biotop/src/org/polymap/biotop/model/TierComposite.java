@@ -20,16 +20,16 @@ import org.qi4j.api.mixin.Mixins;
 import org.qi4j.api.property.Property;
 
 /**
- * A Value/Art composite that combines {@link PflanzeValue} and
- * {@link PflanzenArtComposite}.
+ * A Value/Art composite that combines {@link TierValue} and
+ * {@link TierArtComposite}.
  * 
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 @Mixins(
-        PflanzeComposite.Mixin.class
+        TierComposite.Mixin.class
 )
-public interface PflanzeComposite
-    extends ValueArtComposite<PflanzeValue,PflanzenArtComposite> { 
+public interface TierComposite
+    extends ValueArtComposite<TierValue,TierArtComposite> { 
 
     //public boolean equals( Object obj );
 
@@ -40,10 +40,13 @@ public interface PflanzeComposite
     Property<String>            artengruppeNr();
 
     @Optional
-    Property<Integer>           taxnr();
+    Property<String>            gattung();
 
     @Optional
-    Property<String>            taxname();
+    Property<String>            species();
+
+    @Optional
+    Property<String>            sysCode();
 
     @Optional
     Property<String>            name();
@@ -52,7 +55,7 @@ public interface PflanzeComposite
     Property<String>            schutzstatus();
 
     /**
-     * @return {@link PflanzeValue#menge()} 
+     * @return {@link TierValue#menge()} 
      */
     @Optional
     Property<Integer>           menge();
@@ -65,8 +68,8 @@ public interface PflanzeComposite
      * Methods and transient fields.
      */
     public static abstract class Mixin
-            extends ValueArtComposite.Mixin<PflanzeValue,PflanzenArtComposite>
-            implements PflanzeComposite {
+            extends ValueArtComposite.Mixin<TierValue,TierArtComposite>
+            implements TierComposite {
 
         public String id() {
             return art().id();
@@ -80,12 +83,16 @@ public interface PflanzeComposite
             return art().artengruppeNr();
         }
 
-        public Property<Integer> taxnr() {
-            return art().taxnr();
+        public Property<String> gattung() {
+            return art().gattung();
         }
 
-        public Property<String> taxname() {
-            return art().taxname();
+        public Property<String> species() {
+            return art().species();
+        }
+
+        public Property<String> sysCode() {
+            return art().sysCode();
         }
 
         public Property<String> name() {
@@ -97,11 +104,11 @@ public interface PflanzeComposite
         }
 
         public Property<Integer> menge() {
-            return new ValueProperty( PflanzeValue.class, value().menge() );
+            return new ValueProperty( TierValue.class, value().menge() );
         }
 
         public Property<Double> mengenstatusNr() {
-            return new ValueProperty( PflanzeValue.class, value().mengenstatusNr() );
+            return new ValueProperty( TierValue.class, value().mengenstatusNr() );
         }
 
     }

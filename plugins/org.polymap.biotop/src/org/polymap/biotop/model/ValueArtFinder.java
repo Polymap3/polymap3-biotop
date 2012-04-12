@@ -17,13 +17,15 @@ package org.polymap.biotop.model;
 import org.qi4j.api.entity.EntityComposite;
 import org.qi4j.api.value.ValueComposite;
 
+import org.polymap.core.model.Entity;
+
 /**
  * Provides the logic to find the corresponding Art {@link EntityComposite}
  * for a given value.
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public interface ValueArtFinder<V extends ValueComposite,A extends EntityComposite> {
+public interface ValueArtFinder<V extends ValueComposite,A extends Entity> {
 
     public A find( V value );
     

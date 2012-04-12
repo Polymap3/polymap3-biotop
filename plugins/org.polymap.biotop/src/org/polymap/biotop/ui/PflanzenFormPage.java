@@ -17,6 +17,9 @@ package org.polymap.biotop.ui;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.PropertyDescriptor;
@@ -56,7 +59,7 @@ import org.polymap.biotop.model.PflanzenArtComposite;
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 public class PflanzenFormPage
-        implements IFormEditorPage2 {
+        implements IFormEditorPage2, PropertyChangeListener {
 
     static final int                SECTION_SPACING = BiotopFormPageProvider.SECTION_SPACING;
 
@@ -128,7 +131,19 @@ public class PflanzenFormPage
     public boolean isValid() {
         return true;
     }
-
+    
+    /**
+     * Handles Value property changes. 
+     */
+    public void propertyChange( PropertyChangeEvent evt ) {
+        try {
+            dirty = true;
+            site.reloadEditor();
+        }
+        catch (Exception e) {
+            throw new RuntimeException( e );
+        }
+    }
     
     protected Section createPflanzen2Section( Composite parent ) {
         Section section = tk.createSection( parent, Section.TITLE_BAR );
@@ -152,21 +167,22 @@ public class PflanzenFormPage
                  .setHeader( "Name" ));
         prop = new PropertyDescriptorAdapter( type.getProperty( "taxname" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                 .setHeader( "Taxname" ));
+                 .setHeader( "Wissenschaftl." ));
         prop = new PropertyDescriptorAdapter( type.getProperty( "schutzstatus" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
                  .setHeader( "Schutzstatus" ));
         prop = new PropertyDescriptorAdapter( type.getProperty( "menge" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                 .setHeader( "Menge" ) );
-//                 .setEditing( true ) );
-        prop = new PropertyDescriptorAdapter( type.getProperty( "mengenstatusNr" ) );
-        viewer.addColumn( new DefaultFeatureTableColumn( prop )
-                 .setHeader( "MengenstatusNr" ) );
+                 .setHeader( "Menge" ) 
+                 .setEditing( true ) );
+//        prop = new PropertyDescriptorAdapter( type.getProperty( "mengenstatusNr" ) );
+//        viewer.addColumn( new DefaultFeatureTableColumn( prop )
+//                 .setHeader( "MengenstatusNr" ) );
 
         // model/content
         model = new HashMap();
         for (PflanzeComposite elm : biotop.getPflanzen2()) {
+            elm.addPropertyChangeListener( this );
             model.put( elm.id(), elm );
         }
         viewer.setContent( new CompositesFeatureContentProvider( model.values(), type ) );

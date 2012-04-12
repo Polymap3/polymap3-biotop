@@ -32,7 +32,6 @@ import net.refractions.udig.catalog.IService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.qi4j.api.entity.EntityComposite;
 import org.qi4j.api.query.Query;
 import org.qi4j.api.query.grammar.BooleanExpression;
 import org.qi4j.api.service.ServiceReference;
@@ -44,6 +43,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.polymap.core.model.CompletionException;
 import org.polymap.core.model.ConcurrentModificationException;
+import org.polymap.core.model.Entity;
 import org.polymap.core.operation.OperationSupport;
 import org.polymap.core.qi4j.Qi4jPlugin;
 import org.polymap.core.qi4j.QiModule;
@@ -289,7 +289,7 @@ public class BiotopRepository
     }
     
 
-    public <V extends ValueComposite,A extends EntityComposite,C extends ValueArtComposite<V,A>> 
+    public <V extends ValueComposite,A extends Entity,C extends ValueArtComposite<V,A>> 
             C createValueArt( 
                     Class<C> cl, 
                     V value, 

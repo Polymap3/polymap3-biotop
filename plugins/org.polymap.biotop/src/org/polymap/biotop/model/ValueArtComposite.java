@@ -15,58 +15,63 @@
  */
 package org.polymap.biotop.model;
 
-
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.Type;
 
 import org.qi4j.api.common.QualifiedName;
 import org.qi4j.api.composite.TransientComposite;
-import org.qi4j.api.entity.EntityComposite;
 import org.qi4j.api.property.Property;
 import org.qi4j.api.property.StateHolder.StateVisitor;
 import org.qi4j.api.value.ValueBuilder;
 import org.qi4j.api.value.ValueComposite;
 
+import org.polymap.core.model.Composite;
+import org.polymap.core.model.Entity;
+import org.polymap.core.runtime.ListenerList;
+
 /**
  * Models a m:n association where <code>V</code> (Value) represents the 'join table'
  * with the modifyable values and <code>A</code> (Art) represents the unmodifiable
  * Art/Type properties of the valueProvider.
+ * <p/>
+ * Sub-classes can pass-through properties of the Art. Properties of the Value should
+ * be wrapped in a {@link ValueProperty}. Any property modifications are cached inside.
+ * The {@link #value()} can be used to update the corresponding Entity when all changes
+ * are done.
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public interface ValueArtComposite<V extends ValueComposite,A extends EntityComposite>
-    extends TransientComposite {
+public interface ValueArtComposite<V extends ValueComposite,A extends Entity>
+    extends TransientComposite, Composite {
 
     public void init( V value, ValueArtFinder<V,A> artFinder );
-    
+
+    public String id();
+
     public V value();
     
     public A art();
     
+    public void addPropertyChangeListener( PropertyChangeListener l );
 
-//    /**
-//     * 
-//     */
-//    public static interface ValueProvider<V extends ValueComposite> {
-//        
-//        public V get();
-//        
-//        public void set( V value );
-//        
-//    }
+    public void removePropertyChangeListener( PropertyChangeListener l );
     
     
     /**
      * Methods and transient fields.
      */
-    public static abstract class Mixin<V extends ValueComposite,A extends EntityComposite>
+    public static abstract class Mixin<V extends ValueComposite,A extends Entity>
             implements ValueArtComposite<V,A> {
 
         private V                       value;
 
         private ValueArtFinder<V,A>     artFinder;
         
-        /** Caching the valueProvider returned by the {@link #artFinder}. */
+        /** Caching the value returned by the {@link #artFinder}. */
         private A                       art;
+        
+        private ListenerList<PropertyChangeListener> listeners = new ListenerList();
         
         
         public void init( V _value, ValueArtFinder<V,A> _artFinder ) {
@@ -95,20 +100,41 @@ public interface ValueArtComposite<V extends ValueComposite,A extends EntityComp
             return art;
         }
 
+        public void addPropertyChangeListener( PropertyChangeListener l ) {
+            listeners.add( l );
+        }
+
+        public void removePropertyChangeListener( PropertyChangeListener l ) {
+            assert listeners != null;
+            listeners.remove( l );
+        }
+
+        protected void fireEvent( String propName, Object newValue, Object oldValue ) {
+            PropertyChangeEvent ev = new PropertyChangeEvent( this, propName, oldValue, newValue );
+            for (PropertyChangeListener l : listeners) {
+                l.propertyChange( ev );
+            }
+        }
         
         /**
-         * 
+         * Wraps a {@link Property} of an {@link ValueComposite}. Settings the
+         * property results in creating a new value, copying all properties but
+         * the new one. The caller does not have to deal wit it.
          *
          * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
          */
         public class ValueProperty<T>
                 implements Property<T> {
 
-            private Property<T>         prop;
+            private Property<T>                     prop;
             
+            private Class<? extends ValueComposite> valueType;
 
-            public ValueProperty( Property<T> prop ) {
+            
+            public ValueProperty( Class<? extends ValueComposite> valueType, Property<T> prop ) {
+                assert prop != null && valueType != null;
                 this.prop = prop;
+                this.valueType = valueType;
             }
 
 
@@ -120,7 +146,7 @@ public interface ValueArtComposite<V extends ValueComposite,A extends EntityComp
 
             public void set( final T newValue )
                     throws IllegalArgumentException, IllegalStateException {
-                ValueBuilder<V> builder = (ValueBuilder<V>)BiotopRepository.instance().newValueBuilder( prop.get().getClass() );
+                ValueBuilder<V> builder = (ValueBuilder<V>)BiotopRepository.instance().newValueBuilder( valueType );
                 final V prototype = builder.prototype();
                 value().state().visitProperties( new StateVisitor() {
                     public void visitProperty( QualifiedName visitedName, Object visitedValue ) {
@@ -131,6 +157,7 @@ public interface ValueArtComposite<V extends ValueComposite,A extends EntityComp
                     }
                 });
                 value = builder.newInstance();
+                fireEvent( prop.qualifiedName().name(), newValue, null );
             }
 
             public boolean isComputed() {

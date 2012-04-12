@@ -284,6 +284,12 @@ public interface BiotopComposite
     @UseDefaults
     Property<Collection<TierValue>> tiere();
 
+    public Collection<TierComposite> getTiere2();
+
+    public TierComposite newTier2( TierArtComposite art );
+
+    public void setTiere2( Collection<TierComposite> coll );
+
     @Optional
     @ImportColumn("Nr_Naturraum")
     Property<String>            naturraumNr();
@@ -326,6 +332,8 @@ public interface BiotopComposite
 //        private PropertyInfo        bearbeiterInfo = new GenericPropertyInfo( BiotopComposite.class, "bearbeiter" );
 
 
+        // Pflanzen ***************************************
+        
         protected class PflanzenArtFinder 
                 implements ValueArtFinder<PflanzeValue,PflanzenArtComposite> {
 
@@ -338,17 +346,12 @@ public interface BiotopComposite
             }
         }
         
-        
         public Collection<PflanzeComposite> getPflanzen2() {
             List<PflanzeComposite> result = new ArrayList( 256 );
             for (PflanzeValue value : pflanzen().get()) {
                 result.add( repo.createValueArt( PflanzeComposite.class, value, new PflanzenArtFinder() ) );
             }
             return Collections.unmodifiableCollection( result );
-//            return Iterators.transform( pflanzen().get().iterator(), new Function<PflanzeValue,PflanzeComposite>() {
-//                public PflanzeComposite apply( final PflanzeValue input ) {
-//                    return repo.createValueArt( PflanzeComposite.class, input, new PflanzenArtFinder() );
-//                }});
         }
 
         public PflanzeComposite newPflanze2( final PflanzenArtComposite art ) {
@@ -364,6 +367,47 @@ public interface BiotopComposite
         public void setPflanzen2( Collection<PflanzeComposite> coll ) {
             pflanzen().set( Collections2.transform( coll, new Function<PflanzeComposite,PflanzeValue>() {
                 public PflanzeValue apply( PflanzeComposite input ) {
+                    return input.value();
+                }
+            }));
+        }
+
+        
+        // Tiere ***************************************
+        
+        protected class TierArtFinder 
+                implements ValueArtFinder<TierValue,TierArtComposite> {
+
+            public TierArtComposite find( TierValue value ) {
+                assert value != null;
+                TierArtComposite template = QueryExpressions.templateFor( TierArtComposite.class );
+                BooleanExpression expr = QueryExpressions.eq( template.nummer(), value.tierArtNr().get() );
+                Query<TierArtComposite> matches = repo.findEntities( TierArtComposite.class, expr, 0 , 1 );
+                return matches.find();
+            }
+        }
+        
+        public Collection<TierComposite> getTiere2() {
+            List<TierComposite> result = new ArrayList( 256 );
+            for (TierValue value : tiere().get()) {
+                result.add( repo.createValueArt( TierComposite.class, value, new TierArtFinder() ) );
+            }
+            return Collections.unmodifiableCollection( result );
+        }
+
+        public TierComposite newTier2( final TierArtComposite art ) {
+            assert art != null;
+            
+            ValueBuilder<TierValue> builder = repo.newValueBuilder( TierValue.class );
+            builder.prototype().tierArtNr().set( art.nummer().get() );
+            TierValue newValue = builder.newInstance();
+            
+            return repo.createValueArt( TierComposite.class, newValue, new TierArtFinder() );
+        }
+
+        public void setTiere2( Collection<TierComposite> coll ) {
+            tiere().set( Collections2.transform( coll, new Function<TierComposite,TierValue>() {
+                public TierValue apply( TierComposite input ) {
                     return input.value();
                 }
             }));
