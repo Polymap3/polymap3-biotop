@@ -34,14 +34,17 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ui.forms.widgets.Section;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.polymap.core.data.ui.featuretable.FeatureTableViewer;
 import org.polymap.core.data.ui.featuretable.IFeatureTableElement;
 import org.polymap.core.model.Entity;
 import org.polymap.core.model.EntityType;
 import org.polymap.core.project.ui.util.SimpleFormData;
+import org.polymap.core.runtime.Polymap;
 
 import org.polymap.rhei.data.entityfeature.CompositesFeatureContentProvider;
+import org.polymap.rhei.field.IFormFieldListener;
 import org.polymap.rhei.form.DefaultFormPageLayouter;
 import org.polymap.rhei.form.IFormEditorPage2;
 import org.polymap.rhei.form.IFormEditorPageSite;
@@ -79,6 +82,7 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
     
     private boolean                 dirty;
 
+
     // sub-class interface ********************************
     
     public abstract String getTitle();
@@ -115,21 +119,29 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
         layouter = new DefaultFormPageLayouter();
 
         site.setFormTitle( "Biotop: " + biotop.objnr().get() );
-        FormLayout layout = new FormLayout();
-        site.getPageBody().setLayout( layout );
+        site.getPageBody().setLayout( new FormLayout() );
 
-        Section section = createSection( site.getPageBody() );
-        section.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                .left( 0 ).right( 100 ).top( 0, 0 ).bottom( 100 ).create() );
+        createSection( site.getPageBody() );
     }
 
 
     public void doLoad( IProgressMonitor monitor ) throws Exception {
-        if (viewer != null) { viewer.refresh(); }
+        if (viewer != null) {
+            model = new HashMap();
+            for (C elm : getElements()) {
+                elm.addPropertyChangeListener( this );
+                model.put( elm.id(), elm );
+            }
+            viewer.setInput( model.values() );
+            viewer.refresh(); 
+        }
+        dirty = false;
     }
 
     public void doSubmit( IProgressMonitor monitor ) throws Exception {
-        if (model != null) { updateElements( model.values() ); }
+        if (model != null) { 
+            updateElements( model.values() );
+        }
         dirty = false;
     }
 
@@ -147,23 +159,28 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
     public void propertyChange( PropertyChangeEvent evt ) {
         try {
             dirty = true;
-            site.reloadEditor();
+            // update dirty/valid flags of the editor
+            site.fireEvent( this, "ValueArtFormPage", IFormFieldListener.VALUE_CHANGE, null );
+            viewer.refresh( true );
         }
         catch (Exception e) {
             throw new RuntimeException( e );
         }
     }
     
-    protected Section createSection( Composite parent ) {
-        final Section section = tk.createSection( parent, Section.TITLE_BAR );
+    protected Section createSection( final Composite parent ) {
+        final Section section = tk.createSection( parent, /*SWT.BORDER |*/ Section.TITLE_BAR );
+        section.setLayoutData( new SimpleFormData( 5 ).fill().top( 0, 0 ).bottom( 100, -10 ).create() );
+        section.setLayout( new FormLayout() );
         section.setText( getTitle() );
 
-        final Composite client = tk.createComposite( section );
+        final Composite client = tk.createComposite( section/*, SWT.BORDER*/ );
+        client.setLayoutData( new SimpleFormData().fill().bottom( 100 ).create() );
         client.setLayout( new FormLayout() );
         section.setClient( client );
 
         viewer = new FeatureTableViewer( client, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL );
-        viewer.getTable().setLayoutData( new SimpleFormData().fill().bottom( 100 ).height( 100 ).right( 100, -40 ).create() );
+        viewer.getTable().setLayoutData( new SimpleFormData().fill().right( 100, -40 ).create() );
 
         // entity types
         final BiotopRepository repo = BiotopRepository.instance();
@@ -172,13 +189,14 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
         EntityType type = addViewerColumns( viewer );
 
         // model/content
-        model = new HashMap();
-        for (C elm : getElements()) {
-            elm.addPropertyChangeListener( this );
-            model.put( elm.id(), elm );
+        viewer.setContent( new CompositesFeatureContentProvider( null, type ) );
+        try {
+            doLoad( new NullProgressMonitor() );
+        } catch (Exception e) {
+            throw new RuntimeException( e );
         }
-        viewer.setContent( new CompositesFeatureContentProvider( model.values(), type ) );
-        viewer.setInput( model );
+        client.layout( true );
+        parent.layout( true );
 
         // add action
         Query<A> arten = repo.findEntities( getArtType(), null, 0, 10000 );
@@ -187,9 +205,14 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
                 assert sel != null;
                 model.put( sel.id(), newElement( sel ) );
                 dirty = true;
-                site.reloadEditor();
-                section.layout( true );
-                viewer.getTable().layout( true );
+                Polymap.getSessionDisplay().asyncExec( new Runnable() {
+                    public void run() {
+                        // update dirty/valid flags of the editor
+                        site.fireEvent( this, "ValueArtFormPage", IFormFieldListener.VALUE_CHANGE, null );
+                        viewer.refresh( true );
+                        viewer.getTable().layout( true );
+                    }
+                });
             }
         };
         ActionButton addBtn = new ActionButton( client, addAction );
@@ -207,8 +230,13 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
                     }
                     dirty = true;
                 }
-                // refresh my viewer and update dirty/valid flags of the editor
-                site.reloadEditor();
+                Polymap.getSessionDisplay().asyncExec( new Runnable() {
+                    public void run() {
+                        // update dirty/valid flags of the editor
+                        site.fireEvent( this, "ValueArtFormPage", IFormFieldListener.VALUE_CHANGE, null );
+                        viewer.refresh();
+                    }
+                });
             }
         };
         viewer.addSelectionChangedListener( removeAction );

@@ -40,7 +40,7 @@ public class WertFormPage
     }
 
     public String getTitle() {
-        return "Wertbestimmend";
+        return "Gesichtspunkte";
     }
 
     public Class<WertArtComposite> getArtType() {

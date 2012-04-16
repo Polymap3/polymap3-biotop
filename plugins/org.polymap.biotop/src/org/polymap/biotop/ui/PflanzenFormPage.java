@@ -14,43 +14,18 @@
  */
 package org.polymap.biotop.ui;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
+import java.util.Collection;
 import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.PropertyDescriptor;
 
-import org.qi4j.api.query.Query;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Composite;
-
-import org.eclipse.jface.action.Action;
-import org.eclipse.ui.forms.widgets.Section;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-
 import org.polymap.core.data.ui.featuretable.DefaultFeatureTableColumn;
 import org.polymap.core.data.ui.featuretable.FeatureTableViewer;
-import org.polymap.core.data.ui.featuretable.IFeatureTableElement;
 import org.polymap.core.model.EntityType;
-import org.polymap.core.project.ui.util.SimpleFormData;
-
-import org.polymap.rhei.data.entityfeature.CompositesFeatureContentProvider;
 import org.polymap.rhei.data.entityfeature.PropertyDescriptorAdapter;
-import org.polymap.rhei.form.DefaultFormPageLayouter;
-import org.polymap.rhei.form.IFormEditorPage2;
-import org.polymap.rhei.form.IFormEditorPageSite;
-import org.polymap.rhei.form.IFormEditorToolkit;
-
-import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
 import org.polymap.biotop.model.PflanzeComposite;
+import org.polymap.biotop.model.PflanzeValue;
 import org.polymap.biotop.model.PflanzenArtComposite;
 
 /**
@@ -59,37 +34,10 @@ import org.polymap.biotop.model.PflanzenArtComposite;
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 public class PflanzenFormPage
-        implements IFormEditorPage2, PropertyChangeListener {
-
-    static final int                SECTION_SPACING = BiotopFormPageProvider.SECTION_SPACING;
-
-    private Feature                 feature;
-
-    private FeatureStore            fs;
-
-    private BiotopComposite         biotop;
-
-    IFormEditorPageSite             site;
-
-    private IFormEditorToolkit      tk;
-
-    private FeatureTableViewer      viewer;
-
-    private Map<String,PflanzeComposite> model;
-
-    private DefaultFormPageLayouter layouter;
-    
-    private boolean                 dirty;
-
+        extends ValueArtFormPage<PflanzeValue,PflanzenArtComposite,PflanzeComposite> {
 
     protected PflanzenFormPage( Feature feature, FeatureStore featureStore ) {
-        this.feature = feature;
-        this.fs = featureStore;
-        this.biotop = BiotopRepository.instance().findEntity(
-                BiotopComposite.class, feature.getIdentifier().getID() );
-    }
-
-    public void dispose() {
+        super( feature, featureStore );
     }
 
     public String getId() {
@@ -100,67 +48,28 @@ public class PflanzenFormPage
         return "Pflanzen";
     }
 
-    public void createFormContent( IFormEditorPageSite _site ) {
-        site = _site;
-        tk = site.getToolkit();
-        layouter = new DefaultFormPageLayouter();
+    public Class<PflanzenArtComposite> getArtType() {
+        return PflanzenArtComposite.class;
+    }
 
-        site.setFormTitle( "Biotop: " + biotop.objnr().get() );
-        FormLayout layout = new FormLayout();
-        site.getPageBody().setLayout( layout );
+    public Iterable<PflanzeComposite> getElements() {
+        return PflanzeComposite.forEntity( biotop );
+    }
 
-        Section pflanzenSection = createPflanzen2Section( site.getPageBody() );
-        pflanzenSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                .left( 0 ).right( 100 ).top( 0, 0 ).bottom( 100 ).create() );
+    public PflanzeComposite newElement( PflanzenArtComposite art ) {
+        return PflanzeComposite.newInstance( art );
+    }
+
+    public void updateElements( Collection<PflanzeComposite> coll ) {
+        PflanzeComposite.updateEntity( biotop, coll );
     }
 
 
-    public void doLoad( IProgressMonitor monitor ) throws Exception {
-        if (viewer != null) { viewer.refresh(); }
-    }
-
-    public void doSubmit( IProgressMonitor monitor ) throws Exception {
-        if (model != null) { PflanzeComposite.updateEntity( biotop, model.values() ); }
-        dirty = false;
-    }
-
-    public boolean isDirty() {
-        return dirty;
-    }
-
-    public boolean isValid() {
-        return true;
-    }
-    
-    /**
-     * Handles Value property changes. 
-     */
-    public void propertyChange( PropertyChangeEvent evt ) {
-        try {
-            dirty = true;
-            site.reloadEditor();
-        }
-        catch (Exception e) {
-            throw new RuntimeException( e );
-        }
-    }
-    
-    protected Section createPflanzen2Section( Composite parent ) {
-        Section section = tk.createSection( parent, Section.TITLE_BAR );
-        section.setText( "Pflanzen" );
-
-        Composite client = tk.createComposite( section );
-        client.setLayout( new FormLayout() );
-        section.setClient( client );
-
-        viewer = new FeatureTableViewer( client, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL );
-        viewer.getTable().setLayoutData( new SimpleFormData().fill().bottom( 100 ).right( 100, -40 ).create() );
-
+    public EntityType<PflanzeComposite> addViewerColumns( FeatureTableViewer viewer ) {
         // entity types
         final BiotopRepository repo = BiotopRepository.instance();
         final EntityType<PflanzeComposite> type = repo.entityType( PflanzeComposite.class );
 
-        // columns
         PropertyDescriptor prop = null;
         prop = new PropertyDescriptorAdapter( type.getProperty( "name" ) );
         viewer.addColumn( new DefaultFeatureTableColumn( prop )
@@ -178,55 +87,9 @@ public class PflanzenFormPage
 //        prop = new PropertyDescriptorAdapter( type.getProperty( "mengenstatusNr" ) );
 //        viewer.addColumn( new DefaultFeatureTableColumn( prop )
 //                 .setHeader( "MengenstatusNr" ) );
-
-        // model/content
-        model = new HashMap();
-        for (PflanzeComposite elm : PflanzeComposite.forEntity( biotop )) {
-            elm.addPropertyChangeListener( this );
-            model.put( elm.id(), elm );
-        }
-        viewer.setContent( new CompositesFeatureContentProvider( model.values(), type ) );
-        viewer.setInput( model );
-
-        // add action
-        Query<PflanzenArtComposite> arten = repo.findEntities( PflanzenArtComposite.class, null, 0, 10000 );
-        AddValueArtAction addAction = new AddValueArtAction<PflanzenArtComposite>( PflanzenArtComposite.class, arten ) {
-            protected void execute( PflanzenArtComposite sel ) throws Exception {
-                assert sel != null;
-                model.put( sel.id(), PflanzeComposite.newInstance( sel ) );
-                dirty = true;
-                viewer.getTable().pack();
-                site.reloadEditor();
-            }
-        };
-        ActionButton addBtn = new ActionButton( client, addAction );
-        addBtn.setLayoutData( new SimpleFormData()
-                .left( viewer.getTable(), SECTION_SPACING )
-                .top( 0 ).right( 100 ).height( 30 ).create() );
-
-        // remove action
-        final RemoveValueArtAction removeAction = new RemoveValueArtAction() {
-            public void execute() throws Exception {
-                for (IFeatureTableElement sel : viewer.getSelectedElements()) {
-                    PflanzeComposite elm = (PflanzeComposite)((CompositesFeatureContentProvider.FeatureTableElement)sel).getComposite();
-                    if (model.remove( elm.id() ) == null) {
-                        throw new IllegalStateException( "Konnte nicht gelöscht werden: " + elm );
-                    }
-                    dirty = true;
-                }
-                // refresh my viewer and update dirty/valid flags of the editor
-                site.reloadEditor();
-            }
-        };
-        viewer.addSelectionChangedListener( removeAction );
-        
-        ActionButton removeBtn = new ActionButton( client, removeAction );
-        removeBtn.setLayoutData( new SimpleFormData()
-                .left( viewer.getTable(), SECTION_SPACING )
-                .top( addBtn, 5 ).right( 100 ).height( 30 ).create() );
-
-        return section;
+        return type;
     }
+
 
     
 //    protected Section createPflanzenSection( Composite parent ) {
@@ -301,9 +164,5 @@ public class PflanzenFormPage
 //        
 //        return section;
 //    }
-
-    public Action[] getEditorActions() {
-        return null;
-    }
 
 }

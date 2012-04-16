@@ -237,6 +237,30 @@ public class BiotopFormPageProvider
                     new PropertyAdapter( biotop.status() ),
                     new PicklistFormField( Status.all ), null, "Status" ) );
 
+            // listen to field changes
+            site.addFieldListener( new IFormFieldListener() {
+                public void fieldChange( FormFieldEvent ev ) {
+                    if (ev.getFieldName().equals( biotop.status().qualifiedName().name() )) { 
+                        if (ev.getNewValue() != null 
+                                && ev.getNewValue().equals( Status.nicht_aktuell.id )) {
+                            Principal user = Polymap.instance().getUser();
+                            Calendar now = Calendar.getInstance( Locale.GERMANY );
+                            now.set( Calendar.MILLISECOND, 0 );
+
+                            ValueBuilder<AktivitaetValue> builder = BiotopRepository.instance().newValueBuilder( AktivitaetValue.class );
+                            AktivitaetValue prototype = builder.prototype();
+
+                            prototype.wann().set( now.getTime() );
+                            prototype.wer().set( user.getName() );
+                            prototype.bemerkung().set( "" );
+                            biotop.loeschung().set( builder.newInstance() );
+
+//                            site.setFieldValue( "deleted_wann", now.getTime() );
+//                            site.setFieldValue( "deleted_wer", user.getName() );
+                        }
+                    }
+                }
+            });
 
             return section;
         }
@@ -416,10 +440,8 @@ public class BiotopFormPageProvider
             section.setClient( client );
             
             createAktivitaet( client, biotop.erfassung().get(), "created_", "Erfasst (Wann/Wer)" );
-            if (biotop.status().get() == Status.aktuell.id) {
-                createAktivitaet( client, biotop.bearbeitung().get(), "modified_", "Bearbeitet" );
-            }
-            else {
+            createAktivitaet( client, biotop.bearbeitung().get(), "modified_", "Bearbeitet" );
+            if (biotop.status().get() == Status.nicht_aktuell.id) {
                 createAktivitaet( client, biotop.loeschung().get(), "deleted_", "Gelöscht" );
             }
             
@@ -428,7 +450,7 @@ public class BiotopFormPageProvider
                 public void fieldChange( FormFieldEvent ev ) {
                     if (ev.getFieldName().endsWith( "wann" ) 
                             || ev.getFieldName().endsWith( "wer" )
-                            || !site.isDirty()) {
+                            /*|| !site.isDirty()*/) {
                         return;
                     }
                     
@@ -454,6 +476,11 @@ public class BiotopFormPageProvider
 
         
         private void createAktivitaet( Composite client, AktivitaetValue aktivitaet, String prefix, String label) {
+            //assert aktivitaet != null;
+            if (aktivitaet == null || aktivitaet.wann().get() == null) {
+                log.warn( "Aktivität oder .wann().get() ist null: " + prefix );
+                return;
+            }
             Calendar wann = Calendar.getInstance( Locale.GERMANY );
             wann.setTime( aktivitaet.wann().get() );
             wann.set( Calendar.MILLISECOND, 0 );
