@@ -65,9 +65,9 @@ public class BiotopEntityProvider
         Name( String.class ), 
         Beschreibung( String.class ), 
         Biotoptyp( String.class ), 
-        Geprueft( String.class, "Geprüft" ), 
+        Geprueft( Boolean.class, "Geprüft" ), 
         Wert( String.class ), 
-        Archiv( String.class );
+        Archiv( Integer.class );
         
         private Class       type;
         
@@ -122,6 +122,7 @@ public class BiotopEntityProvider
 
     public Query transformQuery( Query query ) {
         Filter dublicate = (Filter)query.getFilter().accept( new DuplicatingFilterVisitor() {
+            
             public Object visit( PropertyName input, Object data ) {
                 if (input.getPropertyName().equals( PROP.Wert.toString() )) {
                     return getFactory( data ).property( "wert" );
@@ -142,10 +143,10 @@ public class BiotopEntityProvider
                     throw new RuntimeException( "Das Feld ist errechnet und kann nicht durchsucht werden: " + PROP.Biotoptyp.toString() );
                 }
                 else if (input.getPropertyName().equals( PROP.Geprueft.toString() )) {
-                    throw new RuntimeException( "Das Feld ist errechnet und kann nicht durchsucht werden: " + PROP.Geprueft.toString() );
+                    return getFactory( data ).property( "geprueft" );
                 }
                 else if (input.getPropertyName().equals( PROP.Archiv.toString() )) {
-                    throw new RuntimeException( "Das Feld ist errechnet und kann nicht durchsucht werden: " + PROP.Archiv.toString() );
+                    return getFactory( data ).property( "status" );
                 }
                 return input;
             }
@@ -168,8 +169,8 @@ public class BiotopEntityProvider
             fb.set( PROP.Beschreibung.toString(), biotop.beschreibung().get() );
             fb.set( PROP.Biotoptyp.toString(), biotop.biotoptypArtNr().get() );
             fb.set( PROP.Wert.toString(), biotop.wert().get() );
-            fb.set( PROP.Geprueft.toString(), biotop.geprueft().get().booleanValue() ? "ja" : "nein" );
-            fb.set( PROP.Archiv.toString(), biotop.status().get() == Status.nicht_aktuell.id ? "ja" : "nein" );
+            fb.set( PROP.Geprueft.toString(), biotop.geprueft().get() /*.booleanValue() ? "ja" : "nein"*/ );
+            fb.set( PROP.Archiv.toString(), biotop.status().get() /*== Status.nicht_aktuell.id ? "ja" : "nein"*/ );
             
             String nummer = biotop.biotoptypArtNr().get();
             BiotoptypArtComposite biotoptyp = ((BiotopRepository)repo).btForNummer( nummer );
