@@ -15,9 +15,6 @@
  */
 package org.polymap.biotop.model;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.qi4j.api.common.Optional;
 import org.qi4j.api.concern.Concerns;
 import org.qi4j.api.entity.EntityComposite;
@@ -29,6 +26,7 @@ import org.polymap.core.qi4j.event.ModelChangeSupport;
 import org.polymap.core.qi4j.event.PropertyChangeSupport;
 
 import org.polymap.biotop.model.importer.ImportColumn;
+import org.polymap.biotop.model.importer.ImportTable;
 
 /**
  *
@@ -39,25 +37,26 @@ import org.polymap.biotop.model.importer.ImportColumn;
     PropertyChangeSupport.Concern.class
 } )
 @Mixins( {
-    GefahrArtComposite.Mixin.class,
+    WertArtComposite.Mixin.class,
     PropertyChangeSupport.Mixin.class,
     ModelChangeSupport.Mixin.class,
     QiEntity.Mixin.class
 //    JsonState.Mixin.class
 } )
-public interface GefahrArtComposite
+@ImportTable("Referenz_Wertbestimmend")
+public interface WertArtComposite
     extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
 
-//    INFO] MdbImportOperation - Table: Referenz_Beeinträchtigung
-//    [INFO] MdbImportOperation -     column: Nr_Beeinträchtigung - BYTE
-//    [INFO] MdbImportOperation -     column: Beeinträchtigung - TEXT
+//    [INFO] MdbImportOperation - Table: Referenz_Wertbestimmend
+//    [INFO] MdbImportOperation -     column: Nr_Wertbestimmend - BYTE
+//    [INFO] MdbImportOperation -     column: Wertbestimmend - TEXT
     
     @Optional
-    @ImportColumn("Nr_Beeinträchtigung")
+    @ImportColumn("Nr_Wertbestimmend")
     Property<String>            nummer();
 
     @Optional
-    @ImportColumn("Beeinträchtigung")
+    @ImportColumn("Wertbestimmend")
     Property<String>            name();
 
 
@@ -65,10 +64,7 @@ public interface GefahrArtComposite
      * Methods and transient fields.
      */
     public static abstract class Mixin
-            implements GefahrArtComposite {
-
-        private static Log log = LogFactory.getLog( Mixin.class );
-
+            implements WertArtComposite {
     }
 
 }

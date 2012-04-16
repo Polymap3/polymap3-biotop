@@ -15,7 +15,6 @@
  */
 package org.polymap.biotop.model;
 
-import org.qi4j.api.common.Optional;
 import org.qi4j.api.property.Property;
 import org.qi4j.api.value.ValueComposite;
 
@@ -25,31 +24,20 @@ import org.polymap.biotop.model.importer.ImportColumn;
 import org.polymap.biotop.model.importer.ImportTable;
 
 /**
- * Moose/Flechten/Pilze
+ *
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-@ImportTable("Mo_Fle_Pil")
-public interface PilzValue
+@ImportTable("Beeinträchtigung_Gefährdung")
+public interface StoerungValue
         extends ValueComposite, Composite {
     
-//    [INFO] MdbImportOperation - Table: Mo_Fle_Pil
+//    [INFO] MdbImportOperation - Table: Beeinträchtigung_Gefährdung
 //    [INFO] MdbImportOperation -     column: TK25 - INT
 //    [INFO] MdbImportOperation -     column: Objektnummer - TEXT
-//    [INFO] MdbImportOperation -     column: Nr_Art - INT
-//    [INFO] MdbImportOperation -     column: Menge_Pflanzenart - INT
-//    [INFO] MdbImportOperation -     column: Nr_Mengenstatus - BYTE
+//    [INFO] MdbImportOperation -     column: Nr_Beeinträchtigung - BYTE
     
-    @Optional
-    @ImportColumn("Nr_Art")
+    @ImportColumn("Nr_Beeinträchtigung")
     Property<String>            artNr();
-
-    @Optional
-    @ImportColumn("Menge_Pflanzenart")
-    Property<Integer>           menge();
-
-    @Optional
-    @ImportColumn("Nr_Mengenstatus")
-    Property<Double>            mengenstatusNr();
 
 }

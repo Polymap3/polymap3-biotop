@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.opengis.feature.type.Name;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import net.refractions.udig.catalog.CatalogPluginSession;
@@ -88,6 +89,35 @@ public class BiotopRepository
     
     public ServiceReference<BiotopnummerGeneratorService> biotopnummern;
     
+    /**
+     * 
+     */
+    public static class ArtEntityProvider
+            extends DefaultEntityProvider {
+        
+        public ArtEntityProvider( QiModule repo, Class entityClass, Name entityName,
+                FidsQueryProvider queryProvider ) {
+            super( repo, entityClass, entityName, queryProvider );
+        }
+        
+        public ReferencedEnvelope getBounds() {
+            return new ReferencedEnvelope( 4000000, 5000000, 5000000, 6000000, getCoordinateReferenceSystem( null ) );
+        }
+        
+        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
+            try {
+                return CRS.decode( "EPSG:31468" );
+            }
+            catch (Exception e) {
+                throw new RuntimeException( e );
+            }
+        }
+        
+        public String getDefaultGeometry() {
+            throw new RuntimeException( "not yet implemented." );
+        }
+    };
+    
 
     public BiotopRepository( final QiModuleAssembler assembler ) {
         super( assembler );
@@ -101,10 +131,7 @@ public class BiotopRepository
         biotopnummern = assembler.getModule().serviceFinder().findService( BiotopnummerGeneratorService.class );
 
         // the Biotop service
-        try {
-            final CoordinateReferenceSystem crs = CRS.decode( "EPSG:31468" );
-            final ReferencedEnvelope bounds = new ReferencedEnvelope( 4000000, 5000000, 5000000, 6000000, crs );
-            
+        try {            
             // build the queryProvider
             ServiceReference<LuceneEntityStoreService> storeService = assembler.getModule().serviceFinder().findService( LuceneEntityStoreService.class );
             LuceneEntityStoreService luceneStore = storeService.get();
@@ -113,71 +140,20 @@ public class BiotopRepository
             biotopService = new BiotopService(
                     // BiotopComposite
                     new BiotopEntityProvider( this, queryProvider ),
-                    // BiotoptypArtComposite
-                    new DefaultEntityProvider( this, BiotoptypArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" ), queryProvider ) {
-                        public ReferencedEnvelope getBounds() {
-                            return bounds;
-                        }
-                        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
-                            return crs;
-                        }
-                        public String getDefaultGeometry() {
-                            throw new RuntimeException( "not yet implemented." );
-                        }
-                    },
-                    // PflanzenArtComposite
-                    new DefaultEntityProvider( this, PflanzenArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Pflanzenart" ), queryProvider ) {
-                        public ReferencedEnvelope getBounds() {
-                            return bounds;
-                        }
-                        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
-                            return crs;
-                        }
-                        public String getDefaultGeometry() {
-                            throw new RuntimeException( "not yet implemented." );
-                        }
-                    },
-                    // PilzArtComposite
-                    new DefaultEntityProvider( this, PilzArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Pilzart" ), queryProvider ) {
-                        public ReferencedEnvelope getBounds() {
-                            return bounds;
-                        }
-                        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
-                            return crs;
-                        }
-                        public String getDefaultGeometry() {
-                            throw new RuntimeException( "not yet implemented." );
-                        }
-                    },
-                    // TierArtComposite
-                    new DefaultEntityProvider( this, TierArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Tierart" ), queryProvider ) {
-                        public ReferencedEnvelope getBounds() {
-                            return bounds;
-                        }
-                        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
-                            return crs;
-                        }
-                        public String getDefaultGeometry() {
-                            throw new RuntimeException( "not yet implemented." );
-                        }
-                    },
-                    // GefahrArtComposite
-                    new DefaultEntityProvider( this, GefahrArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Gefährdungen" ), queryProvider ) {
-                        public ReferencedEnvelope getBounds() {
-                            return bounds;
-                        }
-                        public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
-                            return crs;
-                        }
-                        public String getDefaultGeometry() {
-                            throw new RuntimeException( "not yet implemented." );
-                        }
-                    });
+                    // Arten...
+                    new ArtEntityProvider( this, BiotoptypArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" ), queryProvider ),
+                    new ArtEntityProvider( this, PflanzenArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Pflanzenart" ), queryProvider ),
+                    new ArtEntityProvider( this, PilzArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Pilzart" ), queryProvider ),
+                    new ArtEntityProvider( this, TierArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Tierart" ), queryProvider ),
+                    new ArtEntityProvider( this, StoerungsArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Beeinträchtigungen" ), queryProvider ),
+                    new ArtEntityProvider( this, WertArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Wertbestimmend" ), queryProvider )
+                    );
         }
         catch (Exception e) {
             throw new RuntimeException( e );

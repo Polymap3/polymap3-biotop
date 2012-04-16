@@ -279,6 +279,20 @@ public interface BiotopComposite
     @UseDefaults
     Property<Collection<GefahrValue>> gefahr();
 
+    /**
+     * @see StoerungComposite
+     */
+    @Optional
+    @UseDefaults
+    Property<Collection<StoerungValue>> stoerungen();
+
+    /**
+     * @see GefahrComposite
+     */
+    @Optional
+    @UseDefaults
+    Property<Collection<WertValue>> werterhaltend();
+
     @Optional
     @ImportColumn("Nr_Naturraum")
     Property<String>            naturraumNr();

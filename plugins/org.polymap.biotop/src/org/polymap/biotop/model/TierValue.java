@@ -22,12 +22,14 @@ import org.qi4j.api.value.ValueComposite;
 import org.polymap.core.model.Composite;
 
 import org.polymap.biotop.model.importer.ImportColumn;
+import org.polymap.biotop.model.importer.ImportTable;
 
 /**
  *
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
+@ImportTable("Tiere")
 public interface TierValue
         extends ValueComposite, Composite {
     

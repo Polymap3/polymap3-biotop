@@ -23,46 +23,46 @@ import org.polymap.core.data.ui.featuretable.FeatureTableViewer;
 import org.polymap.core.model.EntityType;
 import org.polymap.rhei.data.entityfeature.PropertyDescriptorAdapter;
 import org.polymap.biotop.model.BiotopRepository;
-import org.polymap.biotop.model.GefahrComposite;
-import org.polymap.biotop.model.GefahrValue;
 import org.polymap.biotop.model.StoerungsArtComposite;
+import org.polymap.biotop.model.StoerungComposite;
+import org.polymap.biotop.model.StoerungValue;
 
 /**
  * 
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public class GefahrFormPage
-        extends ValueArtFormPage<GefahrValue,StoerungsArtComposite,GefahrComposite> {
+public class StoerungFormPage
+        extends ValueArtFormPage<StoerungValue,StoerungsArtComposite,StoerungComposite> {
 
-    protected GefahrFormPage( Feature feature, FeatureStore featureStore ) {
+    protected StoerungFormPage( Feature feature, FeatureStore featureStore ) {
         super( feature, featureStore );
     }
 
     public String getTitle() {
-        return "Gefährdungen";
+        return "Beeinträchtigungen";
     }
 
     public Class<StoerungsArtComposite> getArtType() {
         return StoerungsArtComposite.class;
     }
 
-    public Iterable<GefahrComposite> getElements() {
-        return GefahrComposite.forEntity( biotop );
+    public Iterable<StoerungComposite> getElements() {
+        return StoerungComposite.forEntity( biotop );
     }
 
-    public GefahrComposite newElement( StoerungsArtComposite art ) {
-        return GefahrComposite.newInstance( art );
+    public StoerungComposite newElement( StoerungsArtComposite art ) {
+        return StoerungComposite.newInstance( art );
     }
 
-    public void updateElements( Collection<GefahrComposite> coll ) {
-        GefahrComposite.updateEntity( biotop, coll );
+    public void updateElements( Collection<StoerungComposite> coll ) {
+        StoerungComposite.updateEntity( biotop, coll );
     }
 
-    public EntityType<GefahrComposite> addViewerColumns( FeatureTableViewer viewer ) {
+    public EntityType<StoerungComposite> addViewerColumns( FeatureTableViewer viewer ) {
         // entity types
         final BiotopRepository repo = BiotopRepository.instance();
-        final EntityType<GefahrComposite> type = repo.entityType( GefahrComposite.class );
+        final EntityType<StoerungComposite> type = repo.entityType( StoerungComposite.class );
 
         // columns
         PropertyDescriptorAdapter prop = null;

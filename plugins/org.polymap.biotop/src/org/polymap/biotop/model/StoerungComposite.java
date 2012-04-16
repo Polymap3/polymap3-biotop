@@ -30,20 +30,20 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 
 /**
- * A Value/Art composite that combines {@link GefahrValue} and
- * {@link GefahrArtComposite}.
+ * A Value/Art composite that combines {@link StoerungValue} and
+ * {@link StoerungArtComposite}.
  * 
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public class GefahrComposite
-        extends ValueArtComposite<GefahrValue,StoerungsArtComposite> { 
+public class StoerungComposite
+        extends ValueArtComposite<StoerungValue,StoerungsArtComposite> { 
 
     // factory ********************************************
     
-    protected static class ArtFinder 
-            implements ValueArtFinder<GefahrValue,StoerungsArtComposite> {
+    protected static class PflanzenArtFinder 
+            implements ValueArtFinder<StoerungValue,StoerungsArtComposite> {
 
-        public StoerungsArtComposite find( GefahrValue value ) {
+        public StoerungsArtComposite find( StoerungValue value ) {
             assert value != null;
             StoerungsArtComposite template = QueryExpressions.templateFor( StoerungsArtComposite.class );
             BooleanExpression expr = QueryExpressions.eq( template.nummer(), value.artNr().get() );
@@ -52,25 +52,25 @@ public class GefahrComposite
         }
     }
 
-    public static Collection<GefahrComposite> forEntity( BiotopComposite biotop ) {
-        List<GefahrComposite> result = new ArrayList( 256 );
-        for (GefahrValue value : biotop.gefahr().get()) {
-            result.add( new GefahrComposite( value, new ArtFinder() ) );
+    public static Collection<StoerungComposite> forEntity( BiotopComposite biotop ) {
+        List<StoerungComposite> result = new ArrayList( 256 );
+        for (StoerungValue value : biotop.stoerungen().get()) {
+            result.add( new StoerungComposite( value, new PflanzenArtFinder() ) );
         }
         return Collections.unmodifiableCollection( result );
     }
 
-    public static GefahrComposite newInstance( final StoerungsArtComposite art ) {
+    public static StoerungComposite newInstance( final StoerungsArtComposite art ) {
         assert art != null;
-        ValueBuilder<GefahrValue> builder = repo().newValueBuilder( GefahrValue.class );
+        ValueBuilder<StoerungValue> builder = repo().newValueBuilder( StoerungValue.class );
         builder.prototype().artNr().set( art.nummer().get() );
-        GefahrValue newValue = builder.newInstance();
-        return new GefahrComposite( newValue, new ArtFinder() );
+        StoerungValue newValue = builder.newInstance();
+        return new StoerungComposite( newValue, new PflanzenArtFinder() );
     }
 
-    public static void updateEntity( BiotopComposite biotop, Collection<GefahrComposite> coll ) {
-        biotop.gefahr().set( Collections2.transform( coll, new Function<GefahrComposite,GefahrValue>() {
-            public GefahrValue apply( GefahrComposite input ) {
+    public static void updateEntity( BiotopComposite biotop, Collection<StoerungComposite> coll ) {
+        biotop.stoerungen().set( Collections2.transform( coll, new Function<StoerungComposite,StoerungValue>() {
+            public StoerungValue apply( StoerungComposite input ) {
                 return input.value();
             }
         }));
@@ -78,8 +78,8 @@ public class GefahrComposite
 
     // instance *******************************************
     
-    private GefahrComposite( GefahrValue value,
-            ValueArtFinder<GefahrValue, StoerungsArtComposite> artFinder ) {
+    private StoerungComposite( StoerungValue value,
+            ValueArtFinder<StoerungValue, StoerungsArtComposite> artFinder ) {
         super( value, artFinder );
     }
 

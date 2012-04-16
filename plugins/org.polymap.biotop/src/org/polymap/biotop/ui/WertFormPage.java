@@ -23,46 +23,46 @@ import org.polymap.core.data.ui.featuretable.FeatureTableViewer;
 import org.polymap.core.model.EntityType;
 import org.polymap.rhei.data.entityfeature.PropertyDescriptorAdapter;
 import org.polymap.biotop.model.BiotopRepository;
-import org.polymap.biotop.model.GefahrComposite;
-import org.polymap.biotop.model.GefahrValue;
-import org.polymap.biotop.model.StoerungsArtComposite;
+import org.polymap.biotop.model.WertArtComposite;
+import org.polymap.biotop.model.WertComposite;
+import org.polymap.biotop.model.WertValue;
 
 /**
  * 
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public class GefahrFormPage
-        extends ValueArtFormPage<GefahrValue,StoerungsArtComposite,GefahrComposite> {
+public class WertFormPage
+        extends ValueArtFormPage<WertValue,WertArtComposite,WertComposite> {
 
-    protected GefahrFormPage( Feature feature, FeatureStore featureStore ) {
+    protected WertFormPage( Feature feature, FeatureStore featureStore ) {
         super( feature, featureStore );
     }
 
     public String getTitle() {
-        return "Gefährdungen";
+        return "Wertbestimmend";
     }
 
-    public Class<StoerungsArtComposite> getArtType() {
-        return StoerungsArtComposite.class;
+    public Class<WertArtComposite> getArtType() {
+        return WertArtComposite.class;
     }
 
-    public Iterable<GefahrComposite> getElements() {
-        return GefahrComposite.forEntity( biotop );
+    public Iterable<WertComposite> getElements() {
+        return WertComposite.forEntity( biotop );
     }
 
-    public GefahrComposite newElement( StoerungsArtComposite art ) {
-        return GefahrComposite.newInstance( art );
+    public WertComposite newElement( WertArtComposite art ) {
+        return WertComposite.newInstance( art );
     }
 
-    public void updateElements( Collection<GefahrComposite> coll ) {
-        GefahrComposite.updateEntity( biotop, coll );
+    public void updateElements( Collection<WertComposite> coll ) {
+        WertComposite.updateEntity( biotop, coll );
     }
 
-    public EntityType<GefahrComposite> addViewerColumns( FeatureTableViewer viewer ) {
+    public EntityType<WertComposite> addViewerColumns( FeatureTableViewer viewer ) {
         // entity types
         final BiotopRepository repo = BiotopRepository.instance();
-        final EntityType<GefahrComposite> type = repo.entityType( GefahrComposite.class );
+        final EntityType<WertComposite> type = repo.entityType( WertComposite.class );
 
         // columns
         PropertyDescriptorAdapter prop = null;

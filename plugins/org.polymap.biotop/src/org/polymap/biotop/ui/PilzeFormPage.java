@@ -40,7 +40,7 @@ public class PilzeFormPage
     }
 
     public String getTitle() {
-        return "Moose-Flechten-Pilze";
+        return "Moose/Flechten/Pilze";
     }
 
     public Class<PilzArtComposite> getArtType() {

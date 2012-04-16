@@ -29,6 +29,7 @@ import org.polymap.core.qi4j.event.ModelChangeSupport;
 import org.polymap.core.qi4j.event.PropertyChangeSupport;
 
 import org.polymap.biotop.model.importer.ImportColumn;
+import org.polymap.biotop.model.importer.ImportTable;
 
 /**
  *
@@ -45,6 +46,7 @@ import org.polymap.biotop.model.importer.ImportColumn;
     QiEntity.Mixin.class
 //    JsonState.Mixin.class
 } )
+@ImportTable("Referenz_Biotoptypen")
 public interface BiotoptypArtComposite
     extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
 

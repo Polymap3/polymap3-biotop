@@ -49,7 +49,6 @@ import org.polymap.rhei.form.IFormEditorToolkit;
 
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
-import org.polymap.biotop.model.PflanzeComposite;
 import org.polymap.biotop.model.ValueArtComposite;
 
 /**
@@ -156,15 +155,15 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
     }
     
     protected Section createSection( Composite parent ) {
-        Section section = tk.createSection( parent, Section.TITLE_BAR );
+        final Section section = tk.createSection( parent, Section.TITLE_BAR );
         section.setText( getTitle() );
 
-        Composite client = tk.createComposite( section );
+        final Composite client = tk.createComposite( section );
         client.setLayout( new FormLayout() );
         section.setClient( client );
 
         viewer = new FeatureTableViewer( client, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL );
-        viewer.getTable().setLayoutData( new SimpleFormData().fill().bottom( 100 ).right( 100, -40 ).create() );
+        viewer.getTable().setLayoutData( new SimpleFormData().fill().bottom( 100 ).height( 100 ).right( 100, -40 ).create() );
 
         // entity types
         final BiotopRepository repo = BiotopRepository.instance();
@@ -189,6 +188,8 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
                 model.put( sel.id(), newElement( sel ) );
                 dirty = true;
                 site.reloadEditor();
+                section.layout( true );
+                viewer.getTable().layout( true );
             }
         };
         ActionButton addBtn = new ActionButton( client, addAction );
@@ -200,7 +201,7 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
         final RemoveValueArtAction removeAction = new RemoveValueArtAction() {
             public void execute() throws Exception {
                 for (IFeatureTableElement sel : viewer.getSelectedElements()) {
-                    PflanzeComposite elm = (PflanzeComposite)((CompositesFeatureContentProvider.FeatureTableElement)sel).getComposite();
+                    C elm = (C)((CompositesFeatureContentProvider.FeatureTableElement)sel).getComposite();
                     if (model.remove( elm.id() ) == null) {
                         throw new IllegalStateException( "Konnte nicht gelöscht werden: " + elm );
                     }

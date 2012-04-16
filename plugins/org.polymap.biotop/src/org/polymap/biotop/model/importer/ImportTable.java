@@ -1,7 +1,6 @@
-/*
+/* 
  * polymap.org
- * Copyright 2011, Falko Bräutigam, and other contributors as
- * indicated by the @authors tag. All rights reserved.
+ * Copyright 2012, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -13,24 +12,27 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  */
-package org.polymap.biotop.model;
+package org.polymap.biotop.model.importer;
 
-import org.qi4j.api.property.Property;
-import org.qi4j.api.value.ValueComposite;
-
-import org.polymap.core.model.Composite;
-
-import org.polymap.biotop.model.importer.ImportColumn;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- *
- *
+ * The name of the table to import from.
+ *  
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public interface GefahrValue
-        extends ValueComposite, Composite {
-    
-    @ImportColumn("Nr_Beeinträchtigung")
-    Property<String>            artNr();
+@Retention( RetentionPolicy.RUNTIME )
+@Target( ElementType.TYPE )
+@Documented
+public @interface ImportTable {
 
+    /**
+     * The property name to be fired.
+     */
+    public String value();
+    
 }

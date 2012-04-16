@@ -15,9 +15,6 @@
  */
 package org.polymap.biotop.model;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.qi4j.api.common.Optional;
 import org.qi4j.api.concern.Concerns;
 import org.qi4j.api.entity.EntityComposite;
@@ -40,66 +37,34 @@ import org.polymap.biotop.model.importer.ImportTable;
     PropertyChangeSupport.Concern.class
 } )
 @Mixins( {
-    PflanzenArtComposite.Mixin.class,
+    StoerungsArtComposite.Mixin.class,
     PropertyChangeSupport.Mixin.class,
     ModelChangeSupport.Mixin.class,
     QiEntity.Mixin.class
 //    JsonState.Mixin.class
 } )
-@ImportTable("Referenz_Pflanzen")
-public interface PflanzenArtComposite
+@ImportTable("Referenz_Beeinträchtigung")
+public interface StoerungsArtComposite
     extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
 
-//    [INFO] MdbImportOperation - Table: Referenz_Pflanzen
-//    [INFO] MdbImportOperation -     column: Nr_Pflanze - INT
-//    [INFO] MdbImportOperation -     column: Nr_Artengruppe_Pflanzen - BYTE
-//    [INFO] MdbImportOperation -     column: TAXNR - LONG
-//    [INFO] MdbImportOperation -     column: TAXNAME - TEXT
-//    [INFO] MdbImportOperation -     column: DEUTSCHNAME - TEXT
-//    [INFO] MdbImportOperation -     column: Nr_RLSachsen - BYTE
-//    [INFO] MdbImportOperation -     column: Schutzstaus - TEXT
-//    [INFO] MdbImportOperation -     column: Baum - BOOLEAN
-
+//    INFO] MdbImportOperation - Table: Referenz_Beeinträchtigung
+//    [INFO] MdbImportOperation -     column: Nr_Beeinträchtigung - BYTE
+//    [INFO] MdbImportOperation -     column: Beeinträchtigung - TEXT
+    
     @Optional
-    @ImportColumn("Nr_Pflanze")
+    @ImportColumn("Nr_Beeinträchtigung")
     Property<String>            nummer();
 
     @Optional
-    @ImportColumn("Nr_Artengruppe_Pflanzen")
-    Property<String>            artengruppeNr();
-
-    @Optional
-    @ImportColumn("TAXNR")
-    Property<Integer>           taxnr();
-
-    @Optional
-    @ImportColumn("TAXNAME")
-    Property<String>            taxname();
-
-    @Optional
-    @ImportColumn("DEUTSCHNAME")
+    @ImportColumn("Beeinträchtigung")
     Property<String>            name();
-
-    @Optional
-    @ImportColumn("Nr_RLSachsen")
-    Property<String>            rlSachsenNr();
-
-    @Optional
-    @ImportColumn("Schutzstaus")
-    Property<String>            schutzstatus();
-
-    @Optional
-    @ImportColumn("Baum")
-    Property<Boolean>           baum();
 
 
     /**
      * Methods and transient fields.
      */
     public static abstract class Mixin
-            implements PflanzenArtComposite {
-
-        private static Log log = LogFactory.getLog( Mixin.class );
+            implements StoerungsArtComposite {
 
     }
 

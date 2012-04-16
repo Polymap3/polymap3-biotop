@@ -15,6 +15,8 @@
  */
 package org.polymap.biotop.model.importer;
 
+import java.util.TreeSet;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -148,9 +150,8 @@ public class MdbImportPage
             Database db = Database.open( dbFile );
             log.info( "Tables: " + db.getTableNames() );
 
-            for (String tableName : db.getTableNames()) {
-                tablesList.add( tableName );
-            }
+            TreeSet<String> sorted = new TreeSet<String>( db.getTableNames() );
+            tablesList.setItems( sorted.toArray( new String[sorted.size()]) );
             db.close();
         }
         catch (IOException e) {
