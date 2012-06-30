@@ -29,6 +29,7 @@ import org.qi4j.bootstrap.ModuleAssembly;
 
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModuleAssembler;
+import org.polymap.core.qi4j.Qi4jPlugin.Session;
 import org.polymap.core.qi4j.idgen.HRIdentityGeneratorService;
 import org.polymap.core.runtime.Polymap;
 

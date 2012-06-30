@@ -74,6 +74,10 @@ public class BiotoptypFormEditorPage
         return "Biotoptypen-Pflege";
     }
 
+    public byte getPriority() {
+        return 0;
+    }
+
     public void createFormContent( IFormEditorPageSite _site ) {
         BiotopFormPageProvider.log.debug( "createFormContent(): feature= " + feature );
         site = _site;

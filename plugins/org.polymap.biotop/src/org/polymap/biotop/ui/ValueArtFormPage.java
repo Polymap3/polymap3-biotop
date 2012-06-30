@@ -113,6 +113,10 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
         return getClass().getName();
     }
 
+    public byte getPriority() {
+        return 0;
+    }
+
     public void createFormContent( IFormEditorPageSite _site ) {
         site = _site;
         tk = site.getToolkit();

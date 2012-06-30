@@ -93,9 +93,9 @@ public class BiotopFormPageProvider
 
     static Log log = LogFactory.getLog( BiotopFormPageProvider.class );
 
-    static final int                FIELD_OFFSET_H = 5;
-    static final int                FIELD_OFFSET_V = 1;
-    static final int                SECTION_SPACING = 8;
+//    static final int                FIELD_OFFSET_H = 5;
+//    static final int                FIELD_OFFSET_V = 1;
+    static final int                SECTION_SPACING = DefaultFormPageLayouter.DEFAULT_SECTION_SPACING;
 
 
     public List<IFormEditorPage> addPages( FormEditor formEditor, Feature feature ) {
@@ -157,6 +157,10 @@ public class BiotopFormPageProvider
             return "Basisdaten";
         }
 
+        public byte getPriority() {
+            return Byte.MAX_VALUE;
+        }
+
         public void createFormContent( IFormEditorPageSite _site ) {
             log.debug( "createFormContent(): feature= " + feature );
             site = _site;
@@ -165,11 +169,8 @@ public class BiotopFormPageProvider
 
             site.setFormTitle( "Biotop: " + biotop.objnr().get() );
             site.setActivePage( getId() );
-            FormLayout layout = new FormLayout();
-            site.getPageBody().setLayout( layout );
+            site.getPageBody().setLayout( new FormLayout() );
 
-            //site.getPageBody().se
-            
             // leftSection
             Section leftSection = createLeftSection( site.getPageBody() );
             leftSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
@@ -202,7 +203,7 @@ public class BiotopFormPageProvider
             geomSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
                     .left( 0 ).right( 50 ).top( statusSection ).bottom( 100 ).create() );
 
-            layouter.newLayout();
+            //layouter.newLayout();
         }
 
         

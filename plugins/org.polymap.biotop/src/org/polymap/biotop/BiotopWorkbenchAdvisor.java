@@ -41,7 +41,7 @@ public class BiotopWorkbenchAdvisor
     private static final Log log = LogFactory.getLog( BiotopWorkbenchAdvisor.class );
 
     public void initialize( IWorkbenchConfigurer configurer ) {
-        getWorkbenchConfigurer().setSaveAndRestore( false );
+        getWorkbenchConfigurer().setSaveAndRestore( true );
         super.initialize( configurer );
     }
 

@@ -30,7 +30,7 @@
       </pageProvider>
    </extension>
    <extension
-         point="org.polymap.rhei.filter.filterProviders">
+         point="org.polymap.rhei.form.filterProviders">
       <filterProvider
             class="org.polymap.biotop.ui.BiotopFilterProvider"
             id="org.polymap.biotop.BiotopFilterProvider"
