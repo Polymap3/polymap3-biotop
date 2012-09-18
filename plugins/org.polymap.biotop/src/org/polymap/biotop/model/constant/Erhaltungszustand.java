@@ -1,7 +1,6 @@
 /* 
  * polymap.org
- * Copyright 2010, Falko Bräutigam, and other contributors as indicated
- * by the @authors tag.
+ * Copyright 2010-2012, Falko Bräutigam. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -12,8 +11,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- *
- * $Id: $
  */
 package org.polymap.biotop.model.constant;
 
@@ -30,11 +27,13 @@ public class Erhaltungszustand
     /** Provides access to the elements of this type. */
     public static final Type<Erhaltungszustand,String> all = new Type<Erhaltungszustand,String>();
     
-    public static final Erhaltungszustand guenstig = new Erhaltungszustand( 0, "günstig", "günstig" );
+    public static final Erhaltungszustand unbestimmt = new Erhaltungszustand( 0, "0 - noch nicht bestimmt", "noch nicht bestimmt" );
 
-    public static final Erhaltungszustand unzureichend = new Erhaltungszustand( 1, "ungünstig/unzureichend", "unzureichend" );
+    public static final Erhaltungszustand guenstig = new Erhaltungszustand( 1, "1 - günstig", "günstig" );
 
-    public static final Erhaltungszustand schlecht = new Erhaltungszustand( 2, "ungünstig/schlecht", "schlecht" );
+    public static final Erhaltungszustand unzureichend = new Erhaltungszustand( 2, "2 - ungünstig/unzureichend", "unzureichend" );
+
+    public static final Erhaltungszustand schlecht = new Erhaltungszustand( 3, "3 - ungünstig/schlecht", "schlecht" );
 
     
     // instance *******************************************
