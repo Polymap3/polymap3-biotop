@@ -238,6 +238,12 @@ public class BiotopFormPageProvider
                     new PropertyAdapter( biotop.status() ),
                     new PicklistFormField( Status.all ), null, "Status" ) );
 
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.geprueft() ),
+                    new CheckboxFormField(), null, "Geprüft" ) );
+
+//            createAktivitaet( client, biotop.bekanntmachung().get(), "published_", "Bekanntmachung" );
+
             // listen to field changes
             site.addFieldListener( new IFormFieldListener() {
                 public void fieldChange( FormFieldEvent ev ) {
@@ -287,11 +293,15 @@ public class BiotopFormPageProvider
 
             layouter.setFieldLayoutData( site.newFormField( client, 
                     new PropertyAdapter( biotop.objnr_sbk() ),
-                    new StringFormField(), null, "Objekt-Nr. (SBK)" ) );
+                    new StringFormField().setEnabled( false ), null, "Objekt-Nr. (SBK)" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
                     new PropertyAdapter( biotop.tk25() ),
-                    new StringFormField(), null, "TK25 Nr." ) );
+                    new StringFormField().setEnabled( false ), null, "TK25-Nr." ) );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.unr() ),
+                    new StringFormField().setEnabled( false ), null, "Unter-Nr." ) );
             return section;
         }
 
@@ -434,7 +444,7 @@ public class BiotopFormPageProvider
         
         protected Section createStatusSection( Composite parent ) {
             Section section = tk.createSection( parent, Section.TITLE_BAR /*| Section.TREE_NODE*/ );
-            section.setText( "Status" );
+            section.setText( "Erfasser/Bearbeiter" );
 
             Composite client = tk.createComposite( section );
             client.setLayout( layouter.newLayout() );
