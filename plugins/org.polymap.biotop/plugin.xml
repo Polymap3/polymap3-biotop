@@ -44,6 +44,13 @@
             id="org.polymap.biotop.importer.ShapeImportOperation"
             label="Biotop: Shapefile-Import (sbk_xx.shp)">
       </featureOperation>
+      <featureOperation
+            class="org.polymap.biotop.operations.BekanntmachungOperation"
+            description="Bekanntmachungsdatum auf &quot;heute&quot; setzen"
+            id="org.polymap.biotop.featureOperation1"
+            label="Biotop: Bekanntmachung"
+            tooltip="Bekanntmachungsdatum auf &quot;heute&quot; setzen">
+      </featureOperation>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

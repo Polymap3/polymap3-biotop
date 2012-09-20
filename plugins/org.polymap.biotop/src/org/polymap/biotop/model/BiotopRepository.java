@@ -27,9 +27,6 @@ import org.geotools.referencing.CRS;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import net.refractions.udig.catalog.CatalogPluginSession;
-import net.refractions.udig.catalog.IService;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,12 +37,14 @@ import org.qi4j.api.unitofwork.ConcurrentEntityModificationException;
 import org.qi4j.api.unitofwork.UnitOfWorkCompletionException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
+import org.polymap.core.catalog.model.CatalogRepository;
 import org.polymap.core.model.CompletionException;
 import org.polymap.core.model.ConcurrentModificationException;
 import org.polymap.core.operation.OperationSupport;
 import org.polymap.core.qi4j.Qi4jPlugin;
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModuleAssembler;
+import org.polymap.core.qi4j.Qi4jPlugin.Session;
 import org.polymap.core.runtime.Polymap;
 
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
@@ -72,7 +71,7 @@ public class BiotopRepository
      * Get or create the repository for the current user session.
      */
     public static final BiotopRepository instance() {
-        return (BiotopRepository)Qi4jPlugin.Session.instance().module( BiotopRepository.class );
+        return Qi4jPlugin.Session.instance().module( BiotopRepository.class );
     }
 
 
@@ -85,7 +84,7 @@ public class BiotopRepository
     private Map<String,BiotoptypArtComposite>   btNummern;
 
     /** Allow direct access for operations. */
-    protected IService                          biotopService;
+    protected BiotopService                     biotopService;
     
     public ServiceReference<BiotopnummerGeneratorService> biotopnummern;
     
@@ -129,8 +128,10 @@ public class BiotopRepository
             OperationSupport.instance().addOperationSaveListener( operationListener );
         }
         biotopnummern = assembler.getModule().serviceFinder().findService( BiotopnummerGeneratorService.class );
+    }
+    
 
-        // the Biotop service
+    public void init( final Session session ) {
         try {            
             // build the queryProvider
             ServiceReference<LuceneEntityStoreService> storeService = assembler.getModule().serviceFinder().findService( LuceneEntityStoreService.class );
@@ -159,14 +160,16 @@ public class BiotopRepository
             throw new RuntimeException( e );
         }
         
-        // register with catalog
-        if (Polymap.getSessionDisplay() != null) {
-            Polymap.getSessionDisplay().asyncExec( new Runnable() {
-                public void run() {
-                    CatalogPluginSession.instance().getLocalCatalog().add( biotopService );
-                }
-            });
-        }
+        // register with catalog        
+//        if (Polymap.getSessionDisplay() != null) {
+//            Polymap.getSessionDisplay().asyncExec( new Runnable() {
+//                public void run() {
+                    CatalogRepository catalogRepo = session.module( CatalogRepository.class );
+                    catalogRepo.getCatalog().addTransient( biotopService );
+//                    CatalogPluginSession.instance().getLocalCatalog().add( biotopService );
+//                }
+//            });
+//        }
     }
 
     
@@ -264,7 +267,7 @@ public class BiotopRepository
                 prototype.objnr().set( biotopnummern.get().generate() );
                 // status
                 prototype.status().set( Status.aktuell.id );
-
+                
                 if (creator != null) {
                     creator.create( prototype );
                 }

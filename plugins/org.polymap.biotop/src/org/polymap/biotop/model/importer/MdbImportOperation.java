@@ -236,7 +236,7 @@ public class MdbImportOperation
                     // Erfassung
                     Date erfasst = (Date)row.get( "Erfassung" );
                     if (erfasst != null) {
-                        ValueBuilder<AktivitaetValue> builder = BiotopRepository.instance().newValueBuilder( AktivitaetValue.class );
+                        ValueBuilder<AktivitaetValue> builder = repo.newValueBuilder( AktivitaetValue.class );
                         AktivitaetValue prototype = builder.prototype();
                         prototype.wann().set( erfasst );
                         prototype.wer().set( "SBK" );
@@ -247,13 +247,20 @@ public class MdbImportOperation
                     // Eingabe -> Bearbeitung
                     Date eingabe = (Date)row.get( "Eingabe" );
                     if (eingabe != null) {
-                        ValueBuilder<AktivitaetValue> builder = BiotopRepository.instance().newValueBuilder( AktivitaetValue.class );
+                        ValueBuilder<AktivitaetValue> builder = repo.newValueBuilder( AktivitaetValue.class );
                         AktivitaetValue prototype = builder.prototype();
                         prototype.wann().set( eingabe );
                         prototype.wer().set( "SBK" );
                         prototype.bemerkung().set( "Import aus SBK" );
                         biotop.bearbeitung().set( builder.newInstance() );
                     }
+                    // Bekanntmachung
+                    ValueBuilder<AktivitaetValue> builder = repo.newValueBuilder( AktivitaetValue.class );
+                    AktivitaetValue prototype = builder.prototype();
+                    prototype.wann().set( eingabe );
+                    prototype.wer().set( "SBK" );
+                    prototype.bemerkung().set( "Import aus SBK" );
+                    biotop.bekanntmachung().set( builder.newInstance() );
                 }
                 else {
                     //log.warn( "No Biotop found for: " + row );

@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.security.Principal;
 
 import org.geotools.data.FeatureStore;
@@ -36,7 +38,6 @@ import org.qi4j.api.value.ValueBuilder;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
-
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -59,6 +60,7 @@ import org.polymap.rhei.data.entityfeature.ValuePropertyAdapter;
 import org.polymap.rhei.field.CheckboxFormField;
 import org.polymap.rhei.field.DateTimeFormField;
 import org.polymap.rhei.field.FormFieldEvent;
+import org.polymap.rhei.field.IFormField;
 import org.polymap.rhei.field.IFormFieldLabel;
 import org.polymap.rhei.field.IFormFieldListener;
 import org.polymap.rhei.field.IntegerValidator;
@@ -136,6 +138,8 @@ public class BiotopFormPageProvider
         private Locale                  locale = Locale.GERMAN;
 
         private BiotopRepository        repo;
+        
+        private PropertyChangeListener  bekanntmachungListener;
 
 
         protected BaseFormEditorPage( Feature feature, FeatureStore featureStore ) {
@@ -147,6 +151,10 @@ public class BiotopFormPageProvider
 
         public void dispose() {
             log.debug( "..." );
+            if (bekanntmachungListener != null && biotop != null) {
+                biotop.removePropertyChangeListener( bekanntmachungListener );
+                bekanntmachungListener = null;
+            }
         }
 
         public String getId() {
@@ -242,7 +250,30 @@ public class BiotopFormPageProvider
                     new PropertyAdapter( biotop.geprueft() ),
                     new CheckboxFormField(), null, "Geprüft" ) );
 
-//            createAktivitaet( client, biotop.bekanntmachung().get(), "published_", "Bekanntmachung" );
+            AktivitaetValue bekanntmachung = biotop.bekanntmachung().get();
+            final IFormField bField = new StringFormField();
+            if (bekanntmachung != null && bekanntmachung.wann().get() != null) {
+                createAktivitaet( client, bekanntmachung, "published_", "Bekanntmachung" );
+            }
+            else {
+                layouter.setFieldLayoutData( site.newFormField( client, 
+                        new ValuePropertyAdapter( "bekanntmachung", "-" ),
+                        bField.setEnabled( false ), null, "Bekanntmachung" ) );                
+            }
+            
+            // listen to Property changes
+            bekanntmachungListener = new PropertyChangeListener() {
+                public void propertyChange( PropertyChangeEvent ev ) {
+                    if (ev.getPropertyName().equals( biotop.bekanntmachung().qualifiedName().name() )) {
+                        Polymap.getSessionDisplay().asyncExec( new Runnable() {
+                            public void run() {
+                                bField.setValue( biotop.bekanntmachung().get().wann().get().toString() );
+                            }
+                        });
+                    }
+                }
+            };
+            biotop.addPropertyChangeListener( bekanntmachungListener );
 
             // listen to field changes
             site.addFieldListener( new IFormFieldListener() {
