@@ -34,16 +34,16 @@ public class BiotopPerspectiveFactory
         String editorArea = layout.getEditorArea();
         layout.setEditorAreaVisible( true );
 
-        IFolderLayout topLeft = layout.createFolder(
-                "topLeft", IPageLayout.LEFT, 0.23f, editorArea );
-        IFolderLayout bottomLeft = layout.createFolder(
-                "bottomLeft", IPageLayout.BOTTOM, 0.25f, "topLeft" );
+        IFolderLayout topLeft = layout.createFolder( "topLeft", IPageLayout.LEFT, 0.23f, editorArea );
+        IFolderLayout bottomLeft = layout.createFolder( "bottomLeft", IPageLayout.BOTTOM, 0.25f, "topLeft" );
 //        IFolderLayout topRight = layout.createFolder(
 //                "topRight", IPageLayout.RIGHT, 0.72f, editorArea );
-        IPlaceholderFolderLayout bottom = layout.createPlaceholderFolder(
-                "bottom", IPageLayout.BOTTOM, 0.70f, editorArea );
+        IPlaceholderFolderLayout bottom = layout.createPlaceholderFolder( "bottom", IPageLayout.BOTTOM, 0.70f, editorArea );
+        IFolderLayout topRight = layout.createFolder( "topRight", IPageLayout.RIGHT, 0.70f, editorArea );
 
         topLeft.addView( ProjectView.ID );
+  
+        topRight.addView( "org.polymap.core.mapeditor.ToolingView" );
 
         bottomLeft.addView( LayerNavigator.ID );
         bottomLeft.addPlaceholder( "org.polymap.rhei.FilterView:*" );
@@ -61,6 +61,7 @@ public class BiotopPerspectiveFactory
 
         // add shortcuts to show view menu
         layout.addShowViewShortcut( "net.refractions.udig.catalog.ui.CatalogView" );
+        layout.addShowViewShortcut( "org.polymap.core.mapeditor.ToolingView" );
     }
     
 }
