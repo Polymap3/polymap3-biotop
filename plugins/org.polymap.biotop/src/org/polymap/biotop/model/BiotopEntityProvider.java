@@ -121,7 +121,12 @@ public class BiotopEntityProvider
 
 
     public Query transformQuery( Query query ) {
-        Filter dublicate = (Filter)query.getFilter().accept( new DuplicatingFilterVisitor() {
+        Filter filter = query.getFilter();
+//        if (filter == null) {
+//            log.warn( "Filter is NULL!" );
+//            filter = Filter.INCLUDE;
+//        }
+        Filter dublicate = filter == null ? null : (Filter)filter.accept( new DuplicatingFilterVisitor() {
             
             public Object visit( PropertyName input, Object data ) {
                 if (input.getPropertyName().equals( PROP.Wert.toString() )) {

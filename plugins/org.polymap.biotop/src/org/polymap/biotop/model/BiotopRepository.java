@@ -15,6 +15,7 @@
  */
 package org.polymap.biotop.model;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,17 +36,19 @@ import org.qi4j.api.query.grammar.BooleanExpression;
 import org.qi4j.api.service.ServiceReference;
 import org.qi4j.api.unitofwork.ConcurrentEntityModificationException;
 import org.qi4j.api.unitofwork.UnitOfWorkCompletionException;
+import org.qi4j.api.value.ValueBuilder;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.polymap.core.catalog.model.CatalogRepository;
 import org.polymap.core.model.CompletionException;
-import org.polymap.core.model.ConcurrentModificationException;
 import org.polymap.core.operation.OperationSupport;
 import org.polymap.core.qi4j.Qi4jPlugin;
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModuleAssembler;
 import org.polymap.core.qi4j.Qi4jPlugin.Session;
 import org.polymap.core.runtime.Polymap;
+import org.polymap.core.runtime.entity.ConcurrentModificationException;
 
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
 import org.polymap.rhei.data.entityfeature.EntityProvider.FidsQueryProvider;
@@ -267,6 +270,20 @@ public class BiotopRepository
                 prototype.objnr().set( biotopnummern.get().generate() );
                 // status
                 prototype.status().set( Status.aktuell.id );
+                
+                // erfassung
+                ValueBuilder<AktivitaetValue> builder = newValueBuilder( AktivitaetValue.class );
+                AktivitaetValue _prototype = builder.prototype();
+                _prototype.wann().set( new Date() );
+                _prototype.wer().set( Polymap.instance().getUser().getName() );
+                _prototype.bemerkung().set( "" );
+                prototype.erfassung().set( builder.newInstance() );
+                // bearbeitung
+                prototype.bearbeitung().set( builder.newInstance() );
+
+                // biotoptyp (zufällig)
+                String randomBt = btNamen().values().iterator().next().nummer().get();
+//                prototype.biotoptypArtNr().set( randomBt );
                 
                 if (creator != null) {
                     creator.create( prototype );

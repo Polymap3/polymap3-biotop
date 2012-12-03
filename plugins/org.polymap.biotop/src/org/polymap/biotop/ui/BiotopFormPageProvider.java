@@ -53,6 +53,8 @@ import org.eclipse.ui.forms.widgets.Section;
 
 import org.polymap.core.project.ui.util.SimpleFormData;
 import org.polymap.core.runtime.Polymap;
+import org.polymap.core.runtime.event.EventFilter;
+import org.polymap.core.runtime.event.EventHandler;
 import org.polymap.core.workbench.PolymapWorkbench;
 
 import org.polymap.rhei.data.entityfeature.PropertyAdapter;
@@ -262,18 +264,21 @@ public class BiotopFormPageProvider
             }
             
             // listen to Property changes
-            bekanntmachungListener = new PropertyChangeListener() {
-                public void propertyChange( PropertyChangeEvent ev ) {
-                    if (ev.getPropertyName().equals( biotop.bekanntmachung().qualifiedName().name() )) {
-                        Polymap.getSessionDisplay().asyncExec( new Runnable() {
-                            public void run() {
-                                bField.setValue( biotop.bekanntmachung().get().wann().get().toString() );
-                            }
-                        });
+            biotop.addPropertyChangeListener( bekanntmachungListener =
+                new PropertyChangeListener() {
+                    @EventHandler(display=true)
+                    public void propertyChange( PropertyChangeEvent ev ) {
+                        AktivitaetValue bkm = biotop.bekanntmachung().get();
+                        if (bkm != null && bkm.wann().get() != null) {
+                            bField.setValue( bkm.wann().get().toString() );
+                        }
                     }
-                }
-            };
-            biotop.addPropertyChangeListener( bekanntmachungListener );
+                },
+                new EventFilter<PropertyChangeEvent>() {
+                    public boolean apply( PropertyChangeEvent ev ) {
+                        return ev.getPropertyName().equals( biotop.bekanntmachung().qualifiedName().name() );
+                    }
+                });
 
             // listen to field changes
             site.addFieldListener( new IFormFieldListener() {
@@ -373,11 +378,12 @@ public class BiotopFormPageProvider
             section.setClient( client );
 
             // biotoptyp picklist
-            final String nummer = biotop.biotoptypArtNr().get();
+            final String nummer = biotop.biotoptypArtNr().get() != null
+                    ? biotop.biotoptypArtNr().get() : "1";
             final BiotoptypArtComposite[] current = new BiotoptypArtComposite[1];
             Map<String,String> nameNummer = Maps.transformValues( repo.btNamen(), new Function<BiotoptypArtComposite,String>() {
                 public String apply( BiotoptypArtComposite input ) {
-                    if (input.nummer().get().equals( nummer )) {
+                    if (nummer != null && input.nummer().get().equals( nummer )) {
                         current[0] = input;
                     }
                     return input.nummer().get();
@@ -433,6 +439,9 @@ public class BiotopFormPageProvider
                                     }
                                 });
                                 site.setFieldValue( "code", biotoptyp.code().get() );
+                                site.setFieldValue( "schutz26", biotoptyp.schutz26().get() );
+                                site.setFieldValue( "nummer26", biotoptyp.nummer26().get() );
+                                site.setFieldValue( "ffh_Relevanz", biotoptyp.ffh_Relevanz().get() );
                             }
                             catch (Exception e) {
                                 log.warn( "Keine Biotopart mit Nummer: " + nummerNeu + " (" + e + ")" );
