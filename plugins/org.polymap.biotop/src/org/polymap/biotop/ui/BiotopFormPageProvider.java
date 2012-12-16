@@ -143,6 +143,12 @@ public class BiotopFormPageProvider
         
         private PropertyChangeListener  bekanntmachungListener;
 
+        private IFormFieldListener      biotoptypListener;
+
+        private IFormFieldListener      statusListener;
+
+        private IFormFieldListener      statusListener2;
+
 
         protected BaseFormEditorPage( Feature feature, FeatureStore featureStore ) {
             this.feature = feature;
@@ -281,7 +287,7 @@ public class BiotopFormPageProvider
                 });
 
             // listen to field changes
-            site.addFieldListener( new IFormFieldListener() {
+            site.addFieldListener( statusListener = new IFormFieldListener() {
                 public void fieldChange( FormFieldEvent ev ) {
                     if (ev.getFieldName().equals( biotop.status().qualifiedName().name() )) { 
                         if (ev.getNewValue() != null 
@@ -426,7 +432,7 @@ public class BiotopFormPageProvider
             }
             
             // update fields
-            site.addFieldListener( new IFormFieldListener() {
+            site.addFieldListener( biotoptypListener = new IFormFieldListener() {
                 public void fieldChange( FormFieldEvent ev ) {
                     if (ev.getFormField() == picklist) {
                         final String nummerNeu = ev.getNewValue();
@@ -497,11 +503,11 @@ public class BiotopFormPageProvider
             }
             
             // listen to field changes
-            site.addFieldListener( new IFormFieldListener() {
+            site.addFieldListener( statusListener2 = new IFormFieldListener() {
                 public void fieldChange( FormFieldEvent ev ) {
                     if (ev.getFieldName().endsWith( "wann" ) 
                             || ev.getFieldName().endsWith( "wer" )
-                            /*|| !site.isDirty()*/) {
+                            || !site.isDirty()) {
                         return;
                     }
                     
