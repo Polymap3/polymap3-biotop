@@ -21,7 +21,6 @@ import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -42,7 +41,6 @@ import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModule.EntityCreator;
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
 import org.polymap.rhei.data.entityfeature.EntityProvider2;
-
 import org.polymap.biotop.model.constant.Status;
 
 /**
@@ -230,8 +228,28 @@ public class BiotopEntityProvider
     }
 
 
-    public ReferencedEnvelope getBounds() {
-        return new ReferencedEnvelope( 4000000, 5000000, 5000000, 6000000, getCoordinateReferenceSystem( null ) );
-    }
+//    public ReferencedEnvelope getBounds() {
+//        org.qi4j.api.query.Query<BiotopComposite> result = repo.findEntities( type.getType(), new GetBoundsQuery( getDefaultGeometry() ), 0, 10 );
+//        Iterator<BiotopComposite> it = result.iterator();
+//        
+//        try {
+//            Geometry geom = (Geometry)type.getProperty( getDefaultGeometry() ).getValue( it.next() );
+//            double minX = geom.getEnvelopeInternal().getMinX();
+//
+//            geom = (Geometry)type.getProperty( getDefaultGeometry() ).getValue( it.next() );
+//            double maxX = geom.getEnvelopeInternal().getMaxX();
+//
+//            geom = (Geometry)type.getProperty( getDefaultGeometry() ).getValue( it.next() );
+//            double minY = geom.getEnvelopeInternal().getMinY();
+//
+//            geom = (Geometry)type.getProperty( getDefaultGeometry() ).getValue( it.next() );
+//            double maxY = geom.getEnvelopeInternal().getMaxY();
+//
+//            return new ReferencedEnvelope( minX, maxX, minY, maxY, getCoordinateReferenceSystem( null ) );
+//        }
+//        catch (Exception e) {
+//            throw new RuntimeException( e );
+//        }
+//    }
     
 }

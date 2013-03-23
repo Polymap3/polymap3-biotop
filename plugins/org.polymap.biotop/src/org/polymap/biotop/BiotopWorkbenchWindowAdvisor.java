@@ -62,6 +62,7 @@ public class BiotopWorkbenchWindowAdvisor
         configurer.setTitle( "POLYMAP3|Biotop" );
         configurer.setShellStyle( SWT.TITLE /*| SWT.MAX | SWT.RESIZE*/ );
         configurer.setShowProgressIndicator( true );
+        configurer.setShowMenuBar( false );
     }
 
 

@@ -184,6 +184,7 @@ public class BiotopFormPageProvider
             layouter = new DefaultFormPageLayouter();
 
             site.setFormTitle( "Biotop: " + biotop.objnr().get() );
+            site.setEditorTitle( "Biotop: " + biotop.objnr().get() );
             site.setActivePage( getId() );
             site.getPageBody().setLayout( new FormLayout() );
 

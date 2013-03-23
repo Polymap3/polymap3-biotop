@@ -176,7 +176,7 @@ public class BiotopRepository
     }
 
     
-    protected void done() {
+    protected void dispose() {
         if (operationListener != null) {
             OperationSupport.instance().removeOperationSaveListener( operationListener );
             operationListener = null;
@@ -230,7 +230,7 @@ public class BiotopRepository
             log.warn( "", e );
         }
         
-        super.done();
+        super.dispose();
         
         log.info( "Running GC ..." );
         Runtime.getRuntime().gc();

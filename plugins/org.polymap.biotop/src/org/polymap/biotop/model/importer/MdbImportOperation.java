@@ -172,40 +172,39 @@ public class MdbImportOperation
 
             sub = new SubMonitor( monitor, 10 );
             final AtomicInteger copied = new AtomicInteger( 0 );
-            importValue( db, sub, BiotoptypValue.class,
-                    new ValueCallback<BiotoptypValue>() {
-                        public void fillValue( final BiotopComposite biotop, final BiotoptypValue value ) {
-                            String unr = value.unternummer().get();
-                            assert unr != null : "Value-Unternummer == null";
-                            String bunr = biotop.unr().get();
-                            assert bunr != null : "Biotop-Unternummer == null";
-                            
-                            if (unr.equals( bunr )) {
-                                // set nummer
-                                if (biotop.biotoptypArtNr().get() == null) {
-                                    biotop.biotoptypArtNr().set( value.biotoptypArtNr().get() );
-                                    biotop.pflegeRueckstand().set( value.pflegerueckstand().get() );
-                                }
-                                // biotop exists -> copy biotop
-                                else {
-                                    try {
-                                        BiotopComposite copy = repo.newBiotop( new EntityCreator<BiotopComposite>() {
-                                            public void create( BiotopComposite prototype ) throws Exception {
-                                                prototype.copyStateFrom( biotop );
-                                                prototype.objnr().set( repo.biotopnummern.get().generate() );
+            importValue( db, sub, BiotoptypValue.class, new ValueCallback<BiotoptypValue>() {
+                public void fillValue( final BiotopComposite biotop, final BiotoptypValue value ) {
+                    String unr = value.unternummer().get();
+                    assert unr != null : "Value-Unternummer == null";
+                    String bunr = biotop.unr().get();
+                    assert bunr != null : "Biotop-Unternummer == null";
 
-                                                prototype.biotoptypArtNr().set( value.biotoptypArtNr().get() );
-                                                prototype.pflegeRueckstand().set( value.pflegerueckstand().get() );
-                                            }
-                                        });
-                                        copied.incrementAndGet();
+                    if (unr.equals( bunr )) {
+                        // set nummer
+                        if (biotop.biotoptypArtNr().get() == null) {
+                            biotop.biotoptypArtNr().set( value.biotoptypArtNr().get() );
+                            biotop.pflegeRueckstand().set( value.pflegerueckstand().get() );
+                        }
+                        // biotop exists -> copy biotop
+                        else {
+                            try {
+                                BiotopComposite copy = repo.newBiotop( new EntityCreator<BiotopComposite>() {
+                                    public void create( BiotopComposite prototype ) throws Exception {
+                                        prototype.copyStateFrom( biotop );
+                                        prototype.objnr().set( repo.biotopnummern.get().generate() );
+
+                                        prototype.biotoptypArtNr().set( value.biotoptypArtNr().get() );
+                                        prototype.pflegeRueckstand().set( value.pflegerueckstand().get() );
                                     }
-                                    catch (Exception e) {
-                                        throw new RuntimeException( e );
-                                    }
-                                }
+                                });
+                                copied.incrementAndGet();
+                            }
+                            catch (Exception e) {
+                                throw new RuntimeException( e );
                             }
                         }
+                    }
+                }
             });
             log.info( "Copies of BiotopComposite: " + copied.intValue() );
         }
