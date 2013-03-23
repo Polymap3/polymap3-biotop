@@ -21,7 +21,6 @@ import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
-import org.geotools.referencing.CRS;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
@@ -35,12 +34,16 @@ import org.apache.commons.logging.LogFactory;
 import com.google.common.base.Joiner;
 import com.vividsolutions.jts.geom.MultiPolygon;
 
+import org.polymap.core.data.util.Geometries;
 import org.polymap.core.model.Entity;
 import org.polymap.core.model.EntityType;
+import org.polymap.core.model.EntityType.Property;
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModule.EntityCreator;
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
 import org.polymap.rhei.data.entityfeature.EntityProvider2;
+
+import org.polymap.biotop.model.constant.Schutzstatus;
 import org.polymap.biotop.model.constant.Status;
 
 /**
@@ -58,28 +61,42 @@ public class BiotopEntityProvider
      * The properties (name/type) of the feature type provided. 
      */
     private enum PROP {
-        Biotopnummer( String.class ), 
-        SBK( String.class, "SBK/TK25/UNr." ), 
-        Name( String.class ), 
-        Beschreibung( String.class ), 
-        Biotoptyp( String.class ), 
-        Geprueft( Boolean.class, "Geprüft" ), 
-        Wert( String.class ), 
-        Archiv( Integer.class );
-        
-        private Class       type;
-        
-        private String      name = name();
-        
-        PROP( Class type ) {
-            this.type = type;
+        Biotopnummer( String.class, "objnr", true ), 
+        SBK( String.class, null, false, "SBK/TK25/UNr." ), 
+        Name( String.class, "name", true ), 
+        Beschreibung( String.class, "beschreibung", true ), 
+        Biotoptyp( String.class, null, false ), 
+        Geprueft( Boolean.class, "geprueft", true, "Geprüft" ), 
+        Schutzstatus( String.class, "schutzstatus", false ), 
+        Wert( String.class, "wert", false ), 
+        Archiv( Integer.class, "status", false );
+
+        public static PROP forName( String name ) {
+            for (PROP prop : PROP.values()) {
+                if (prop.name .equals( name )) {
+                    return prop;
+                }
+            }
+            return null;
         }
-        PROP( Class type, String name ) {
+        
+        /** The Feature property type. */
+        Class       type;
+        /** The Feature property name. */
+        String      name = name();
+        // The Entity property name. */
+        String      mappedName = name();
+        /* */
+        boolean     searchable = true;
+        
+        PROP( Class type, String mapped, boolean searchable ) {
             this.type = type;
+            this.mappedName = mapped;
+            this.searchable = searchable;
+        }
+        PROP( Class type, String mapped, boolean searchable, String name ) {
+            this( type, mapped, searchable );
             this.name = name;
-        }
-        public Class type() {
-            return type;
         }
         public <T> T cast( Object value ) {
             return (T)type.cast( value );
@@ -112,7 +129,7 @@ public class BiotopEntityProvider
         builder.setDefaultGeometry( getDefaultGeometry() );
         
         for (PROP prop : PROP.values()) {
-            builder.add( prop.toString(), prop.type() );            
+            builder.add( prop.name, prop.type );            
         }
         return builder.buildFeatureType();
     }
@@ -120,38 +137,16 @@ public class BiotopEntityProvider
 
     public Query transformQuery( Query query ) {
         Filter filter = query.getFilter();
-//        if (filter == null) {
-//            log.warn( "Filter is NULL!" );
-//            filter = Filter.INCLUDE;
-//        }
         Filter dublicate = filter == null ? null : (Filter)filter.accept( new DuplicatingFilterVisitor() {
-            
             public Object visit( PropertyName input, Object data ) {
-                if (input.getPropertyName().equals( PROP.Wert.toString() )) {
-                    return getFactory( data ).property( "wert" );
+                PROP prop = PROP.forName( input.getPropertyName() );
+                if (prop != null) {
+                    return getFactory( data ).property( prop.mappedName );
                 }
-                else if (input.getPropertyName().equals( PROP.Biotopnummer.toString() )) {
-                    return getFactory( data ).property( "objnr" );
+                else {
+                    log.info( "No such prop: " + input.getPropertyName() );
+                    return input;
                 }
-                else if (input.getPropertyName().equals( PROP.Beschreibung.toString() )) {
-                    return getFactory( data ).property( "beschreibung" );
-                }
-                else if (input.getPropertyName().equals( PROP.Name.toString() )) {
-                    return getFactory( data ).property( "name" );
-                }
-                else if (input.getPropertyName().equals( PROP.SBK.toString() )) {
-                    throw new RuntimeException( "Das Feld ist errechnet und kann nicht durchsucht werden: " + PROP.SBK.toString() );
-                }
-                else if (input.getPropertyName().equals( PROP.Biotoptyp.toString() )) {
-                    throw new RuntimeException( "Das Feld ist errechnet und kann nicht durchsucht werden: " + PROP.Biotoptyp.toString() );
-                }
-                else if (input.getPropertyName().equals( PROP.Geprueft.toString() )) {
-                    return getFactory( data ).property( "geprueft" );
-                }
-                else if (input.getPropertyName().equals( PROP.Archiv.toString() )) {
-                    return getFactory( data ).property( "status" );
-                }
-                return input;
             }
         }, null );
         DefaultQuery result = new DefaultQuery( query );
@@ -160,24 +155,33 @@ public class BiotopEntityProvider
     }
 
 
+    @Override
     public Feature buildFeature( Entity entity, FeatureType schema ) {
         SimpleFeatureBuilder fb = new SimpleFeatureBuilder( (SimpleFeatureType)schema );
         BiotopComposite biotop = (BiotopComposite)entity;
         try {
             fb.set( getDefaultGeometry(), biotop.geom().get() );
-            fb.set( PROP.Biotopnummer.toString(), biotop.objnr().get() );
-            fb.set( PROP.SBK.toString(), Joiner.on( "/" ).useForNull( "-" )
+            
+            EntityType<BiotopComposite> entityType = getEntityType();
+            for (PROP prop : PROP.values()) {
+                if (prop.mappedName != null) {
+                    Property entityProp = entityType.getProperty( prop.mappedName );
+                    if (entityProp != null) {
+                        Object value = entityProp.getValue( biotop );
+                        fb.set( prop.name, entityProp.getValue( biotop ) );
+                    }
+                }
+            }
+            
+            fb.set( PROP.SBK.name, Joiner.on( "/" ).useForNull( "-" )
                     .join( biotop.objnr_sbk().get(), biotop.tk25().get(), biotop.unr().get() ) );
-            fb.set( PROP.Name.toString(), biotop.name().get() );
-            fb.set( PROP.Beschreibung.toString(), biotop.beschreibung().get() );
-            fb.set( PROP.Biotoptyp.toString(), biotop.biotoptypArtNr().get() );
-            fb.set( PROP.Wert.toString(), biotop.wert().get() );
-            fb.set( PROP.Geprueft.toString(), biotop.geprueft().get() /*.booleanValue() ? "ja" : "nein"*/ );
-            fb.set( PROP.Archiv.toString(), biotop.status().get() /*== Status.nicht_aktuell.id ? "ja" : "nein"*/ );
             
             String nummer = biotop.biotoptypArtNr().get();
             BiotoptypArtComposite biotoptyp = ((BiotopRepository)repo).btForNummer( nummer );
-            fb.set( PROP.Biotoptyp.toString(), biotoptyp != null ? biotoptyp.name().get() : null );
+            fb.set( PROP.Biotoptyp.name, biotoptyp != null ? biotoptyp.name().get() : null );
+            
+            Schutzstatus schutzstatus = Schutzstatus.all.forId( biotop.schutzstatus().get() );
+            fb.set( PROP.Schutzstatus.name, schutzstatus.label );
         }
         catch (Exception e) {
             log.warn( "", e );
@@ -186,6 +190,7 @@ public class BiotopEntityProvider
     }
 
 
+    @Override
     public void modifyFeature( Entity entity, String propName, Object value )
     throws Exception {
         BiotopComposite biotop = (BiotopComposite)entity;
@@ -198,24 +203,24 @@ public class BiotopEntityProvider
         else if (propName.equals( PROP.Beschreibung.toString() )) {
             biotop.beschreibung().set( (String)value );
         }
-        else if (propName.equals( PROP.Biotoptyp.toString() )) {
-            biotop.biotoptypArtNr().set( (String)value );
-        }
+//        else if (propName.equals( PROP.Biotoptyp.toString() )) {
+//            biotop.biotoptypArtNr().set( (String)value );
+//        }
         else if (propName.equals( PROP.Geprueft.toString() )) {
             biotop.geprueft().set( value.equals( "ja" ) );
         }
         else if (propName.equals( PROP.Archiv.toString() )) {
             biotop.status().set( value.equals( "ja" ) ? Status.nicht_aktuell.id : Status.aktuell.id );
         }
-        else {
-            throw new RuntimeException( "Unhandled property: " + propName );
-        }
+//        else {
+//            throw new RuntimeException( "Unhandled property: " + propName );
+//        }
     }
 
 
     public CoordinateReferenceSystem getCoordinateReferenceSystem( String propName ) {
         try {
-            return CRS.decode( "EPSG:31468" );
+            return Geometries.crs( "EPSG:31468" );
         }
         catch (Exception e) {
             throw new RuntimeException( e );
@@ -227,29 +232,4 @@ public class BiotopEntityProvider
         return "geom";
     }
 
-
-//    public ReferencedEnvelope getBounds() {
-//        org.qi4j.api.query.Query<BiotopComposite> result = repo.findEntities( type.getType(), new GetBoundsQuery( getDefaultGeometry() ), 0, 10 );
-//        Iterator<BiotopComposite> it = result.iterator();
-//        
-//        try {
-//            Geometry geom = (Geometry)type.getProperty( getDefaultGeometry() ).getValue( it.next() );
-//            double minX = geom.getEnvelopeInternal().getMinX();
-//
-//            geom = (Geometry)type.getProperty( getDefaultGeometry() ).getValue( it.next() );
-//            double maxX = geom.getEnvelopeInternal().getMaxX();
-//
-//            geom = (Geometry)type.getProperty( getDefaultGeometry() ).getValue( it.next() );
-//            double minY = geom.getEnvelopeInternal().getMinY();
-//
-//            geom = (Geometry)type.getProperty( getDefaultGeometry() ).getValue( it.next() );
-//            double maxY = geom.getEnvelopeInternal().getMaxY();
-//
-//            return new ReferencedEnvelope( minX, maxX, minY, maxY, getCoordinateReferenceSystem( null ) );
-//        }
-//        catch (Exception e) {
-//            throw new RuntimeException( e );
-//        }
-//    }
-    
 }
