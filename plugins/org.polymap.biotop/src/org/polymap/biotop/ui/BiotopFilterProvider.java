@@ -33,11 +33,7 @@ import org.qi4j.api.query.QueryExpressions;
 import static org.qi4j.api.query.QueryExpressions.matches;
 import static org.qi4j.api.query.QueryExpressions.eq;
 import org.qi4j.api.query.grammar.BooleanExpression;
-import org.qi4j.api.query.grammar.ContainsPredicate;
-import org.qi4j.api.query.grammar.EqualsPredicate;
 import org.qi4j.api.query.grammar.MatchesPredicate;
-import org.qi4j.api.value.ValueBuilder;
-
 import org.eclipse.swt.widgets.Composite;
 
 import org.polymap.core.model.Entity;
@@ -58,9 +54,6 @@ import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopEntityProvider;
 import org.polymap.biotop.model.BiotopRepository;
 import org.polymap.biotop.model.BiotoptypArtComposite;
-import org.polymap.biotop.model.PflanzeValue;
-import org.polymap.biotop.model.PilzValue;
-import org.polymap.biotop.model.TierValue;
 import org.polymap.biotop.model.constant.Erhaltungszustand;
 import org.polymap.biotop.model.constant.Pflegezustand;
 import org.polymap.biotop.model.constant.Schutzstatus;
@@ -100,56 +93,56 @@ public class BiotopFilterProvider
 
             result.add( new MeineFilter() );
 
-            result.add( new AbstractEntityFilter( "__archiv__", layer, "Archiv", null, 10000, BiotopComposite.class ) {
-                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
-                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
-                    EqualsPredicate predicate = QueryExpressions.eq( template.status(), Status.archiviert.id );
-                    return BiotopRepository.instance().findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
-                }
-            });
-
-            result.add( new AbstractEntityFilter( "__pilze__", layer, "mit Pilzen", null, 10000, BiotopComposite.class ) {
-                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
-                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
-
-                    ValueBuilder<PilzValue> builder = repo.newValueBuilder( PilzValue.class );
-                    builder.prototype().artNr().set( "*" );
-
-                    ContainsPredicate<PilzValue> predicate = QueryExpressions.contains(
-                            template.pilze(), builder.newInstance() );
-                    return repo.findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
-                }
-            });
-
-            result.add( new AbstractEntityFilter( "__tiere__", layer, "mit Tieren", null, 10000, BiotopComposite.class ) {
-                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
-                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
-
-                    ValueBuilder<TierValue> builder = repo.newValueBuilder( TierValue.class );
-                    TierValue prototype = builder.prototype();
-                    prototype.tierArtNr().set( "*" );
-
-                    ContainsPredicate<TierValue> predicate = QueryExpressions.contains(
-                            template.tiere(), builder.newInstance() );
-                    log.debug( "Predicate:" + predicate );
-                    return repo.findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
-                }
-            });
-
-            result.add( new AbstractEntityFilter( "__pflanzen__", layer, "mit Pflanzen", null, 10000, BiotopComposite.class ) {
-                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
-                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
-
-                    ValueBuilder<PflanzeValue> builder = repo.newValueBuilder( PflanzeValue.class );
-                    PflanzeValue prototype = builder.prototype();
-                    prototype.pflanzenArtNr().set( "*" );
-
-                    ContainsPredicate<PflanzeValue> predicate = QueryExpressions.contains(
-                            template.pflanzen(), builder.newInstance() );
-                    log.debug( "Predicate:" + predicate );
-                    return repo.findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
-                }
-            });
+//            result.add( new AbstractEntityFilter( "__archiv__", layer, "Archiv", null, 10000, BiotopComposite.class ) {
+//                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
+//                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
+//                    EqualsPredicate predicate = QueryExpressions.eq( template.status(), Status.archiviert.id );
+//                    return BiotopRepository.instance().findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
+//                }
+//            });
+//
+//            result.add( new AbstractEntityFilter( "__pilze__", layer, "mit Pilzen", null, 10000, BiotopComposite.class ) {
+//                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
+//                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
+//
+//                    ValueBuilder<PilzValue> builder = repo.newValueBuilder( PilzValue.class );
+//                    builder.prototype().artNr().set( "*" );
+//
+//                    ContainsPredicate<PilzValue> predicate = QueryExpressions.contains(
+//                            template.pilze(), builder.newInstance() );
+//                    return repo.findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
+//                }
+//            });
+//
+//            result.add( new AbstractEntityFilter( "__tiere__", layer, "mit Tieren", null, 10000, BiotopComposite.class ) {
+//                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
+//                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
+//
+//                    ValueBuilder<TierValue> builder = repo.newValueBuilder( TierValue.class );
+//                    TierValue prototype = builder.prototype();
+//                    prototype.tierArtNr().set( "*" );
+//
+//                    ContainsPredicate<TierValue> predicate = QueryExpressions.contains(
+//                            template.tiere(), builder.newInstance() );
+//                    log.debug( "Predicate:" + predicate );
+//                    return repo.findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
+//                }
+//            });
+//
+//            result.add( new AbstractEntityFilter( "__pflanzen__", layer, "mit Pflanzen", null, 10000, BiotopComposite.class ) {
+//                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
+//                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
+//
+//                    ValueBuilder<PflanzeValue> builder = repo.newValueBuilder( PflanzeValue.class );
+//                    PflanzeValue prototype = builder.prototype();
+//                    prototype.pflanzenArtNr().set( "*" );
+//
+//                    ContainsPredicate<PflanzeValue> predicate = QueryExpressions.contains(
+//                            template.pflanzen(), builder.newInstance() );
+//                    log.debug( "Predicate:" + predicate );
+//                    return repo.findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
+//                }
+//            });
 
 //            result.add( new AbstractEntityFilter( "__2010__", layer, "Jahr: 2010", null, null, 10000, BiotopComposite.class ) {
 //                protected BooleanExpression createQuery( IFilterEditorSite  site ) {

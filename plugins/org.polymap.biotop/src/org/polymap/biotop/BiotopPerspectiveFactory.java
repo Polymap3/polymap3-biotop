@@ -46,7 +46,7 @@ public class BiotopPerspectiveFactory
         topRight.addView( "org.polymap.core.mapeditor.ToolingView" );
 
         bottomLeft.addView( LayerNavigator.ID );
-        bottomLeft.addPlaceholder( "org.polymap.rhei.FilterView:*" );
+        bottomLeft.addPlaceholder( "org.polymap.rhei.filter.FilterView:*" );
 
         bottom.addPlaceholder( "org.polymap.*:*" );
         bottom.addPlaceholder( "org.polymap.*" );

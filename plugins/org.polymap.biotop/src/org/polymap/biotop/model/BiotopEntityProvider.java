@@ -71,7 +71,6 @@ public class BiotopEntityProvider
         Biotoptyp( String.class, null, false ), 
         Geprueft( Boolean.class, "geprueft", true, "Geprüft" ), 
         Schutzstatus( String.class, "schutzstatus", false ), 
-        Wert( String.class, "wert", false ), 
         Status( String.class, "status", true );
 
         public static PROP forName( String name ) {
@@ -132,12 +131,13 @@ public class BiotopEntityProvider
         builder.setDefaultGeometry( getDefaultGeometry() );
         
         for (PROP prop : PROP.values()) {
-            builder.add( prop.name, prop.type );            
+            builder.add( prop.name, prop.type );
         }
         return builder.buildFeatureType();
     }
 
 
+    @Override
     public Query transformQuery( Query query ) {
         Filter filter = query.getFilter();
         Filter dublicate = filter == null ? null : (Filter)filter.accept( new DuplicatingFilterVisitor() {
@@ -146,7 +146,15 @@ public class BiotopEntityProvider
             public Object visit( PropertyName input, Object data ) {
                 PROP prop = PROP.forName( input.getPropertyName() );
                 if (prop != null) {
-                    return getFactory( data ).property( prop.mappedName );
+                    if (!prop.searchable) {
+//                        MessageDialog.openInformation( PolymapWorkbench.getShellToParentOn(),
+//                                "Achtung", "Das Feld '" + prop.name + "' kann im Standardfilter nicht durchsucht werden.\nBenutzen Sie stattdessen den Filter 'Naturschutz'." );
+//                        return Filter.EXCLUDE;
+                        throw new RuntimeException( "Das Feld '" + prop.name + "' kann im Standardfilter nicht durchsucht werden. Benutzen Sie stattdessen den Filter 'Naturschutz'." );
+                    }
+                    else {
+                        return getFactory( data ).property( prop.mappedName );
+                    }
                 }
                 else {
                     log.info( "No such prop: " + input.getPropertyName() );
@@ -168,16 +176,18 @@ public class BiotopEntityProvider
             // StandardFilterProvider does isLike for all Strings
             @Override
             public Object visit( PropertyIsLike isLike, Object data ) {
-                PropertyName propName = (PropertyName)isLike.getExpression();
-                if (propName.getPropertyName().equals( PROP.Status.name )) {
+                PropertyName propName = (PropertyName)visit( (PropertyName)isLike.getExpression(), data );
+                if (propName.getPropertyName().equals( PROP.Status.mappedName )) {
                     FilterFactory2 ff2 = getFactory( data );
-                    return ff2.equals( 
-                            ff2.property( PROP.Status.mappedName ), 
+                    return ff2.equals( propName, 
                             ff2.literal( Status.all.forLabelOrSynonym( isLike.getLiteral() ).id ) );
                 }
-                return isLike;
+                else {
+                    return super.visit( isLike, data );
+                }
             }
         }, null );
+        // XXX change requested properties
         DefaultQuery result = new DefaultQuery( query );
         result.setFilter( dublicate );
         return result;
