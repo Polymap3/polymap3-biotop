@@ -87,7 +87,7 @@ public class CopyOperationConcern
                                             
                                             destFeature.accepts( new FeatureVisitor() {
                                                 public void visit( Feature feature ) {
-                                                    FormEditor.open( fs, feature, null );
+                                                    FormEditor.open( fs, feature, null, true );
                                                 }                                                
                                             }, null );
                                         }

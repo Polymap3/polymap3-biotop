@@ -34,6 +34,7 @@ public class BiotopService
     }
 
     public <T> boolean canResolve( Class<T> adaptee ) {
+        // also used to signal FeatureRenderProcessor to accept this
         if (adaptee.equals( ITransientResolve.class )) {
             return true;
         }

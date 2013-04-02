@@ -25,6 +25,9 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.PropertyIsLike;
+import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -69,7 +72,7 @@ public class BiotopEntityProvider
         Geprueft( Boolean.class, "geprueft", true, "Geprüft" ), 
         Schutzstatus( String.class, "schutzstatus", false ), 
         Wert( String.class, "wert", false ), 
-        Archiv( Integer.class, "status", false );
+        Status( String.class, "status", true );
 
         public static PROP forName( String name ) {
             for (PROP prop : PROP.values()) {
@@ -107,8 +110,8 @@ public class BiotopEntityProvider
     }
 
     
-    public BiotopEntityProvider( QiModule repo, FidsQueryProvider queryProvider ) {
-        super( repo, BiotopComposite.class, new NameImpl( BiotopRepository.NAMESPACE, "Biotop" ), queryProvider );
+    public BiotopEntityProvider( QiModule repo ) {
+        super( repo, BiotopComposite.class, new NameImpl( BiotopRepository.NAMESPACE, "Biotop" ) );
     }
 
 
@@ -138,6 +141,8 @@ public class BiotopEntityProvider
     public Query transformQuery( Query query ) {
         Filter filter = query.getFilter();
         Filter dublicate = filter == null ? null : (Filter)filter.accept( new DuplicatingFilterVisitor() {
+            // property name
+            @Override
             public Object visit( PropertyName input, Object data ) {
                 PROP prop = PROP.forName( input.getPropertyName() );
                 if (prop != null) {
@@ -147,6 +152,30 @@ public class BiotopEntityProvider
                     log.info( "No such prop: " + input.getPropertyName() );
                     return input;
                 }
+            }
+            // literal: status -> id
+            @Override
+            public Object visit( Literal literal, Object data ) {
+                Object value = literal.getValue();
+                if (value instanceof String) {
+                    Status status = Status.all.forLabelOrSynonym( (String)value );
+                    if (status != null) {
+                        return getFactory( data ).literal( status.id );
+                    }
+                }
+                return literal;
+            }
+            // StandardFilterProvider does isLike for all Strings
+            @Override
+            public Object visit( PropertyIsLike isLike, Object data ) {
+                PropertyName propName = (PropertyName)isLike.getExpression();
+                if (propName.getPropertyName().equals( PROP.Status.name )) {
+                    FilterFactory2 ff2 = getFactory( data );
+                    return ff2.equals( 
+                            ff2.property( PROP.Status.mappedName ), 
+                            ff2.literal( Status.all.forLabelOrSynonym( isLike.getLiteral() ).id ) );
+                }
+                return isLike;
             }
         }, null );
         DefaultQuery result = new DefaultQuery( query );
@@ -182,6 +211,9 @@ public class BiotopEntityProvider
             
             Schutzstatus schutzstatus = Schutzstatus.all.forId( biotop.schutzstatus().get() );
             fb.set( PROP.Schutzstatus.name, schutzstatus.label );
+
+            Status status = Status.all.forId( biotop.status().get() );
+            fb.set( PROP.Status.name, status.label );
         }
         catch (Exception e) {
             log.warn( "", e );
@@ -207,10 +239,10 @@ public class BiotopEntityProvider
 //            biotop.biotoptypArtNr().set( (String)value );
 //        }
         else if (propName.equals( PROP.Geprueft.toString() )) {
-            biotop.geprueft().set( value.equals( "ja" ) );
+            biotop.geprueft().set( "ja".equals( value ) );
         }
-        else if (propName.equals( PROP.Archiv.toString() )) {
-            biotop.status().set( value.equals( "ja" ) ? Status.nicht_aktuell.id : Status.aktuell.id );
+        else if (propName.equals( PROP.Status.toString() )) {
+            biotop.status().set( Status.all.forLabelOrSynonym( (String)value ).id );
         }
 //        else {
 //            throw new RuntimeException( "Unhandled property: " + propName );

@@ -292,7 +292,7 @@ public class BiotopFormPageProvider
                 public void fieldChange( FormFieldEvent ev ) {
                     if (ev.getFieldName().equals( biotop.status().qualifiedName().name() )) { 
                         if (ev.getNewValue() != null 
-                                && ev.getNewValue().equals( Status.nicht_aktuell.id )) {
+                                && ev.getNewValue().equals( Status.archiviert.id )) {
                             Principal user = Polymap.instance().getUser();
                             Calendar now = Calendar.getInstance( Locale.GERMANY );
                             now.set( Calendar.MILLISECOND, 0 );
@@ -499,7 +499,7 @@ public class BiotopFormPageProvider
             
             createAktivitaet( client, biotop.erfassung().get(), "created_", "Erfasst (Wann/Wer)" );
             createAktivitaet( client, biotop.bearbeitung().get(), "modified_", "Bearbeitet" );
-            if (biotop.status().get() == Status.nicht_aktuell.id) {
+            if (biotop.status().get() == Status.archiviert.id) {
                 createAktivitaet( client, biotop.loeschung().get(), "deleted_", "Gelöscht" );
             }
             

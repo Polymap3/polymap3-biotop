@@ -32,7 +32,7 @@ public class Status
 
     public static final Status aktuell = new Status( 0, "aktuell", "Objekt ist aktuell" );
 
-    public static final Status nicht_aktuell = new Status( 1, "nicht aktuell", "Objekt ist nicht aktuell" );
+    public static final Status archiviert = new Status( 1, "archiviert", "Objekt ist archiviert" );
 
 
     // instance *******************************************

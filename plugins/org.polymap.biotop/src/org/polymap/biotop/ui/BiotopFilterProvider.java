@@ -103,7 +103,7 @@ public class BiotopFilterProvider
             result.add( new AbstractEntityFilter( "__archiv__", layer, "Archiv", null, 10000, BiotopComposite.class ) {
                 protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
                     BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
-                    EqualsPredicate predicate = QueryExpressions.eq( template.status(), Status.nicht_aktuell.id );
+                    EqualsPredicate predicate = QueryExpressions.eq( template.status(), Status.archiviert.id );
                     return BiotopRepository.instance().findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
                 }
             });
@@ -185,9 +185,14 @@ public class BiotopFilterProvider
             
             BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
 
-            final PicklistFormField statusField = new PicklistFormField( Status.all );
-            site.addStandardLayout( site.newFormField( result, "status", String.class,
-                    statusField, null, "Status" ) );
+//            final PicklistFormField statusField = new PicklistFormField( Status.all );
+//            site.addStandardLayout( site.newFormField( result, "status", String.class,
+//                    statusField, null, "Status" ) );
+//            Polymap.getSessionDisplay().asyncExec( new Runnable() {
+//                public void run() {
+//                    statusField.setValue( Status.aktuell.id );
+//                }
+//            });
             
             site.addStandardLayout( site.newFormField( result, "objnr", String.class,
                     new StringFormField(), null, "Biotopnummer" ) );
@@ -232,11 +237,6 @@ public class BiotopFilterProvider
             site.addStandardLayout( site.newFormField( result, "naturraum", String.class,
                     naturraumField, null, "Naturraum (Nr.)" ) );
             
-            Polymap.getSessionDisplay().asyncExec( new Runnable() {
-                public void run() {
-                    statusField.setValue( Status.aktuell.id );
-                }
-            });
             return result;
         }
 
@@ -312,7 +312,7 @@ public class BiotopFilterProvider
         protected Query<? extends Entity> createQuery( IFilterEditorSite site ) {
             BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
 
-            BooleanExpression statusQuery = QueryExpressions.notEq( template.status(), Status.nicht_aktuell.id );
+            BooleanExpression statusQuery = QueryExpressions.notEq( template.status(), Status.archiviert.id );
 
             Principal user = Polymap.instance().getUser();
             MatchesPredicate principalQuery = QueryExpressions.matches(

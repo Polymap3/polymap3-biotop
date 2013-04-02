@@ -51,10 +51,7 @@ import org.polymap.core.runtime.Polymap;
 import org.polymap.core.runtime.entity.ConcurrentModificationException;
 
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
-import org.polymap.rhei.data.entityfeature.EntityProvider.FidsQueryProvider;
 import org.polymap.rhei.data.entitystore.lucene.LuceneEntityStoreService;
-import org.polymap.rhei.data.entitystore.lucene.LuceneQueryProvider;
-
 import org.polymap.biotop.model.constant.Status;
 import org.polymap.biotop.model.idgen.BiotopnummerGeneratorService;
 
@@ -97,9 +94,8 @@ public class BiotopRepository
     public static class ArtEntityProvider
             extends DefaultEntityProvider {
         
-        public ArtEntityProvider( QiModule repo, Class entityClass, Name entityName,
-                FidsQueryProvider queryProvider ) {
-            super( repo, entityClass, entityName, queryProvider );
+        public ArtEntityProvider( QiModule repo, Class entityClass, Name entityName ) {
+            super( repo, entityClass, entityName );
         }
         
         public ReferencedEnvelope getBounds() {
@@ -139,24 +135,23 @@ public class BiotopRepository
             // build the queryProvider
             ServiceReference<LuceneEntityStoreService> storeService = assembler.getModule().serviceFinder().findService( LuceneEntityStoreService.class );
             LuceneEntityStoreService luceneStore = storeService.get();
-            FidsQueryProvider queryProvider = new LuceneQueryProvider( luceneStore.getStore() );
 
             biotopService = new BiotopService(
                     // BiotopComposite
-                    new BiotopEntityProvider( this, queryProvider ),
+                    new BiotopEntityProvider( this ),
                     // Arten...
                     new ArtEntityProvider( this, BiotoptypArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" ), queryProvider ),
+                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" ) ),
                     new ArtEntityProvider( this, PflanzenArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Pflanzenart" ), queryProvider ),
+                            new NameImpl( BiotopRepository.NAMESPACE, "Pflanzenart" ) ),
                     new ArtEntityProvider( this, PilzArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Pilzart" ), queryProvider ),
+                            new NameImpl( BiotopRepository.NAMESPACE, "Pilzart" ) ),
                     new ArtEntityProvider( this, TierArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Tierart" ), queryProvider ),
+                            new NameImpl( BiotopRepository.NAMESPACE, "Tierart" ) ),
                     new ArtEntityProvider( this, StoerungsArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Beeinträchtigungen" ), queryProvider ),
+                            new NameImpl( BiotopRepository.NAMESPACE, "Beeinträchtigungen" ) ),
                     new ArtEntityProvider( this, WertArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Wertbestimmend" ), queryProvider )
+                            new NameImpl( BiotopRepository.NAMESPACE, "Wertbestimmend" ) )
                     );
         }
         catch (Exception e) {
