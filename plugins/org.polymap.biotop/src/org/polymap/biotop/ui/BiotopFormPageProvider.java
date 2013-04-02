@@ -19,6 +19,7 @@ import static com.google.common.collect.Iterables.find;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,6 +34,9 @@ import org.opengis.feature.Feature;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.qi4j.api.common.QualifiedName;
+import org.qi4j.api.property.Property;
+import org.qi4j.api.property.StateHolder.StateVisitor;
 import org.qi4j.api.value.ValueBuilder;
 
 import com.google.common.base.Function;
@@ -262,7 +266,7 @@ public class BiotopFormPageProvider
             AktivitaetValue bekanntmachung = biotop.bekanntmachung().get();
             final IFormField bField = new StringFormField();
             if (bekanntmachung != null && bekanntmachung.wann().get() != null) {
-                createAktivitaet( client, bekanntmachung, "published_", "Bekanntmachung" );
+                createAktivitaet( client, biotop.bekanntmachung(), "published_", "Bekanntmachung", true );
             }
             else {
                 layouter.setFieldLayoutData( site.newFormField( client, 
@@ -497,10 +501,10 @@ public class BiotopFormPageProvider
             client.setLayout( layouter.newLayout() );
             section.setClient( client );
             
-            createAktivitaet( client, biotop.erfassung().get(), "created_", "Erfasst (Wann/Wer)" );
-            createAktivitaet( client, biotop.bearbeitung().get(), "modified_", "Bearbeitet" );
+            createAktivitaet( client, biotop.erfassung(), "created_", "Erfasst (Wann/Wer)", true );
+            createAktivitaet( client, biotop.bearbeitung(), "modified_", "Bearbeitet", true );
             if (biotop.status().get() == Status.archiviert.id) {
-                createAktivitaet( client, biotop.loeschung().get(), "deleted_", "Gelöscht" );
+                createAktivitaet( client, biotop.loeschung(), "deleted_", "Gelöscht", false );
             }
             
             // listen to field changes
@@ -532,8 +536,13 @@ public class BiotopFormPageProvider
             return section;
         }
 
+
+        private List<IFormFieldListener> als = new ArrayList();
         
-        private void createAktivitaet( Composite client, AktivitaetValue aktivitaet, String prefix, String label) {
+        private void createAktivitaet( Composite client, final Property<AktivitaetValue> prop, final String prefix, String label,
+                boolean updatable ) {
+            AktivitaetValue aktivitaet = prop.get();
+            
             //assert aktivitaet != null;
             if (aktivitaet == null || aktivitaet.wann().get() == null) {
                 log.warn( "Aktivität oder .wann().get() ist null: " + prefix );
@@ -545,15 +554,47 @@ public class BiotopFormPageProvider
             
             Composite field1 = layouter.setFieldLayoutData( site.newFormField( client, 
                     new ValuePropertyAdapter( prefix+"wann", wann.getTime() ),
-                    new DateTimeFormField().setEnabled( false ), null, label ) );
+                    new DateTimeFormField().setEnabled( updatable ), null, label ) );
             ((FormData)field1.getLayoutData()).right = new FormAttachment( 0, 230 );
 
             SimpleFormData formData = new SimpleFormData( (FormData)field1.getLayoutData() );
             Composite field2 = site.newFormField( client, 
                     new ValuePropertyAdapter( prefix+"wer", aktivitaet.wer().get() ),
-                    new StringFormField().setEnabled( false ), null, IFormFieldLabel.NO_LABEL );
+                    new StringFormField().setEnabled( updatable ), null, IFormFieldLabel.NO_LABEL );
             field2.setLayoutData( formData.left( field1 ).right( 100, -5 ).create() );
             field2.setToolTipText( aktivitaet.wer().get() + ": " + aktivitaet.bemerkung().get() );
+            
+            if (updatable) {
+                // XXX das ändert die Entity unmittelbar!
+                IFormFieldListener l = new IFormFieldListener() {
+                    public void fieldChange( FormFieldEvent ev ) {
+                        if (!ev.getFieldName().startsWith( prefix ) || ev.getNewValue() == null) {
+                            return;
+                        }
+                        // new value
+                        final ValueBuilder<AktivitaetValue> builder = repo.newValueBuilder( AktivitaetValue.class );
+
+                        // copy current state
+                        final AktivitaetValue prototype = builder.prototype();
+                        prop.get().state().visitProperties( new StateVisitor() {
+                            public void visitProperty( QualifiedName name, Object value ) {
+                                prototype.state().getProperty( name ).set( value );
+                            }
+                        });
+                        // "wann"
+                        if (ev.getFieldName().endsWith( "wann" )) {
+                            prototype.wann().set( (Date)ev.getNewValue() );
+                        }
+                        // "wer"
+                        else if (ev.getFieldName().endsWith( "wer" )) {
+                            prototype.wer().set( (String)ev.getNewValue() );
+                        }
+                        prop.set( builder.newInstance() );
+                    }
+                };
+                site.addFieldListener( l );
+                als.add( l );
+            }
         }
         
         
