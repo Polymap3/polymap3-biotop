@@ -142,6 +142,8 @@ public class BiotopRepository
                     // Arten...
                     new ArtEntityProvider( this, BiotoptypArtComposite.class, 
                             new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" ) ),
+                    new ArtEntityProvider( this, PflegeArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Pflege" ) ),
                     new ArtEntityProvider( this, PflanzenArtComposite.class, 
                             new NameImpl( BiotopRepository.NAMESPACE, "Pflanzenart" ) ),
                     new ArtEntityProvider( this, PilzArtComposite.class, 

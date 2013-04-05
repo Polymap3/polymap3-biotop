@@ -42,7 +42,7 @@ public abstract class RemoveValueArtAction
         super( "Löschen" );
         setToolTipText( "Eintrag löschen" );
         setImageDescriptor( BiotopPlugin.imageDescriptorFromPlugin(
-                BiotopPlugin.PLUGIN_ID, "icons/delete.gif" ) );
+                BiotopPlugin.PLUGIN_ID, "icons/delete_edit.gif" ) );
         setEnabled( false );
     }
 

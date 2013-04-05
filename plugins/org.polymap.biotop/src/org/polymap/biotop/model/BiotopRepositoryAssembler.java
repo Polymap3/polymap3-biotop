@@ -29,7 +29,6 @@ import org.qi4j.bootstrap.ModuleAssembly;
 
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModuleAssembler;
-import org.polymap.core.qi4j.Qi4jPlugin.Session;
 import org.polymap.core.qi4j.idgen.HRIdentityGeneratorService;
 import org.polymap.core.runtime.Polymap;
 
@@ -91,7 +90,8 @@ public class BiotopRepositoryAssembler
                 PilzArtComposite.class,
                 TierArtComposite.class,
                 StoerungsArtComposite.class,
-                WertArtComposite.class
+                WertArtComposite.class,
+                PflegeArtComposite.class
         );
 //        domainModule.addTransients(
 //                PflanzeComposite.class,

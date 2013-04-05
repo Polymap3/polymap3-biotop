@@ -251,8 +251,11 @@ public class BiotopEntityProvider
         else if (propName.equals( PROP.Geprueft.toString() )) {
             biotop.geprueft().set( "ja".equals( value ) );
         }
-        else if (propName.equals( PROP.Status.toString() )) {
-            biotop.status().set( Status.all.forLabelOrSynonym( (String)value ).id );
+        else if (propName.equals( PROP.Status.toString() ) && value != null) {
+            Status status = Status.all.forLabelOrSynonym( (String)value );
+            if (status != null) {
+                biotop.status().set( status.id );
+            }
         }
 //        else {
 //            throw new RuntimeException( "Unhandled property: " + propName );

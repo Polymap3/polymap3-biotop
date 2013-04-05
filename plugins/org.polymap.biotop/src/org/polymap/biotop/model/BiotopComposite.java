@@ -23,6 +23,7 @@ import org.qi4j.api.common.Optional;
 import org.qi4j.api.common.UseDefaults;
 import org.qi4j.api.concern.Concerns;
 import org.qi4j.api.entity.EntityComposite;
+import org.qi4j.api.entity.association.ManyAssociation;
 import org.qi4j.api.mixin.Mixins;
 import org.qi4j.api.property.Computed;
 import org.qi4j.api.property.ComputedPropertyInstance;
@@ -185,6 +186,12 @@ public interface BiotopComposite
     @Optional
     Property<Integer>           pflegeRueckstand();
 
+    /**
+     * Pflegemaﬂnahmen
+     */
+    @Optional
+    @UseDefaults
+    ManyAssociation<PflegeArtComposite> pflege();
 
 //    @Optional
 //    @ImportColumn("Teilfl‰che")

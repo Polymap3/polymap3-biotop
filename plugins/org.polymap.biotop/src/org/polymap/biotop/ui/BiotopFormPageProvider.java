@@ -42,6 +42,7 @@ import org.qi4j.api.value.ValueBuilder;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
+
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -112,6 +113,7 @@ public class BiotopFormPageProvider
         if (feature.getType().getName().getLocalPart().equalsIgnoreCase( "biotop" )) {
             result.add( new BaseFormEditorPage( feature, formEditor.getFeatureStore() ) );
             //result.add( new BiotoptypFormEditorPage( feature, formEditor.getFeatureStore() ) );
+            result.add( new PflegeFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new PflanzenFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new PilzeFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new TiereFormPage( feature, formEditor.getFeatureStore() ) );
@@ -224,7 +226,7 @@ public class BiotopFormPageProvider
             geomSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
                     .left( 0 ).right( 50 ).top( statusSection ).bottom( 100 ).create() );
 
-            //layouter.newLayout();
+            layouter.newLayout();
         }
 
         
@@ -482,10 +484,10 @@ public class BiotopFormPageProvider
                     new PropertyAdapter( biotop.pflegeBedarf() ),
                     new CheckboxFormField(), null, "Pflegebedarf" ) );
 
-            Composite field = layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PropertyAdapter( biotop.pflegeEntwicklung() ),
-                    new TextFormField(), null, "Pflege/Entwicklung" ) );
-            ((FormData)field.getLayoutData()).height = 100;
+//            Composite field = layouter.setFieldLayoutData( site.newFormField( client, 
+//                    new PropertyAdapter( biotop.pflegeEntwicklung() ),
+//                    new TextFormField(), null, "Pflege/Entwicklung" ) );
+//            ((FormData)field.getLayoutData()).height = 100;
             
             layouter.newLayout();
             
