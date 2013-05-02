@@ -40,7 +40,7 @@ public class StoerungComposite
 
     // factory ********************************************
     
-    protected static class PflanzenArtFinder 
+    protected static class ArtFinder 
             implements ValueArtFinder<StoerungValue,StoerungsArtComposite> {
 
         public StoerungsArtComposite find( StoerungValue value ) {
@@ -55,7 +55,7 @@ public class StoerungComposite
     public static Collection<StoerungComposite> forEntity( BiotopComposite biotop ) {
         List<StoerungComposite> result = new ArrayList( 256 );
         for (StoerungValue value : biotop.stoerungen().get()) {
-            result.add( new StoerungComposite( value, new PflanzenArtFinder() ) );
+            result.add( new StoerungComposite( value, new ArtFinder() ) );
         }
         return Collections.unmodifiableCollection( result );
     }
@@ -65,7 +65,7 @@ public class StoerungComposite
         ValueBuilder<StoerungValue> builder = repo().newValueBuilder( StoerungValue.class );
         builder.prototype().artNr().set( art.nummer().get() );
         StoerungValue newValue = builder.newInstance();
-        return new StoerungComposite( newValue, new PflanzenArtFinder() );
+        return new StoerungComposite( newValue, new ArtFinder() );
     }
 
     public static void updateEntity( BiotopComposite biotop, Collection<StoerungComposite> coll ) {

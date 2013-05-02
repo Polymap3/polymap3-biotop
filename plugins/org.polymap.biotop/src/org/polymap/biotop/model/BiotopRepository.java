@@ -152,6 +152,8 @@ public class BiotopRepository
                             new NameImpl( BiotopRepository.NAMESPACE, "Tierart" ) ),
                     new ArtEntityProvider( this, StoerungsArtComposite.class, 
                             new NameImpl( BiotopRepository.NAMESPACE, "Beeinträchtigungen" ) ),
+                    new ArtEntityProvider( this, GefahrArtComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Gefährdungen" ) ),
                     new ArtEntityProvider( this, WertArtComposite.class, 
                             new NameImpl( BiotopRepository.NAMESPACE, "Wertbestimmend" ) )
                     );

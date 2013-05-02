@@ -1,7 +1,6 @@
 /*
  * polymap.org
- * Copyright 2011, Falko Bräutigam, and other contributors as
- * indicated by the @authors tag. All rights reserved.
+ * Copyright 2011-2013, Falko Bräutigam. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -36,18 +35,18 @@ import com.google.common.collect.Collections2;
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 public class GefahrComposite
-        extends ValueArtComposite<GefahrValue,StoerungsArtComposite> { 
+        extends ValueArtComposite<GefahrValue,GefahrArtComposite> { 
 
     // factory ********************************************
     
     protected static class ArtFinder 
-            implements ValueArtFinder<GefahrValue,StoerungsArtComposite> {
+            implements ValueArtFinder<GefahrValue,GefahrArtComposite> {
 
-        public StoerungsArtComposite find( GefahrValue value ) {
+        public GefahrArtComposite find( GefahrValue value ) {
             assert value != null;
-            StoerungsArtComposite template = QueryExpressions.templateFor( StoerungsArtComposite.class );
+            GefahrArtComposite template = QueryExpressions.templateFor( GefahrArtComposite.class );
             BooleanExpression expr = QueryExpressions.eq( template.nummer(), value.artNr().get() );
-            Query<StoerungsArtComposite> matches = repo().findEntities( StoerungsArtComposite.class, expr, 0 , 1 );
+            Query<GefahrArtComposite> matches = repo().findEntities( GefahrArtComposite.class, expr, 0 , 1 );
             return matches.find();
         }
     }
@@ -60,7 +59,7 @@ public class GefahrComposite
         return Collections.unmodifiableCollection( result );
     }
 
-    public static GefahrComposite newInstance( final StoerungsArtComposite art ) {
+    public static GefahrComposite newInstance( final GefahrArtComposite art ) {
         assert art != null;
         ValueBuilder<GefahrValue> builder = repo().newValueBuilder( GefahrValue.class );
         builder.prototype().artNr().set( art.nummer().get() );
@@ -79,7 +78,7 @@ public class GefahrComposite
     // instance *******************************************
     
     private GefahrComposite( GefahrValue value,
-            ValueArtFinder<GefahrValue, StoerungsArtComposite> artFinder ) {
+            ValueArtFinder<GefahrValue, GefahrArtComposite> artFinder ) {
         super( value, artFinder );
     }
 

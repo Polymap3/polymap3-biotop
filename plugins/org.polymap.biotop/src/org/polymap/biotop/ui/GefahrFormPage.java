@@ -25,7 +25,7 @@ import org.polymap.rhei.data.entityfeature.PropertyDescriptorAdapter;
 import org.polymap.biotop.model.BiotopRepository;
 import org.polymap.biotop.model.GefahrComposite;
 import org.polymap.biotop.model.GefahrValue;
-import org.polymap.biotop.model.StoerungsArtComposite;
+import org.polymap.biotop.model.GefahrArtComposite;
 
 /**
  * 
@@ -33,7 +33,7 @@ import org.polymap.biotop.model.StoerungsArtComposite;
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 public class GefahrFormPage
-        extends ValueArtFormPage<GefahrValue,StoerungsArtComposite,GefahrComposite> {
+        extends ValueArtFormPage<GefahrValue,GefahrArtComposite,GefahrComposite> {
 
     protected GefahrFormPage( Feature feature, FeatureStore featureStore ) {
         super( feature, featureStore );
@@ -43,15 +43,15 @@ public class GefahrFormPage
         return "Gefährdungen";
     }
 
-    public Class<StoerungsArtComposite> getArtType() {
-        return StoerungsArtComposite.class;
+    public Class<GefahrArtComposite> getArtType() {
+        return GefahrArtComposite.class;
     }
 
     public Iterable<GefahrComposite> getElements() {
         return GefahrComposite.forEntity( biotop );
     }
 
-    public GefahrComposite newElement( StoerungsArtComposite art ) {
+    public GefahrComposite newElement( GefahrArtComposite art ) {
         return GefahrComposite.newInstance( art );
     }
 

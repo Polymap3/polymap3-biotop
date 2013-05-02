@@ -90,6 +90,7 @@ public class BiotopRepositoryAssembler
                 PilzArtComposite.class,
                 TierArtComposite.class,
                 StoerungsArtComposite.class,
+                GefahrArtComposite.class,
                 WertArtComposite.class,
                 PflegeArtComposite.class
         );

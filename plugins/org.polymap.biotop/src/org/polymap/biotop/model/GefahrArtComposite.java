@@ -25,9 +25,6 @@ import org.polymap.core.qi4j.QiEntity;
 import org.polymap.core.qi4j.event.ModelChangeSupport;
 import org.polymap.core.qi4j.event.PropertyChangeSupport;
 
-import org.polymap.biotop.model.importer.ImportColumn;
-import org.polymap.biotop.model.importer.ImportTable;
-
 /**
  *
  *
@@ -42,20 +39,13 @@ import org.polymap.biotop.model.importer.ImportTable;
     QiEntity.Mixin.class
 //    JsonState.Mixin.class
 } )
-@ImportTable("Referenz_Beeinträchtigung")
-public interface StoerungsArtComposite
+public interface GefahrArtComposite
     extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
 
-//    INFO] MdbImportOperation - Table: Referenz_Beeinträchtigung
-//    [INFO] MdbImportOperation -     column: Nr_Beeinträchtigung - BYTE
-//    [INFO] MdbImportOperation -     column: Beeinträchtigung - TEXT
-    
     @Optional
-    @ImportColumn("Nr_Beeinträchtigung")
     Property<String>            nummer();
 
     @Optional
-    @ImportColumn("Beeinträchtigung")
     Property<String>            name();
 
 }
