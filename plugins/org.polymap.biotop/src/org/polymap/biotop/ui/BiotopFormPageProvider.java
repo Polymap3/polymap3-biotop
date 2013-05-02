@@ -336,10 +336,6 @@ public class BiotopFormPageProvider
                     new PropertyAdapter( biotop.objnr() ),
                     new StringFormField().setEnabled( false ), null, "Biotopnummer" ) );
 
-//            layouter.setFieldLayoutData( site.newFormField( client, 
-//                    new PropertyAdapter( biotop.objnr_landkreise() ),
-//                    new StringFormField(), null, "Objekt-Nr. (LKs)" ) );
-
             layouter.setFieldLayoutData( site.newFormField( client, 
                     new PropertyAdapter( biotop.objnr_sbk() ),
                     new StringFormField().setEnabled( false ), null, "Objekt-Nr. (SBK)" ) );
@@ -351,6 +347,11 @@ public class BiotopFormPageProvider
             layouter.setFieldLayoutData( site.newFormField( client, 
                     new PropertyAdapter( biotop.unr() ),
                     new StringFormField().setEnabled( false ), null, "Unter-Nr." ) );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.objnr_landkreise() ),
+                    new StringFormField(), null, "Alte LK-Nr." ) ).setToolTipText( "Alte Landkreisnummer" );
+
             return section;
         }
 

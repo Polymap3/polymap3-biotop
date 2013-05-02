@@ -74,7 +74,8 @@ public class BiotopEntityProvider
         Biotoptyp( String.class, null, false ), 
         Geprueft( Boolean.class, "geprueft", true, "Geprüft" ), 
         Schutzstatus( String.class, "schutzstatus", false ), 
-        Status( String.class, "status", true );
+        Status( String.class, "status", true ),
+        LKNr( String.class, "objnr_landkreise", true, "LK-Nr" );
 
         public static PROP forName( String name ) {
             for (PROP prop : PROP.values()) {
@@ -270,6 +271,9 @@ public class BiotopEntityProvider
             if (status != null) {
                 biotop.status().set( status.id );
             }
+        }
+        else if (propName.equals( PROP.LKNr.toString() )) {
+            biotop.objnr_landkreise().set( (String)value );
         }
 //        else {
 //            throw new RuntimeException( "Unhandled property: " + propName );
