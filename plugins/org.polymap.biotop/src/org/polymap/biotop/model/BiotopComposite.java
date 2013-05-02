@@ -38,6 +38,7 @@ import org.polymap.core.qi4j.event.ModelChangeSupport;
 import org.polymap.core.qi4j.event.PropertyChangeSupport;
 
 import org.polymap.biotop.model.constant.Erhaltungszustand;
+import org.polymap.biotop.model.constant.GefahrLevel;
 import org.polymap.biotop.model.constant.Schutzstatus;
 import org.polymap.biotop.model.constant.Status;
 import org.polymap.biotop.model.importer.ImportColumn;
@@ -285,6 +286,14 @@ public interface BiotopComposite
     @Optional
     @UseDefaults
     Property<Collection<GefahrValue>> gefahr();
+
+    /** 
+     * Potentielle Gefährdung 
+     * @see GefahrLevel
+     */
+    //@Optional
+    @UseDefaults
+    Property<Integer> gefahrLevel();
 
     /**
      * @see StoerungComposite

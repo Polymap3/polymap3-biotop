@@ -72,7 +72,7 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
 
     IFormEditorPageSite             site;
 
-    private IFormEditorToolkit      tk;
+    protected IFormEditorToolkit    tk;
 
     private FeatureTableViewer      viewer;
 
