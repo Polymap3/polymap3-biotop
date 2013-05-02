@@ -78,12 +78,12 @@
             parameter="biotop">
       </entrypoint>
    </extension>
-   <extension
+   <!--extension
          point="org.polymap.core.operation.concerns">
       <concern
             class="org.polymap.biotop.ui.CopyOperationConcern"
             id="org.polymap.biotop.copyConcern">
       </concern>
-   </extension>
+   </extension-->
 
 </plugin>

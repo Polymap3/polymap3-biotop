@@ -35,7 +35,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.google.common.base.Joiner;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 
 import org.polymap.core.data.util.Geometries;
 import org.polymap.core.model.Entity;
@@ -43,6 +45,7 @@ import org.polymap.core.model.EntityType;
 import org.polymap.core.model.EntityType.Property;
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModule.EntityCreator;
+
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
 import org.polymap.rhei.data.entityfeature.EntityProvider2;
 
@@ -237,7 +240,18 @@ public class BiotopEntityProvider
     throws Exception {
         BiotopComposite biotop = (BiotopComposite)entity;
         if (propName.equals( getDefaultGeometry() )) {
-            biotop.geom().set( (MultiPolygon)value );
+            if (value instanceof MultiPolygon) {
+                biotop.geom().set( (MultiPolygon)value );
+            }
+            // geometry buffer op results in Polygon (instead of MultiPolygon)
+            // see #72: http://polymap.org/biotop/ticket/72
+            else if (value instanceof Polygon) {
+                MultiPolygon geom = new GeometryFactory().createMultiPolygon( new Polygon[] {(Polygon)value} );
+                biotop.geom().set( geom );
+            }
+            else {
+                throw new IllegalStateException( "Falscher Geometrietyp: " + value.getClass().getSimpleName() );
+            }
         }
         else if (propName.equals( PROP.Name.toString() )) {
             biotop.name().set( (String)value );
