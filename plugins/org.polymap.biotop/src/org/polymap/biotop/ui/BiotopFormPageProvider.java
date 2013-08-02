@@ -19,7 +19,6 @@ import static com.google.common.collect.Iterables.find;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,9 +33,7 @@ import org.opengis.feature.Feature;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.qi4j.api.common.QualifiedName;
 import org.qi4j.api.property.Property;
-import org.qi4j.api.property.StateHolder.StateVisitor;
 import org.qi4j.api.value.ValueBuilder;
 
 import com.google.common.base.Function;
@@ -62,6 +59,7 @@ import org.polymap.core.runtime.event.EventFilter;
 import org.polymap.core.runtime.event.EventHandler;
 import org.polymap.core.workbench.PolymapWorkbench;
 
+import org.polymap.rhei.data.entityfeature.PlainValuePropertyAdapter;
 import org.polymap.rhei.data.entityfeature.PropertyAdapter;
 import org.polymap.rhei.data.entityfeature.ValuePropertyAdapter;
 import org.polymap.rhei.field.CheckboxFormField;
@@ -272,7 +270,7 @@ public class BiotopFormPageProvider
             }
             else {
                 layouter.setFieldLayoutData( site.newFormField( client, 
-                        new ValuePropertyAdapter( "bekanntmachung", "-" ),
+                        new PlainValuePropertyAdapter( "bekanntmachung", "-" ),
                         bField.setEnabled( false ), null, "Bekanntmachung" ) );                
             }
             
@@ -523,13 +521,13 @@ public class BiotopFormPageProvider
                     Calendar now = Calendar.getInstance( Locale.GERMANY );
                     now.set( Calendar.MILLISECOND, 0 );
                     
-                    ValueBuilder<AktivitaetValue> builder = BiotopRepository.instance().newValueBuilder( AktivitaetValue.class );
-                    AktivitaetValue prototype = builder.prototype();
-                    
-                    prototype.wann().set( now.getTime() );
-                    prototype.wer().set( user.getName() );
-                    prototype.bemerkung().set( "" );
-                    biotop.bearbeitung().set( builder.newInstance() );
+//                    ValueBuilder<AktivitaetValue> builder = BiotopRepository.instance().newValueBuilder( AktivitaetValue.class );
+//                    AktivitaetValue prototype = builder.prototype();
+//                    
+//                    prototype.wann().set( now.getTime() );
+//                    prototype.wer().set( user.getName() );
+//                    prototype.bemerkung().set( "" );
+//                    biotop.bearbeitung().set( builder.newInstance() );
                     
                     site.setFieldValue( "modified_wann", now.getTime() );
                     site.setFieldValue( "modified_wer", user.getName() );
@@ -542,7 +540,7 @@ public class BiotopFormPageProvider
 
         private List<IFormFieldListener> als = new ArrayList();
         
-        private void createAktivitaet( Composite client, final Property<AktivitaetValue> prop, final String prefix, String label,
+        private void createAktivitaet( Composite client, Property<AktivitaetValue> prop, String prefix, String label,
                 boolean updatable ) {
             AktivitaetValue aktivitaet = prop.get();
             
@@ -556,48 +554,50 @@ public class BiotopFormPageProvider
             wann.set( Calendar.MILLISECOND, 0 );
             
             Composite field1 = layouter.setFieldLayoutData( site.newFormField( client, 
-                    new ValuePropertyAdapter( prefix+"wann", wann.getTime() ),
+                    new ValuePropertyAdapter( prefix, aktivitaet.wann(), prop ),
                     new DateTimeFormField().setEnabled( updatable ), null, label ) );
             ((FormData)field1.getLayoutData()).right = new FormAttachment( 0, 230 );
 
             SimpleFormData formData = new SimpleFormData( (FormData)field1.getLayoutData() );
             Composite field2 = site.newFormField( client, 
-                    new ValuePropertyAdapter( prefix+"wer", aktivitaet.wer().get() ),
+                    new ValuePropertyAdapter( prefix, aktivitaet.wer(), prop ),
                     new StringFormField().setEnabled( updatable ), null, IFormFieldLabel.NO_LABEL );
             field2.setLayoutData( formData.left( field1 ).right( 100, -5 ).create() );
             field2.setToolTipText( aktivitaet.wer().get() + ": " + aktivitaet.bemerkung().get() );
             
-            if (updatable) {
-                // XXX das ändert die Entity unmittelbar!
-                IFormFieldListener l = new IFormFieldListener() {
-                    public void fieldChange( FormFieldEvent ev ) {
-                        if (!ev.getFieldName().startsWith( prefix ) || ev.getNewValue() == null) {
-                            return;
-                        }
-                        // new value
-                        final ValueBuilder<AktivitaetValue> builder = repo.newValueBuilder( AktivitaetValue.class );
-
-                        // copy current state
-                        final AktivitaetValue prototype = builder.prototype();
-                        prop.get().state().visitProperties( new StateVisitor() {
-                            public void visitProperty( QualifiedName name, Object value ) {
-                                prototype.state().getProperty( name ).set( value );
-                            }
-                        });
-                        // "wann"
-                        if (ev.getFieldName().endsWith( "wann" )) {
-                            prototype.wann().set( (Date)ev.getNewValue() );
-                        }
-                        // "wer"
-                        else if (ev.getFieldName().endsWith( "wer" )) {
-                            prototype.wer().set( (String)ev.getNewValue() );
-                        }
-                        prop.set( builder.newInstance() );
-                    }
-                };
-                site.addFieldListener( l );
-                als.add( l );
-            }
+            // nicht mehr nötig, wird in ValuePropertyAdapter behandelt
+            // http://polymap.org/biotop/ticket/67
+//            if (updatable) {
+//                // XXX das ändert die Entity unmittelbar!
+//                IFormFieldListener l = new IFormFieldListener() {
+//                    public void fieldChange( FormFieldEvent ev ) {
+//                        if (!ev.getFieldName().startsWith( prefix ) || ev.getNewValue() == null) {
+//                            return;
+//                        }
+//                        // new value
+//                        final ValueBuilder<AktivitaetValue> builder = repo.newValueBuilder( AktivitaetValue.class );
+//
+//                        // copy current state
+//                        final AktivitaetValue prototype = builder.prototype();
+//                        prop.get().state().visitProperties( new StateVisitor() {
+//                            public void visitProperty( QualifiedName name, Object value ) {
+//                                prototype.state().getProperty( name ).set( value );
+//                            }
+//                        });
+//                        // "wann"
+//                        if (ev.getFieldName().endsWith( "wann" )) {
+//                            prototype.wann().set( (Date)ev.getNewValue() );
+//                        }
+//                        // "wer"
+//                        else if (ev.getFieldName().endsWith( "wer" )) {
+//                            prototype.wer().set( (String)ev.getNewValue() );
+//                        }
+//                        prop.set( builder.newInstance() );
+//                    }
+//                };
+//                site.addFieldListener( l );
+//                als.add( l );
+//            }
         }
         
         
