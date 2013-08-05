@@ -112,9 +112,11 @@ public class BiotopFormPageProvider
             result.add( new BaseFormEditorPage( feature, formEditor.getFeatureStore() ) );
             //result.add( new BiotoptypFormEditorPage( feature, formEditor.getFeatureStore() ) );
             result.add( new PflegeFormPage( feature, formEditor.getFeatureStore() ) );
-            result.add( new PflanzenFormPage( feature, formEditor.getFeatureStore() ) );
-            result.add( new PilzeFormPage( feature, formEditor.getFeatureStore() ) );
-            result.add( new TiereFormPage( feature, formEditor.getFeatureStore() ) );
+            result.add( new ArtenFormPage( feature, formEditor.getFeatureStore() ) );
+            result.add( new SBKArtenFormPage( feature, formEditor.getFeatureStore() ) );
+//            result.add( new PflanzenFormPage( feature, formEditor.getFeatureStore() ) );
+//            result.add( new PilzeFormPage( feature, formEditor.getFeatureStore() ) );
+//            result.add( new TiereFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new StoerungFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new GefahrFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new WertFormPage( feature, formEditor.getFeatureStore() ) );

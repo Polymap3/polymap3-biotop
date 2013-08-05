@@ -1,6 +1,6 @@
 /* 
  * polymap.org
- * Copyright 2011, Polymap GmbH. All rights reserved.
+ * Copyright (C) 2013, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -81,6 +81,8 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
     private DefaultFormPageLayouter layouter;
     
     private boolean                 dirty;
+    
+    private boolean                 modifiable = true;
 
 
     // sub-class interface ********************************
@@ -97,7 +99,8 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
     
     public abstract C newElement( A art );
 
-    // impl ***********************************************
+    
+    // iinstance ******************************************
     
     protected ValueArtFormPage( Feature feature, FeatureStore featureStore ) {
         this.feature = feature;
@@ -116,6 +119,11 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
     public byte getPriority() {
         return 0;
     }
+    
+    public ValueArtFormPage<V,A,C> setModifiable( boolean modifiable ) {
+        this.modifiable = modifiable;
+        return this;
+    }
 
     public void createFormContent( IFormEditorPageSite _site ) {
         site = _site;
@@ -128,6 +136,19 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
         createSection( site.getPageBody() );
     }
 
+    /**
+     * Alternative for {@link #createFormContent(IFormEditorPageSite)} that allows to
+     * use this page from within other pages.
+     * 
+     * @param _site
+     * @return this
+     */
+    public ValueArtFormPage<V,A,C> prepareFormContent( IFormEditorPageSite _site ) {
+        site = _site;
+        tk = site.getToolkit();
+        layouter = new DefaultFormPageLayouter();
+        return this;
+    }
 
     public void doLoad( IProgressMonitor monitor ) throws Exception {
         if (viewer != null) {
@@ -184,7 +205,7 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
         section.setClient( client );
 
         viewer = new FeatureTableViewer( client, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL );
-        viewer.getTable().setLayoutData( new SimpleFormData().fill().right( 100, -40 ).create() );
+        viewer.getTable().setLayoutData( new SimpleFormData().fill().right( 100, modifiable ? -40 : 0 ).create() );
 
         // entity types
         final BiotopRepository repo = BiotopRepository.instance();
@@ -202,53 +223,55 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
         client.layout( true );
         parent.layout( true );
 
-        // add action
-        Query<A> arten = repo.findEntities( getArtType(), null, 0, 10000 );
-        AddValueArtAction addAction = new AddValueArtAction<A>( getArtType(), arten ) {
-            protected void execute( A sel ) throws Exception {
-                assert sel != null;
-                model.put( sel.id(), newElement( sel ) );
-                dirty = true;
-                Polymap.getSessionDisplay().asyncExec( new Runnable() {
-                    public void run() {
-                        // update dirty/valid flags of the editor
-                        site.fireEvent( this, "ValueArtFormPage", IFormFieldListener.VALUE_CHANGE, null );
-                        viewer.refresh( true );
-                        viewer.getTable().layout( true );
-                    }
-                });
-            }
-        };
-        ActionButton addBtn = new ActionButton( client, addAction );
-        addBtn.setLayoutData( new SimpleFormData()
-                .left( viewer.getTable(), SECTION_SPACING )
-                .top( 0 ).right( 100 ).height( 30 ).create() );
-
-        // remove action
-        final RemoveValueArtAction removeAction = new RemoveValueArtAction() {
-            public void execute() throws Exception {
-                for (IFeatureTableElement sel : viewer.getSelectedElements()) {
-                    C elm = (C)((CompositesFeatureContentProvider.FeatureTableElement)sel).getComposite();
-                    if (model.remove( elm.id() ) == null) {
-                        throw new IllegalStateException( "Konnte nicht gelöscht werden: " + elm );
-                    }
+        if (modifiable) {
+            // add action
+            Query<A> arten = repo.findEntities( getArtType(), null, 0, 10000 );
+            AddValueArtAction addAction = new AddValueArtAction<A>( getArtType(), arten ) {
+                protected void execute( A sel ) throws Exception {
+                    assert sel != null;
+                    model.put( sel.id(), newElement( sel ) );
                     dirty = true;
+                    Polymap.getSessionDisplay().asyncExec( new Runnable() {
+                        public void run() {
+                            // update dirty/valid flags of the editor
+                            site.fireEvent( this, "ValueArtFormPage", IFormFieldListener.VALUE_CHANGE, null );
+                            viewer.refresh( true );
+                            viewer.getTable().layout( true );
+                        }
+                    });
                 }
-                Polymap.getSessionDisplay().asyncExec( new Runnable() {
-                    public void run() {
-                        // update dirty/valid flags of the editor
-                        site.fireEvent( this, "ValueArtFormPage", IFormFieldListener.VALUE_CHANGE, null );
-                        viewer.refresh();
+            };
+            ActionButton addBtn = new ActionButton( client, addAction );
+            addBtn.setLayoutData( new SimpleFormData()
+                    .left( viewer.getTable(), SECTION_SPACING )
+                    .top( 0 ).right( 100 ).height( 30 ).create() );
+
+            // remove action
+            final RemoveValueArtAction removeAction = new RemoveValueArtAction() {
+                public void execute() throws Exception {
+                    for (IFeatureTableElement sel : viewer.getSelectedElements()) {
+                        C elm = (C)((CompositesFeatureContentProvider.FeatureTableElement)sel).getComposite();
+                        if (model.remove( elm.id() ) == null) {
+                            throw new IllegalStateException( "Konnte nicht gelöscht werden: " + elm );
+                        }
+                        dirty = true;
                     }
-                });
-            }
-        };
-        viewer.addSelectionChangedListener( removeAction );
-        
-        ActionButton removeBtn = new ActionButton( client, removeAction );
-        removeBtn.setLayoutData( new SimpleFormData()
-                .left( viewer.getTable(), SECTION_SPACING )
-                .top( addBtn, 5 ).right( 100 ).height( 30 ).create() );
+                    Polymap.getSessionDisplay().asyncExec( new Runnable() {
+                        public void run() {
+                            // update dirty/valid flags of the editor
+                            site.fireEvent( this, "ValueArtFormPage", IFormFieldListener.VALUE_CHANGE, null );
+                            viewer.refresh();
+                        }
+                    });
+                }
+            };
+            viewer.addSelectionChangedListener( removeAction );
+
+            ActionButton removeBtn = new ActionButton( client, removeAction );
+            removeBtn.setLayoutData( new SimpleFormData()
+                    .left( viewer.getTable(), SECTION_SPACING )
+                    .top( addBtn, 5 ).right( 100 ).height( 30 ).create() );
+        }
 
         return section;
     }
