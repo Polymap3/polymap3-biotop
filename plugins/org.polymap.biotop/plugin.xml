@@ -16,7 +16,8 @@
       <wizard
             category="org.polymap.biotop.BiotopCategory"
             class="org.polymap.biotop.model.importer.MdbImportWizard"
-            id="org.polymap.biotop.wizard1"
+            icon="icons/b.png"
+            id="org.polymap.biotop.MdbImportWizard"
             name="LfULG-Daten (*.mdb)">
       </wizard>
    </extension>
@@ -41,21 +42,32 @@
          point="org.polymap.core.data.featureOperations">
       <featureOperation
             class="org.polymap.biotop.model.importer.ShapeImportOperation"
+            icon="icons/b.png"
             id="org.polymap.biotop.importer.ShapeImportOperation"
             label="Biotop: Shapefile-Import (sbk_xx.shp)">
       </featureOperation>
       <featureOperation
             class="org.polymap.biotop.operations.BekanntmachungOperation"
             description="Bekanntmachungsdatum auf &quot;heute&quot; setzen"
-            id="org.polymap.biotop.featureOperation1"
+            icon="icons/b.png"
+            id="org.polymap.biotop.BekanntmachungOperation"
             label="Biotop: Bekanntmachung"
             tooltip="Bekanntmachungsdatum auf &quot;heute&quot; setzen">
+      </featureOperation>
+      <featureOperation
+            class="org.polymap.biotop.operations.Biotoptyp2002Operation"
+            description="Alten Biotoptyp 2002 verknüpfen"
+            icon="icons/b.png"
+            id="org.polymap.biotop.Biotoptyp2002Operation"
+            label="Biotop: Biotoptyp 2002"
+            tooltip="Alten Biotoptyp 2002 verknüpfen">
       </featureOperation>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.polymap.biotop.BiotopPerspectiveFactory"
+            icon="icons/b.png"
             id="org.polymap.biotop.BiotopPerspective"
             name="Biotop">
       </perspective>
@@ -64,6 +76,7 @@
          point="org.eclipse.rap.ui.branding">
       <branding
             defaultEntrypointId="org.polymap.biotop.entrypoint"
+            favicon="icons/b.png"
             id="org.polymap.biotop.branding"
             servletName="biotop"
             themeId="org.eclipse.rap.rwt.theme.Default"

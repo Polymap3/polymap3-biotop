@@ -1,15 +1,13 @@
 package org.polymap.biotop;
 
-import java.net.URL;
-
 import org.osgi.framework.BundleContext;
 
 import org.eclipse.swt.graphics.Image;
 
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
-
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+
+import org.polymap.core.ImageRegistryHelper;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -23,8 +21,14 @@ public class BiotopPlugin extends AbstractUIPlugin {
 	private static BiotopPlugin plugin;
 	
 	
-	public BiotopPlugin() {
-	}
+	public static BiotopPlugin getDefault() {
+    	return plugin;
+    }
+
+	// instance *******************************************
+
+	private ImageRegistryHelper        images = new ImageRegistryHelper( this );
+	
 
 	public void start( BundleContext context ) throws Exception {
 		super.start( context );
@@ -36,32 +40,12 @@ public class BiotopPlugin extends AbstractUIPlugin {
 		super.stop(context);
 	}
 
-	public static BiotopPlugin getDefault() {
-		return plugin;
-	}
-
-	
-	public Image imageForDescriptor( ImageDescriptor imageDescriptor, String key ) {
-        ImageRegistry images = getImageRegistry();
-        Image image = images.get( key );
-        if (image == null || image.isDisposed()) {
-            images.put( key, imageDescriptor );
-            image = images.get( key );
-        }
-        return image;
+	public Image imageForDescriptor( ImageDescriptor descriptor, String key ) {
+	    return images.image( descriptor, key );
     }
 
-    
     public Image imageForName( String resName ) {
-        ImageRegistry images = getImageRegistry();
-        Image image = images.get( resName );
-        if (image == null || image.isDisposed()) {
-            URL res = getBundle().getResource( resName );
-            assert res != null : "Image resource not found: " + resName;
-            images.put( resName, ImageDescriptor.createFromURL( res ) );
-            image = images.get( resName );
-        }
-        return image;
+        return images.image( resName );
     }
 
 }

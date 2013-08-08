@@ -86,13 +86,15 @@ public class BiotopRepositoryAssembler
         domainModule.addEntities(
                 BiotopComposite.class,
                 BiotoptypArtComposite.class,
+                BiotoptypArtComposite2.class,
                 PflanzenArtComposite.class,
                 PilzArtComposite.class,
                 TierArtComposite.class,
                 StoerungsArtComposite.class,
                 GefahrArtComposite.class,
                 WertArtComposite.class,
-                PflegeArtComposite.class
+                PflegeArtComposite.class,
+                ArtdatenComposite.class
         );
 //        domainModule.addTransients(
 //                PflanzeComposite.class,

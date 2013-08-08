@@ -84,7 +84,7 @@ import org.polymap.biotop.BiotopPlugin;
 import org.polymap.biotop.model.AktivitaetValue;
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopRepository;
-import org.polymap.biotop.model.BiotoptypArtComposite;
+import org.polymap.biotop.model.BiotoptypArtComposite2;
 import org.polymap.biotop.model.constant.Erhaltungszustand;
 import org.polymap.biotop.model.constant.Pflegezustand;
 import org.polymap.biotop.model.constant.Schutzstatus;
@@ -392,11 +392,11 @@ public class BiotopFormPageProvider
             section.setClient( client );
 
             // biotoptyp picklist
-            final String nummer = biotop.biotoptypArtNr().get() != null
-                    ? biotop.biotoptypArtNr().get() : "1";
-            final BiotoptypArtComposite[] current = new BiotoptypArtComposite[1];
-            Map<String,String> nameNummer = Maps.transformValues( repo.btNamen(), new Function<BiotoptypArtComposite,String>() {
-                public String apply( BiotoptypArtComposite input ) {
+            final String nummer = biotop.biotoptyp2ArtNr().get() != null ? biotop.biotoptyp2ArtNr().get() : "1";
+                    
+            final BiotoptypArtComposite2[] current = new BiotoptypArtComposite2[1];
+            Map<String,String> nameNummer = Maps.transformValues( repo.btNamen(), new Function<BiotoptypArtComposite2,String>() {
+                public String apply( BiotoptypArtComposite2 input ) {
                     if (nummer != null && input.nummer().get().equals( nummer )) {
                         current[0] = input;
                     }
@@ -417,45 +417,63 @@ public class BiotopFormPageProvider
 //                }
 //            });
 
-            if (current[0] != null) {
-                layouter.setFieldLayoutData( site.newFormField( client, 
-                        new PropertyAdapter( biotop.biotoptypArtNr() ),
-                        picklist, null, "Biotoptyp" ) );
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.biotoptyp2ArtNr() ),
+                    picklist, null, "Biotoptyp" ) );
 
-                layouter.setFieldLayoutData( site.newFormField( client, 
-                        new PropertyAdapter( current[0].code() ),
-                        new StringFormField().setEnabled( false ), null, "Code" ) );
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PlainValuePropertyAdapter( "bezeichnung_2002", current[0] != null ? current[0].bezeichnung_2002().get() : "" ),
+                    new StringFormField().setEnabled( false ), null, "Bezeichnung (2002)" ) );
 
-                layouter.setFieldLayoutData( site.newFormField( client, 
-                        new PropertyAdapter( current[0].schutz26() ),
-                        new StringFormField().setEnabled( false ), new IntegerValidator(), "Schutz §26" ) );
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PlainValuePropertyAdapter( "nummer_2012", current[0] != null ? current[0].nummer_2012().get() : "" ),
+                    new StringFormField().setEnabled( false ), null, "Nummer" ) );
 
-                layouter.setFieldLayoutData( site.newFormField( client, 
-                        new PropertyAdapter( current[0].nummer26() ),
-                        new StringFormField().setEnabled( false ), new IntegerValidator(), "Nummer §26" ) );
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PlainValuePropertyAdapter( "code", current[0] != null ? current[0].code().get() : "" ),
+                    new StringFormField().setEnabled( false ), null, "Code" ) );
 
-                layouter.setFieldLayoutData( site.newFormField( client, 
-                        new PropertyAdapter( current[0].ffh_Relevanz() ),
-                        new StringFormField().setEnabled( false ), new IntegerValidator(), "FFH-Relevanz" ) );
-            }
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PlainValuePropertyAdapter( "code_2002", current[0] != null ? current[0].code_2002().get() : "" ),
+                    new StringFormField().setEnabled( false ), null, "Code (2002)" ) );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PlainValuePropertyAdapter( "schutz26", current[0] != null ? current[0].schutz26().get() : "" ),
+                    new StringFormField().setEnabled( false ), null, "Schutz §26/§30" ) );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PlainValuePropertyAdapter( "schutz26_2002", current[0] != null ? current[0].schutz26_2002().get() : "" ),
+                    new StringFormField().setEnabled( false ), null, "Schutz §26 (2002)" ) );
+
+            layouter.setFieldLayoutData( site.newFormField( client,
+                    new PlainValuePropertyAdapter( "vwv", current[0] != null ? current[0].vwv().get() : "" ),
+                    new StringFormField().setEnabled( false ), null, "VwV" ) );
+
+            layouter.setFieldLayoutData( site.newFormField( client,
+                    new PlainValuePropertyAdapter( "vwv_2002", current[0] != null ? current[0].vwv_2002().get() : "" ),
+                    new StringFormField().setEnabled( false ), null, "VwV-Nummer (2002)" ) );
             
             // update fields
-            site.addFieldListener( biotoptypListener = new IFormFieldListener() {
+            biotoptypListener = new IFormFieldListener() {
                 public void fieldChange( FormFieldEvent ev ) {
                     if (ev.getFormField() == picklist) {
                         final String nummerNeu = ev.getNewValue();
                         if (nummerNeu != null) {
                             try {
-                                BiotoptypArtComposite biotoptyp = find( repo.btNamen().values(), new Predicate<BiotoptypArtComposite>() {
-                                    public boolean apply( BiotoptypArtComposite input ) {
+                                BiotoptypArtComposite2 biotoptyp = find( repo.btNamen().values(), new Predicate<BiotoptypArtComposite2>() {
+                                    public boolean apply( BiotoptypArtComposite2 input ) {
                                         String inputNummer = input.nummer().get();
                                         return inputNummer.equals( nummerNeu );
                                     }
                                 });
+                                site.setFieldValue( "bezeichnung_2002", biotoptyp.bezeichnung_2002().get() );
+                                site.setFieldValue( "nummer_2012", biotoptyp.nummer_2012().get() );
                                 site.setFieldValue( "code", biotoptyp.code().get() );
+                                site.setFieldValue( "code_2002", biotoptyp.code_2002().get() );
                                 site.setFieldValue( "schutz26", biotoptyp.schutz26().get() );
-                                site.setFieldValue( "nummer26", biotoptyp.nummer26().get() );
-                                site.setFieldValue( "ffh_Relevanz", biotoptyp.ffh_Relevanz().get() );
+                                site.setFieldValue( "schutz26_2002", biotoptyp.schutz26_2002().get() );
+                                site.setFieldValue( "vwv", biotoptyp.vwv().get() );
+                                site.setFieldValue( "vwv_2002", biotoptyp.vwv_2002().get() );
                             }
                             catch (Exception e) {
                                 log.warn( "Keine Biotopart mit Nummer: " + nummerNeu + " (" + e + ")" );
@@ -463,7 +481,13 @@ public class BiotopFormPageProvider
                         }
                     }
                 }
-            });
+            };
+            site.addFieldListener( biotoptypListener );
+//            Polymap.getSessionDisplay().asyncExec( new Runnable() {
+//                public void run() {
+//                    biotoptypListener.fieldChange( new FormFieldEvent( null, this, null, picklist, 0, null, biotop.biotoptyp2ArtNr().get() ) );
+//                }
+//            });
             return section;
         }
 

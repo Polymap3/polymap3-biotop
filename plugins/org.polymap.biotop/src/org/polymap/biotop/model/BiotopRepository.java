@@ -38,6 +38,8 @@ import org.qi4j.api.unitofwork.ConcurrentEntityModificationException;
 import org.qi4j.api.unitofwork.UnitOfWorkCompletionException;
 import org.qi4j.api.value.ValueBuilder;
 
+import com.google.common.base.Supplier;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.polymap.core.catalog.model.CatalogRepository;
@@ -47,6 +49,8 @@ import org.polymap.core.qi4j.Qi4jPlugin;
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModuleAssembler;
 import org.polymap.core.qi4j.Qi4jPlugin.Session;
+import org.polymap.core.runtime.CachedLazyInit;
+import org.polymap.core.runtime.LazyInit;
 import org.polymap.core.runtime.Polymap;
 import org.polymap.core.runtime.entity.ConcurrentModificationException;
 
@@ -79,14 +83,14 @@ public class BiotopRepository
 
     private OperationSaveListener               operationListener = new OperationSaveListener();
     
-    private Map<String,BiotoptypArtComposite>   btNamen;
+    private LazyInit<Map<String,BiotoptypArtComposite2>>    btNamen = new CachedLazyInit( 1024 );
 
-    private Map<String,BiotoptypArtComposite>   btNummern;
+    private LazyInit<Map<String,BiotoptypArtComposite2>>    btNummern = new CachedLazyInit( 1024 );
 
     /** Allow direct access for operations. */
     protected BiotopService                     biotopService;
     
-    public ServiceReference<BiotopnummerGeneratorService> biotopnummern;
+    public ServiceReference<BiotopnummerGeneratorService>   biotopnummern;
     
     /**
      * 
@@ -141,7 +145,7 @@ public class BiotopRepository
                     new BiotopEntityProvider( this ),
                     // Arten...
                     new ArtEntityProvider( this, BiotoptypArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" ) ),
+                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp (SBK)" ) ),
                     new ArtEntityProvider( this, PflegeArtComposite.class, 
                             new NameImpl( BiotopRepository.NAMESPACE, "Pflege" ) ),
                     new ArtEntityProvider( this, PflanzenArtComposite.class, 
@@ -155,7 +159,10 @@ public class BiotopRepository
                     new ArtEntityProvider( this, GefahrArtComposite.class, 
                             new NameImpl( BiotopRepository.NAMESPACE, "Gefährdungen" ) ),
                     new ArtEntityProvider( this, WertArtComposite.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Wertbestimmend" ) )
+                            new NameImpl( BiotopRepository.NAMESPACE, "Wertbestimmend" ) ),
+                    // neuer Biotoptyp
+                    new ArtEntityProvider( this, BiotoptypArtComposite2.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" ) )
                     );
         }
         catch (Exception e) {
@@ -292,34 +299,41 @@ public class BiotopRepository
     }
 
 
-    public Map<String,BiotoptypArtComposite> btNamen() {
-        if (btNamen == null) {
-            Query<BiotoptypArtComposite> entities = findEntities( 
-                    BiotoptypArtComposite.class, null, 0, 1000 );
+    public Map<String,BiotoptypArtComposite2> btNamen() {
+        return btNamen.get( new Supplier<Map<String,BiotoptypArtComposite2>>() {
+            @Override
+            public Map<String,BiotoptypArtComposite2> get() {
+                Query<BiotoptypArtComposite2> entities = findEntities( BiotoptypArtComposite2.class, null, 0, 1000 );
 
-            btNamen = new HashMap();
-            for (BiotoptypArtComposite entity : entities) {
-                btNamen.put( entity.name().get(), entity );
+                Map<String,BiotoptypArtComposite2> result = new HashMap();
+                for (BiotoptypArtComposite2 entity : entities) {
+                    result.put( entity.bezeichnung().get(), entity );
+                }
+                return result;
             }
-        }
-        return btNamen;
+        });
     }
     
 
-    public BiotoptypArtComposite btForNummer( String nummer ) {
-        if (btNummern == null) {
-            Query<BiotoptypArtComposite> entities = findEntities( 
-                    BiotoptypArtComposite.class, null, 0, 1000 );
-
-            btNummern = new HashMap();
-            for (BiotoptypArtComposite entity : btNamen().values()) {
-                btNummern.put( entity.nummer().get(), entity );
+    public Map<String,BiotoptypArtComposite2> btNummern() {
+        return btNummern.get( new Supplier<Map<String,BiotoptypArtComposite2>>() {
+            @Override
+            public Map<String,BiotoptypArtComposite2> get() {
+                Map<String,BiotoptypArtComposite2> result = new HashMap();
+                for (BiotoptypArtComposite2 entity : btNamen().values()) {
+                    result.put( entity.nummer().get(), entity );
+                }
+                return result;
             }
-        }
-        return btNummern.get( nummer );
+        });
     }
-    
 
+    
+    public BiotoptypArtComposite2 btForNummer( String nummer ) {
+        return btNummern().get( nummer );
+    }
+
+    
 //    public <V extends ValueComposite,A extends Entity,C extends ValueArtComposite<V,A>> 
 //            C createValueArt( 
 //                    Class<C> cl, 

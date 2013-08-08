@@ -241,9 +241,21 @@ public interface BiotopComposite
     @UseDefaults
     Property<Boolean>           geprueft();
 
-    /** Leitbiotoptyp */
+    /**
+     * <b>Alter</b> SBK-Biotoptyp.
+     * 
+     * @see BiotoptypArtComposite#nummer() 
+     */
     @Optional
     Property<String>            biotoptypArtNr();
+
+    /**
+     * Verknüpfung zu aktuellem {@link BiotoptypArtComposite2}.
+     *  
+     * @see BiotoptypArtComposite2#nummer() 
+     */
+    @Optional
+    Property<String>            biotoptyp2ArtNr();
 
 //    /** Nur während Import: prozent für den aktuellen Biotoptyp. */
 //    @Optional

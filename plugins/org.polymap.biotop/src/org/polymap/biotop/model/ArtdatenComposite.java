@@ -1,6 +1,7 @@
 /*
  * polymap.org
- * Copyright (C) 2011-2013, Falko Bräutigam. All rights reserved.
+ * Copyright 2011, Falko Bräutigam, and other contributors as
+ * indicated by the @authors tag. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -28,9 +29,8 @@ import org.polymap.biotop.model.importer.ImportColumn;
 import org.polymap.biotop.model.importer.ImportTable;
 
 /**
- * Alter Biotoptyp aus der SBK.
  *
- * @see BiotoptypArtComposite2
+ *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 @Concerns( {
@@ -42,51 +42,44 @@ import org.polymap.biotop.model.importer.ImportTable;
     QiEntity.Mixin.class,
     JsonState.Mixin.class
 } )
-@ImportTable("Referenz_Biotoptypen")
-public interface BiotoptypArtComposite
+@ImportTable("Referenz_Pflanzen")
+public interface ArtdatenComposite
     extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
-
-//    [INFO] MdbImportOperation -     column: Nr_Biotoptyp - BYTE
-//    [INFO] MdbImportOperation -     column: Biotoptyp_Code - TEXT
-//    [INFO] MdbImportOperation -     column: Biotoptyp - TEXT
-//    [INFO] MdbImportOperation -     column: Untergruppen_Code - TEXT
-//    [INFO] MdbImportOperation -     column: Biotopgruppe_Code - TEXT
-//    [INFO] MdbImportOperation -     column: Schutz_§26 - BYTE
-//    [INFO] MdbImportOperation -     column: Nr_§26 - LONG
-//    [INFO] MdbImportOperation -     column: FFH_Relevanz - LONG
-
-    /** */
+    
+    //Artbezeichnung Artbezeichnung wiss. Artengruppe BNatSchG Natura 2000 Rote Liste Sachsen
+    
     @Optional
-    @ImportColumn("Nr_Biotoptyp")
+    @ImportColumn("ID_Art")
     Property<String>            nummer();
 
-    /** Import von: Biotoptyp */
     @Optional
-    @ImportColumn("Biotoptyp")
-    Property<String>            name();
+    @ImportColumn("Artbezeichnung")
+    Property<String>            bezeichnung();
 
     @Optional
-    @ImportColumn("Biotoptyp_Code")
-    Property<String>            code();
+    @ImportColumn("Artbezeichnung (wiss)")
+    Property<Integer>           nomenklatur();
 
     @Optional
-    @ImportColumn("Untergruppen_Code")
-    Property<String>            untergruppeCode();
+    @ImportColumn("Artengruppe")
+    Property<String>            gruppe();
 
     @Optional
-    @ImportColumn("Biotopgruppe_Code")
-    Property<String>            biotopgruppeCode();
+    @ImportColumn("BNatSchG")
+    Property<String>            bnatschg();
 
     @Optional
-    @ImportColumn("Schutz_§26")
-    Property<Integer>           schutz26();
+    @ImportColumn("Natura 2000")
+    Property<String>            natura2000();
 
+    /** Rote Liste Sachsen */
     @Optional
-    @ImportColumn("Nr_§26")
-    Property<Integer>           nummer26();
+    @ImportColumn("Rote Liste Sachsen")
+    Property<String>            rls();
 
+    /** Abbildung der alten Unterteilung in: Pflanzen, Fische, Tiere, etc. */
     @Optional
-    @ImportColumn("FFH_Relevanz")
-    Property<Integer>           ffh_Relevanz();
+    @ImportColumn("Kategorie")
+    Property<String>            kategorie();
 
 }

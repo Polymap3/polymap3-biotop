@@ -74,7 +74,7 @@ public class MdbImportPage
     protected MdbImportPage() {
         super( ID );
         setTitle( "Datenbank-Datei auswählen." );
-        setDescription( "Wählen Sie eine *.mdb Datei zum importieren aus.");
+        setDescription( "Wählen Sie eine *.mdb Datei für den Import aus.");
     }
 
 
@@ -85,8 +85,8 @@ public class MdbImportPage
         fileSelectionArea.setLayout( layout );
 
         upload = new Upload( fileSelectionArea, SWT.BORDER, /*Upload.SHOW_PROGRESS |*/ Upload.SHOW_UPLOAD_BUTTON );
-        upload.setBrowseButtonText( "Browse" );
-        upload.setUploadButtonText( "Upload" );
+        upload.setBrowseButtonText( "Datei" );
+        upload.setUploadButtonText( "Laden" );
         upload.addUploadListener( this );
         FormData data = new FormData();
         data.left = new FormAttachment( 0 );

@@ -1,6 +1,6 @@
 /*
  * polymap.org
- * Copyright (C) 2011-2013, Falko Bräutigam. All rights reserved.
+ * Copyright (C) 2013, Falko Bräutigam. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -28,9 +28,8 @@ import org.polymap.biotop.model.importer.ImportColumn;
 import org.polymap.biotop.model.importer.ImportTable;
 
 /**
- * Alter Biotoptyp aus der SBK.
  *
- * @see BiotoptypArtComposite2
+ *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 @Concerns( {
@@ -43,50 +42,73 @@ import org.polymap.biotop.model.importer.ImportTable;
     JsonState.Mixin.class
 } )
 @ImportTable("Referenz_Biotoptypen")
-public interface BiotoptypArtComposite
-    extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
+public interface BiotoptypArtComposite2
+    extends QiEntity, JsonState, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
 
-//    [INFO] MdbImportOperation -     column: Nr_Biotoptyp - BYTE
-//    [INFO] MdbImportOperation -     column: Biotoptyp_Code - TEXT
-//    [INFO] MdbImportOperation -     column: Biotoptyp - TEXT
-//    [INFO] MdbImportOperation -     column: Untergruppen_Code - TEXT
-//    [INFO] MdbImportOperation -     column: Biotopgruppe_Code - TEXT
-//    [INFO] MdbImportOperation -     column: Schutz_§26 - BYTE
-//    [INFO] MdbImportOperation -     column: Nr_§26 - LONG
-//    [INFO] MdbImportOperation -     column: FFH_Relevanz - LONG
+// CSV:
+//    Bezeichnung Biotoptyp 2012
+//    Code 2002
+//    Code 2012
+//    Nr_Btyp_2012
+//    NR_VWV_ALT_2002 
+//    VwV 2012
+//    Schutz_P26_2002 
+//    Schutz §26/§30_2012
 
     /** */
     @Optional
-    @ImportColumn("Nr_Biotoptyp")
+    @ImportColumn("ID_Biotoptyp")
     Property<String>            nummer();
 
-    /** Import von: Biotoptyp */
     @Optional
-    @ImportColumn("Biotoptyp")
-    Property<String>            name();
+    @ImportColumn("Bezeichnung Biotoptyp 2012")
+    Property<String>            bezeichnung();
 
     @Optional
-    @ImportColumn("Biotoptyp_Code")
+    @ImportColumn("Bezeichnung Biotoptyp 2002")
+    Property<String>            bezeichnung_2002();
+
+    @Optional
+    @ImportColumn("Code 2012")
     Property<String>            code();
 
     @Optional
-    @ImportColumn("Untergruppen_Code")
-    Property<String>            untergruppeCode();
+    @ImportColumn("Code 2002")
+    Property<String>            code_2002();
 
     @Optional
-    @ImportColumn("Biotopgruppe_Code")
-    Property<String>            biotopgruppeCode();
+    @ImportColumn("Schutz §26/§30_2012")
+    Property<String>            schutz26();
 
     @Optional
-    @ImportColumn("Schutz_§26")
-    Property<Integer>           schutz26();
+    @ImportColumn("Schutz_P26_2002")
+    Property<String>            schutz26_2002();
 
     @Optional
-    @ImportColumn("Nr_§26")
-    Property<Integer>           nummer26();
+    @ImportColumn("Nr_Btyp_2012")
+    Property<String>            nummer_2012();
 
     @Optional
-    @ImportColumn("FFH_Relevanz")
-    Property<Integer>           ffh_Relevanz();
+    @ImportColumn("Nr_Btyp_2002")
+    Property<String>            nummer_2002();
+
+    @Optional
+    @ImportColumn("NR_VWV_ALT_2002")
+    Property<String>            vwv_2002();
+
+    @Optional
+    @ImportColumn("VwV 2012")
+    Property<String>            vwv();
+
+
+//    /**
+//     * Methods and transient fields.
+//     */
+//    public static abstract class Mixin
+//            implements BiotoptypArtComposite {
+//
+//        private static Log log = LogFactory.getLog( Mixin.class );
+//
+//    }
 
 }

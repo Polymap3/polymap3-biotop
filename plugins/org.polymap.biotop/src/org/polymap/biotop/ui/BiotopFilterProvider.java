@@ -53,7 +53,7 @@ import org.polymap.rhei.filter.IFilterProvider;
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopEntityProvider;
 import org.polymap.biotop.model.BiotopRepository;
-import org.polymap.biotop.model.BiotoptypArtComposite;
+import org.polymap.biotop.model.BiotoptypArtComposite2;
 import org.polymap.biotop.model.constant.Erhaltungszustand;
 import org.polymap.biotop.model.constant.Pflegezustand;
 import org.polymap.biotop.model.constant.Schutzstatus;
@@ -196,7 +196,7 @@ public class BiotopFilterProvider
             site.addStandardLayout( site.newFormField( result, "objnr_sbk", String.class,
                     new StringFormField(), null, "Objekt-Nr. (SBK)" ) );
             
-            Map<String,BiotoptypArtComposite> typen = BiotopRepository.instance().btNamen();
+            Map<String,BiotoptypArtComposite2> typen = BiotopRepository.instance().btNamen();
             site.addStandardLayout( site.newFormField( result, "biotoptypArtNr", String.class,
                     new PicklistFormField( typen.keySet() ), null, "Biotoptyp" ) );
             
@@ -250,8 +250,8 @@ public class BiotopFilterProvider
 
             String value = site.getFieldValue( "biotoptypArtNr" );
             if (value != null) {
-                BiotoptypArtComposite entity = BiotopRepository.instance().btNamen().get( value );
-                expr = and( expr, eq( template.biotoptypArtNr(), entity.nummer().get() ) );
+                BiotoptypArtComposite2 entity = BiotopRepository.instance().btNamen().get( value );
+                expr = and( expr, eq( template.biotoptyp2ArtNr(), entity.nummer().get() ) );
             }
             
             value = site.getFieldValue( "erfasst" );

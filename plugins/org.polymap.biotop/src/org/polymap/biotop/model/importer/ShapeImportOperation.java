@@ -16,6 +16,7 @@ package org.polymap.biotop.model.importer;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 
@@ -35,6 +36,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.polymap.core.data.operation.DefaultFeatureOperation;
 import org.polymap.core.data.operation.IFeatureOperation;
+import org.polymap.core.data.operation.IFeatureOperationContext;
 import org.polymap.core.qi4j.QiModule.EntityCreator;
 
 import org.polymap.biotop.model.BiotopComposite;
@@ -60,6 +62,18 @@ public class ShapeImportOperation
     private static final double     bufferDistance = 5;
     
     
+    public boolean init( IFeatureOperationContext ctx ) {
+        super.init( ctx );
+        try {
+            return context.featureSource().getSchema().getName().getLocalPart().toLowerCase().contains( "sbk" );
+        }
+        catch (Exception e) {
+            log.warn( "", e );
+            return false;
+        }
+    }
+
+
     public Status execute( IProgressMonitor monitor )
     throws Exception {
         monitor.beginTask( "Shapefile importieren", context.features().size() );

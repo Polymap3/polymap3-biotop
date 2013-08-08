@@ -219,9 +219,9 @@ public class BiotopEntityProvider
             fb.set( PROP.SBK.name, Joiner.on( "/" ).useForNull( "-" )
                     .join( biotop.objnr_sbk().get(), biotop.tk25().get(), biotop.unr().get() ) );
             
-            String nummer = biotop.biotoptypArtNr().get();
-            BiotoptypArtComposite biotoptyp = ((BiotopRepository)repo).btForNummer( nummer );
-            fb.set( PROP.Biotoptyp.name, biotoptyp != null ? biotoptyp.name().get() : null );
+            String nummer = biotop.biotoptyp2ArtNr().get();
+            BiotoptypArtComposite2 biotoptyp = ((BiotopRepository)repo).btForNummer( nummer );
+            fb.set( PROP.Biotoptyp.name, biotoptyp != null ? biotoptyp.bezeichnung().get() : null );
             
             Schutzstatus schutzstatus = Schutzstatus.all.forId( biotop.schutzstatus().get() );
             fb.set( PROP.Schutzstatus.name, schutzstatus.label );
