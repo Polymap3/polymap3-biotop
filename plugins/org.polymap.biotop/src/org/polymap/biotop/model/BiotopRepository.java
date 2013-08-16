@@ -299,14 +299,19 @@ public class BiotopRepository
     }
 
 
+    /**
+     * Biotopnamen und ihre Entities.
+     * <p/>
+     * <b>Achtung:</b> Alte Biotoptypen, die keine 2012er Bezeichnung haben, werden
+     * ausgefiltert. Im Ergebnis ist nur genau ein Mapping für den Leerstring als
+     * Bezeichnung.
+     */
     public Map<String,BiotoptypArtComposite2> btNamen() {
         return btNamen.get( new Supplier<Map<String,BiotoptypArtComposite2>>() {
             @Override
             public Map<String,BiotoptypArtComposite2> get() {
-                Query<BiotoptypArtComposite2> entities = findEntities( BiotoptypArtComposite2.class, null, 0, 1000 );
-
                 Map<String,BiotoptypArtComposite2> result = new HashMap();
-                for (BiotoptypArtComposite2 entity : entities) {
+                for (BiotoptypArtComposite2 entity : btNummern().values()) {
                     result.put( entity.bezeichnung().get(), entity );
                 }
                 return result;
@@ -319,9 +324,13 @@ public class BiotopRepository
         return btNummern.get( new Supplier<Map<String,BiotoptypArtComposite2>>() {
             @Override
             public Map<String,BiotoptypArtComposite2> get() {
+                Query<BiotoptypArtComposite2> entities = findEntities( BiotoptypArtComposite2.class, null, 0, 1000 );
+
                 Map<String,BiotoptypArtComposite2> result = new HashMap();
-                for (BiotoptypArtComposite2 entity : btNamen().values()) {
-                    result.put( entity.nummer().get(), entity );
+                for (BiotoptypArtComposite2 entity : entities) {
+                    if (result.put( entity.nummer().get(), entity ) != null) {
+                        throw new IllegalStateException( "Die Biotoptypnummer ist mehrfach vergeben: " + entity.nummer().get() ); 
+                    }
                 }
                 return result;
             }

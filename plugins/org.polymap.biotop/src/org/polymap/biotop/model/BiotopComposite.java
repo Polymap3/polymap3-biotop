@@ -272,20 +272,29 @@ public interface BiotopComposite
     @UseDefaults
     @Deprecated
     Property<Collection<BiotoptypValue>> biotoptypen();
+    
+    /**
+     * Neue, einheitliche Artdaten ohne Mengenangaben.
+     */
+    @Optional
+    @UseDefaults
+    ManyAssociation<ArtdatenComposite> arten();
 
     /**
+     * SBK-Planzenarten
      * @see PflanzeComposite
      */
     @Optional
     @UseDefaults
     Property<Collection<PflanzeValue>> pflanzen();
 
-    /** Moose/Flechten/Pilze */
+    /** SBK: Moose/Flechten/Pilze */
     @Optional
     @UseDefaults
     Property<Collection<PilzValue>> pilze();
 
     /**
+     * SBK Tierarten
      * @see TierComposite
      */
     @Optional

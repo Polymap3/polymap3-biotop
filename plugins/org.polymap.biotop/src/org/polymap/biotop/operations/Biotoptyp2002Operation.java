@@ -88,7 +88,7 @@ public class Biotoptyp2002Operation
                 }
                 else {
                     log.info( "nummer2002: " + nummer2002 );
-                    for (BiotoptypArtComposite2 elm : repo.btNamen().values()) {
+                    for (BiotoptypArtComposite2 elm : repo.btNummern().values()) {
                         if (nummer2002.equals( elm.nummer_2002().get() )) {
                             log.info( "    found new type: " + elm.nummer().get() );
                             biotop.biotoptyp2ArtNr().set( elm.nummer().get() );

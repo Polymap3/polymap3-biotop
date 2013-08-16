@@ -19,6 +19,7 @@ import static com.google.common.collect.Iterables.find;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,10 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import org.qi4j.api.property.Property;
 import org.qi4j.api.value.ValueBuilder;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -397,15 +395,14 @@ public class BiotopFormPageProvider
             // biotoptyp picklist
             final String nummer = biotop.biotoptyp2ArtNr().get() != null ? biotop.biotoptyp2ArtNr().get() : "1";
                     
-            final BiotoptypArtComposite2[] current = new BiotoptypArtComposite2[1];
-            Map<String,String> nameNummer = Maps.transformValues( repo.btNamen(), new Function<BiotoptypArtComposite2,String>() {
-                public String apply( BiotoptypArtComposite2 input ) {
-                    if (nummer != null && input.nummer().get().equals( nummer )) {
-                        current[0] = input;
-                    }
-                    return input.nummer().get();
+            BiotoptypArtComposite2 current = null;
+            Map<String,String> nameNummer = new HashMap(); 
+            for (BiotoptypArtComposite2 input : repo.btNummern().values()) {
+                nameNummer.put( input.bezeichnung().get(), input.nummer().get() );
+                if (nummer != null && input.nummer().get().equals( nummer )) {
+                    current = input;
                 }
-            });
+            }
 
             final PicklistFormField picklist = new PicklistFormField( nameNummer );
             picklist.setTextEditable( false );
@@ -425,35 +422,35 @@ public class BiotopFormPageProvider
                     picklist, null, "Biotoptyp" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PlainValuePropertyAdapter( "bezeichnung_2002", current[0] != null ? current[0].bezeichnung_2002().get() : "" ),
+                    new PlainValuePropertyAdapter( "bezeichnung_2002", current != null ? current.bezeichnung_2002().get() : "" ),
                     new StringFormField().setEnabled( false ), null, "Bezeichnung (2002)" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PlainValuePropertyAdapter( "nummer_2012", current[0] != null ? current[0].nummer_2012().get() : "" ),
+                    new PlainValuePropertyAdapter( "nummer_2012", current != null ? current.nummer_2012().get() : "" ),
                     new StringFormField().setEnabled( false ), null, "Nummer" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PlainValuePropertyAdapter( "code", current[0] != null ? current[0].code().get() : "" ),
+                    new PlainValuePropertyAdapter( "code", current != null ? current.code().get() : "" ),
                     new StringFormField().setEnabled( false ), null, "Code" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PlainValuePropertyAdapter( "code_2002", current[0] != null ? current[0].code_2002().get() : "" ),
+                    new PlainValuePropertyAdapter( "code_2002", current != null ? current.code_2002().get() : "" ),
                     new StringFormField().setEnabled( false ), null, "Code (2002)" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PlainValuePropertyAdapter( "schutz26", current[0] != null ? current[0].schutz26().get() : "" ),
+                    new PlainValuePropertyAdapter( "schutz26", current != null ? current.schutz26().get() : "" ),
                     new StringFormField().setEnabled( false ), null, "Schutz §26/§30" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PlainValuePropertyAdapter( "schutz26_2002", current[0] != null ? current[0].schutz26_2002().get() : "" ),
+                    new PlainValuePropertyAdapter( "schutz26_2002", current != null ? current.schutz26_2002().get() : "" ),
                     new StringFormField().setEnabled( false ), null, "Schutz §26 (2002)" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client,
-                    new PlainValuePropertyAdapter( "vwv", current[0] != null ? current[0].vwv().get() : "" ),
+                    new PlainValuePropertyAdapter( "vwv", current != null ? current.vwv().get() : "" ),
                     new StringFormField().setEnabled( false ), null, "VwV" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client,
-                    new PlainValuePropertyAdapter( "vwv_2002", current[0] != null ? current[0].vwv_2002().get() : "" ),
+                    new PlainValuePropertyAdapter( "vwv_2002", current != null ? current.vwv_2002().get() : "" ),
                     new StringFormField().setEnabled( false ), null, "VwV-Nummer (2002)" ) );
             
             layouter.setFieldLayoutData( new Label( client, SWT.SEPARATOR | SWT.HORIZONTAL ) );
