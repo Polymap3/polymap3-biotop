@@ -40,11 +40,13 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import org.eclipse.jface.action.Action;
@@ -95,6 +97,7 @@ import org.polymap.biotop.model.constant.Status;
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
+@SuppressWarnings("deprecation")
 public class BiotopFormPageProvider
         implements IFormPageProvider {
 
@@ -453,6 +456,12 @@ public class BiotopFormPageProvider
                     new PlainValuePropertyAdapter( "vwv_2002", current[0] != null ? current[0].vwv_2002().get() : "" ),
                     new StringFormField().setEnabled( false ), null, "VwV-Nummer (2002)" ) );
             
+            layouter.setFieldLayoutData( new Label( client, SWT.SEPARATOR | SWT.HORIZONTAL ) );
+
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.biotoptypArtNr() ),
+                    new StringFormField().setEnabled( false ), null, "Biotoptyp (SBK)*" ) ).setToolTipText( "Nur für Testzwecke: Biotoptypnummer aus der SBK" );
+            
             // update fields
             biotoptypListener = new IFormFieldListener() {
                 public void fieldChange( FormFieldEvent ev ) {
@@ -629,8 +638,7 @@ public class BiotopFormPageProvider
         
         public Action[] getEditorActions() {
             // zoom flurstuecke
-            ImageDescriptor icon = BiotopPlugin.imageDescriptorFromPlugin( 
-                    BiotopPlugin.PLUGIN_ID, "icons/find_flurstuecke.gif" );
+            ImageDescriptor icon = BiotopPlugin.getDefault().imageDescriptor( "icons/find_flurstuecke.gif" );
             Action action1 = new Action( "mit Flurstücken/Eigentümern verschneiden", icon ) {
 
                 public String getToolTipText() {

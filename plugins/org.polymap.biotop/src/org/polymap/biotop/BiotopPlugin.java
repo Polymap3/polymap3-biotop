@@ -48,4 +48,8 @@ public class BiotopPlugin extends AbstractUIPlugin {
         return images.image( resName );
     }
 
+    public ImageDescriptor imageDescriptor( String path ) {
+        return images.imageDescriptor( path );
+    }
+
 }

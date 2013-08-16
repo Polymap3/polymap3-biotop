@@ -41,6 +41,7 @@ import org.polymap.biotop.model.constant.Pflegezustand;
  * 
  * @see BiotopFormPageProvider
  */
+@SuppressWarnings("deprecation")
 public class BiotoptypFormEditorPage
         implements IFormEditorPage {
 
