@@ -38,13 +38,11 @@ import org.qi4j.api.property.Property;
 import org.qi4j.api.value.ValueBuilder;
 
 import com.google.common.base.Predicate;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import org.eclipse.jface.action.Action;
@@ -195,37 +193,39 @@ public class BiotopFormPageProvider
             site.setActivePage( getId() );
             site.getPageBody().setLayout( new FormLayout() );
 
+            int sash = 58;
+            
             // leftSection
             Section leftSection = createLeftSection( site.getPageBody() );
             leftSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 0 ).right( 50 ).top( 0, 0 ).create() );
+                    .left( 0 ).right( sash ).top( 0, 0 ).create() );
 
             // idsSection
             Section idsSection = createIdsSection( site.getPageBody() );
             idsSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 50 ).right( 100 ).top( 0, 0 ).create() );
+                    .left( sash ).right( 100 ).top( 0, 0 ).create() );
 
             // biotoptyp
             Section btSection = createBiotoptypSection( site.getPageBody() );
             btSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 50 ).right( 100 ).top( idsSection ).create() );
+                    .left( sash ).right( 100 ).top( idsSection ).create() );
 
             // pflege
             Section pflegeSection = createPflegeSection( site.getPageBody() );
             pflegeSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 50 ).right( 100 ).top( btSection ).bottom( 100 ).create() );
+                    .left( sash ).right( 100 ).top( btSection ).bottom( 100 ).create() );
 
             // status
             // XXX must be last; otherwise "bearbeitet" DateField is triggered by
             // events on save and shows modified state after save otherwise
             Section statusSection = createStatusSection( site.getPageBody() );
             statusSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 0 ).right( 50 ).top( leftSection ).create() );
+                    .left( 0 ).right( sash ).top( leftSection ).create() );
 
             // geometrySection
             Section geomSection = createGeometrySection( site.getPageBody() );
             geomSection.setLayoutData( new SimpleFormData( SECTION_SPACING )
-                    .left( 0 ).right( 50 ).top( statusSection ).bottom( 100 ).create() );
+                    .left( 0 ).right( sash ).top( statusSection ).bottom( 100 ).create() );
 
             layouter.newLayout();
         }
@@ -417,18 +417,26 @@ public class BiotopFormPageProvider
 //                }
 //            });
 
-            layouter.setFieldLayoutData( site.newFormField( client, 
+            String bez = current != null ? current.bezeichnung().get() : "";
+            final Composite bezField = layouter.setFieldLayoutData( site.newFormField( client, 
                     new PropertyAdapter( biotop.biotoptyp2ArtNr() ),
                     picklist, null, "Biotoptyp" ) );
+            bezField.setToolTipText( bez );
 
-            layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PlainValuePropertyAdapter( "bezeichnung_2002", current != null ? current.bezeichnung_2002().get() : "" ),
-                    new StringFormField().setEnabled( false ), null, "Bezeichnung (2002)" ) );
+            String bez2002 = current != null ? current.bezeichnung_2002().get() : "";
+            final Composite bez2002Field = layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PlainValuePropertyAdapter( "bezeichnung_2002", bez2002 ),
+                    new StringFormField().setEnabled( false ), null, "Biotoptyp (2002)" ) );
+            bez2002Field.setToolTipText( bez2002 );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
                     new PlainValuePropertyAdapter( "nummer_2012", current != null ? current.nummer_2012().get() : "" ),
-                    new StringFormField().setEnabled( false ), null, "Nummer" ) );
+                    new StringFormField().setEnabled( false ), null, "Biotoptyp-Nr." ) );
 
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.biotoptypArtNr() ),
+                    new StringFormField().setEnabled( false ), null, "Biotoptyp-Nr. (2002)" ) ).setToolTipText( "Biotoptypnummer aus der SBK" );
+            
             layouter.setFieldLayoutData( site.newFormField( client, 
                     new PlainValuePropertyAdapter( "code", current != null ? current.code().get() : "" ),
                     new StringFormField().setEnabled( false ), null, "Code" ) );
@@ -439,11 +447,11 @@ public class BiotopFormPageProvider
 
             layouter.setFieldLayoutData( site.newFormField( client, 
                     new PlainValuePropertyAdapter( "schutz26", current != null ? current.schutz26().get() : "" ),
-                    new StringFormField().setEnabled( false ), null, "Schutz §26/§30" ) );
+                    new StringFormField().setEnabled( false ), null, "Schutz §" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client, 
                     new PlainValuePropertyAdapter( "schutz26_2002", current != null ? current.schutz26_2002().get() : "" ),
-                    new StringFormField().setEnabled( false ), null, "Schutz §26 (2002)" ) );
+                    new StringFormField().setEnabled( false ), null, "Schutz § (2002)" ) );
 
             layouter.setFieldLayoutData( site.newFormField( client,
                     new PlainValuePropertyAdapter( "vwv", current != null ? current.vwv().get() : "" ),
@@ -451,14 +459,10 @@ public class BiotopFormPageProvider
 
             layouter.setFieldLayoutData( site.newFormField( client,
                     new PlainValuePropertyAdapter( "vwv_2002", current != null ? current.vwv_2002().get() : "" ),
-                    new StringFormField().setEnabled( false ), null, "VwV-Nummer (2002)" ) );
+                    new StringFormField().setEnabled( false ), null, "VwV (2002)" ) );
             
-            layouter.setFieldLayoutData( new Label( client, SWT.SEPARATOR | SWT.HORIZONTAL ) );
+//            layouter.setFieldLayoutData( new Label( client, SWT.SEPARATOR | SWT.HORIZONTAL ) );
 
-            layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PropertyAdapter( biotop.biotoptypArtNr() ),
-                    new StringFormField().setEnabled( false ), null, "Biotoptyp (SBK)*" ) ).setToolTipText( "Nur für Testzwecke: Biotoptypnummer aus der SBK" );
-            
             // update fields
             biotoptypListener = new IFormFieldListener() {
                 public void fieldChange( FormFieldEvent ev ) {
@@ -472,7 +476,9 @@ public class BiotopFormPageProvider
                                         return inputNummer.equals( nummerNeu );
                                     }
                                 });
+                                bezField.setToolTipText( biotoptyp.bezeichnung().get() );
                                 site.setFieldValue( "bezeichnung_2002", biotoptyp.bezeichnung_2002().get() );
+                                bez2002Field.setToolTipText( biotoptyp.bezeichnung_2002().get() );
                                 site.setFieldValue( "nummer_2012", biotoptyp.nummer_2012().get() );
                                 site.setFieldValue( "code", biotoptyp.code().get() );
                                 site.setFieldValue( "code_2002", biotoptyp.code_2002().get() );
