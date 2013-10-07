@@ -273,12 +273,14 @@ public interface BiotopComposite
     @Deprecated
     Property<Collection<BiotoptypValue>> biotoptypen();
     
+    
     /**
-     * Neue, einheitliche Artdaten ohne Mengenangaben.
+     * Neue, einheitliche Artdaten ohne Mengenangaben. Verweis auf
+     * {@link ArtdatenComposite#nummer()}.
      */
     @Optional
     @UseDefaults
-    ManyAssociation<ArtdatenComposite> arten();
+    Property<Collection<String>> arten();
 
     /**
      * SBK-Planzenarten

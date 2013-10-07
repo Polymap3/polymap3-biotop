@@ -58,7 +58,7 @@ public interface ArtdatenComposite
 
     @Optional
     @ImportColumn("Artbezeichnung (wiss)")
-    Property<Integer>           nomenklatur();
+    Property<String>            nomenklatur();
 
     @Optional
     @ImportColumn("Artengruppe")
@@ -66,7 +66,7 @@ public interface ArtdatenComposite
 
     @Optional
     @ImportColumn("BNatSchG")
-    Property<String>            bnatschg();
+    Property<String>            BNatSchG();
 
     @Optional
     @ImportColumn("Natura 2000")

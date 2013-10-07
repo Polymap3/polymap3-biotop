@@ -162,7 +162,10 @@ public class BiotopRepository
                             new NameImpl( BiotopRepository.NAMESPACE, "Wertbestimmend" ) ),
                     // neuer Biotoptyp
                     new ArtEntityProvider( this, BiotoptypArtComposite2.class, 
-                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" ) )
+                            new NameImpl( BiotopRepository.NAMESPACE, "Biotoptyp" ) ),
+                    // neue, einheitliche Arten
+                    new ArtEntityProvider( this, ArtdatenComposite.class, 
+                            new NameImpl( BiotopRepository.NAMESPACE, "Artdaten" ) )
                     );
         }
         catch (Exception e) {
