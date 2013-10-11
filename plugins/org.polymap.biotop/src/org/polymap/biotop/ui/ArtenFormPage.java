@@ -22,7 +22,7 @@ import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.PropertyDescriptor;
 
-import org.apache.commons.lang.StringUtils;
+import static org.apache.commons.lang.StringUtils.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -48,6 +48,8 @@ import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.window.Window;
@@ -329,9 +331,15 @@ public class ArtenFormPage
             // columns
             for (Property prop : type.getProperties()) {
                 PropertyDescriptorAdapter adapter = new PropertyDescriptorAdapter( prop );
-                viewer.addColumn( new DefaultFeatureTableColumn( adapter )
-                         .setHeader( StringUtils.capitalize( prop.getName() ) ));
-                
+                if (prop.getName().equalsIgnoreCase( "rls" )) {
+                    viewer.addColumn( new DefaultFeatureTableColumn( adapter ).setHeader( "RLS" ).setWeight( 1, 60 ) );
+                }
+                else if (prop.getName().equalsIgnoreCase( "nomenklatur" )) {
+                    viewer.addColumn( new DefaultFeatureTableColumn( adapter ).setHeader( "wiss." ) );
+                }
+                else {
+                    viewer.addColumn( new DefaultFeatureTableColumn( adapter ).setHeader( capitalize( prop.getName() ) ) );
+                }
             }
 
             // model/content
@@ -347,6 +355,11 @@ public class ArtenFormPage
                 }
             });
             
+            viewer.addDoubleClickListener( new IDoubleClickListener() {
+                public void doubleClick( DoubleClickEvent ev ) {
+                    okPressed();
+                }
+            });
             viewer.getTable().pack( true );
             return result;
         }
