@@ -110,6 +110,7 @@ public class BiotopFormPageProvider
         if (feature.getType().getName().getLocalPart().equalsIgnoreCase( "biotop" )) {
             result.add( new BaseFormEditorPage( feature, formEditor.getFeatureStore() ) );
             //result.add( new BiotoptypFormEditorPage( feature, formEditor.getFeatureStore() ) );
+            result.add( new FlurstueckFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new PflegeFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new ArtenFormPage( feature, formEditor.getFeatureStore() ) );
             result.add( new SBKArtenFormPage( feature, formEditor.getFeatureStore() ) );

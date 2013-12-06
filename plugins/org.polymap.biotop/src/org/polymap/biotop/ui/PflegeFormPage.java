@@ -108,10 +108,10 @@ public class PflegeFormPage
         pageSite.getPageBody().setLayout( new FormLayout() );
 
         Section section1 = createFieldsSection( pageSite.getPageBody() );
-        section1.setLayoutData( new SimpleFormData( SECTION_SPACING ).fill().top( 0, 0 ).bottom( 40 ).create() );
+        section1.setLayoutData( new SimpleFormData( BiotopFormPageProvider.SECTION_SPACING ).fill().top( 0, 0 ).bottom( 40 ).create() );
         
         Section section2 = createTableSection( pageSite.getPageBody() );
-        section2.setLayoutData( new SimpleFormData( SECTION_SPACING ).fill().top( section1 ).bottom( 100 ).create() );
+        section2.setLayoutData( new SimpleFormData( BiotopFormPageProvider.SECTION_SPACING ).fill().top( section1 ).bottom( 100 ).create() );
         
         pageSite.getPageBody().layout( true );
     }

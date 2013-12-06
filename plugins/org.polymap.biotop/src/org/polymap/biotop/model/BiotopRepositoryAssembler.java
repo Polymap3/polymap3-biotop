@@ -94,7 +94,8 @@ public class BiotopRepositoryAssembler
                 GefahrArtComposite.class,
                 WertArtComposite.class,
                 PflegeArtComposite.class,
-                ArtdatenComposite.class
+                ArtdatenComposite.class,
+                FlurstueckComposite.class
         );
 //        domainModule.addTransients(
 //                PflanzeComposite.class,

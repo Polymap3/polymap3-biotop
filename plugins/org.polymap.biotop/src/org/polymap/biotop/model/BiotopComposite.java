@@ -194,6 +194,10 @@ public interface BiotopComposite
     @UseDefaults
     ManyAssociation<PflegeArtComposite> pflege();
 
+    @Optional
+    @UseDefaults
+    ManyAssociation<FlurstueckComposite> flurstuecke();
+
 //    @Optional
 //    @ImportColumn("Teilfläche")
 //    Property<String>            teilflaeche();
