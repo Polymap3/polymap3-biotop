@@ -47,6 +47,12 @@
             label="Biotop: Shapefile-Import (sbk_xx.shp)">
       </featureOperation>
       <featureOperation
+            class="org.polymap.biotop.operations.SchutzstatusOperation"
+            icon="icons/b.png"
+            id="org.polymap.biotop.importer.SchutzstatusOperation"
+            label="Biotop: Schutzstatus füllen">
+      </featureOperation>
+      <featureOperation
             class="org.polymap.biotop.operations.BekanntmachungOperation"
             description="Bekanntmachungsdatum auf &quot;heute&quot; setzen"
             icon="icons/b.png"

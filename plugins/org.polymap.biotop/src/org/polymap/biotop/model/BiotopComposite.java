@@ -205,8 +205,14 @@ public interface BiotopComposite
     @Optional
     Property<String>            bt_code();
 
+    /** Ist der {@link Schutzstatus}. Kommt aus Shapefile und wird nach {@link #schutzstatus()} überführt. */
     @Optional
     Property<String>            wert();
+
+    /** @see Schutzstatus */
+    @Optional
+    @UseDefaults
+    Property<Integer>           schutzstatus();
 
     @Optional
     Property<String>            biotopkuerzel();
@@ -215,11 +221,6 @@ public interface BiotopComposite
     @Optional
     @UseDefaults
     Property<Integer>           erhaltungszustand();
-
-    /** @see Schutzstatus */
-    @Optional
-    @UseDefaults
-    Property<Integer>           schutzstatus();
 
     /** @see Status */
     @Optional

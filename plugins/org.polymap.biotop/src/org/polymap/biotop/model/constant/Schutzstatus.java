@@ -30,8 +30,8 @@ public class Schutzstatus
     /** Provides access to the elements of this type. */
     public static final Type<Schutzstatus,String> all = new Type<Schutzstatus,String>();
 
-    public static final Schutzstatus para_26_30 = new Schutzstatus( 0, "§26/§30", "" );
-    public static final Schutzstatus wertvoll = new Schutzstatus( 1, "wertvoll", "" );
+    public static final Schutzstatus para_26_30 = new Schutzstatus( 0, "§26/§30", "", "26" );
+    public static final Schutzstatus wertvoll = new Schutzstatus( 1, "wertvoll", "", "w", "ww" );
     public static final Schutzstatus para_21_30 = new Schutzstatus( 2, "§21/§30", "" );
     public static final Schutzstatus para_21 = new Schutzstatus( 3, "§21", "" );
     public static final Schutzstatus para_30 = new Schutzstatus( 4, "§30", "" );
