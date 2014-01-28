@@ -137,8 +137,10 @@ public class ArtenFormPage
                 model.put( art.nummer().get(), art );
             }
         }
-        viewer.setInput( model.values() );
-        viewer.refresh();
+        if (viewer != null) {
+            viewer.setInput( model.values() );
+            viewer.refresh();
+        }
         dirty = false;
     }
 

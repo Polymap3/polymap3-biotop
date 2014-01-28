@@ -27,7 +27,6 @@ import java.util.Map;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.security.Principal;
-
 import org.geotools.data.FeatureStore;
 import org.opengis.feature.Feature;
 
@@ -268,30 +267,37 @@ public class BiotopFormPageProvider
                     new CheckboxFormField(), null, "Geprüft" ) );
 
             AktivitaetValue bekanntmachung = biotop.bekanntmachung().get();
-            final IFormField bField = new StringFormField();
+            IFormField bField = null;
             if (bekanntmachung != null && bekanntmachung.wann().get() != null) {
-                createAktivitaet( client, biotop.bekanntmachung(), "published_", "Bekanntmachung", true );
+                bField = createAktivitaet( client, biotop.bekanntmachung(), "published_", "Bekanntmachung", true );
             }
             else {
+                bField = new StringFormField();
                 layouter.setFieldLayoutData( site.newFormField( client, 
                         new PlainValuePropertyAdapter( "bekanntmachung", "-" ),
                         bField.setEnabled( false ), null, "Bekanntmachung" ) );                
             }
             
-            // listen to Property changes
+            // listen to Property changes (triggered by operation)
+            final IFormField fbField = bField;
             biotop.addPropertyChangeListener( bekanntmachungListener =
                 new PropertyChangeListener() {
                     @EventHandler(display=true)
                     public void propertyChange( PropertyChangeEvent ev ) {
                         AktivitaetValue bkm = biotop.bekanntmachung().get();
                         if (bkm != null && bkm.wann().get() != null) {
-                            bField.setValue( bkm.wann().get().toString() );
+                            if (fbField instanceof DateTimeFormField) {
+                                fbField.setValue( bkm.wann().get() );
+                            }
+                            else {
+                                fbField.setValue( BiotopPlugin.df.format( bkm.wann().get() ) );                                
+                            }
                         }
                     }
                 },
                 new EventFilter<PropertyChangeEvent>() {
                     public boolean apply( PropertyChangeEvent ev ) {
-                        return ev.getPropertyName().equals( biotop.bekanntmachung().qualifiedName().name() );
+                        return fbField != null && ev.getPropertyName().equals( biotop.bekanntmachung().qualifiedName().name() );
                     }
                 });
 
@@ -579,22 +585,25 @@ public class BiotopFormPageProvider
 
         private List<IFormFieldListener> als = new ArrayList();
         
-        private void createAktivitaet( Composite client, Property<AktivitaetValue> prop, String prefix, String label,
+        private DateTimeFormField createAktivitaet( Composite client, Property<AktivitaetValue> prop, String prefix, String label,
                 boolean updatable ) {
             AktivitaetValue aktivitaet = prop.get();
+            DateTimeFormField result = null;
             
             //assert aktivitaet != null;
             if (aktivitaet == null || aktivitaet.wann().get() == null) {
                 log.warn( "Aktivität oder .wann().get() ist null: " + prefix );
-                return;
+                return null;
             }
             Calendar wann = Calendar.getInstance( Locale.GERMANY );
             wann.setTime( aktivitaet.wann().get() );
             wann.set( Calendar.MILLISECOND, 0 );
             
+            result = new DateTimeFormField();
+            result.setEnabled( updatable );
             Composite field1 = layouter.setFieldLayoutData( site.newFormField( client, 
                     new ValuePropertyAdapter( prefix, aktivitaet.wann(), prop ),
-                    new DateTimeFormField().setEnabled( updatable ), null, label ) );
+                    result, null, label ) );
             ((FormData)field1.getLayoutData()).right = new FormAttachment( 0, 230 );
 
             SimpleFormData formData = new SimpleFormData( (FormData)field1.getLayoutData() );
@@ -637,6 +646,7 @@ public class BiotopFormPageProvider
 //                site.addFieldListener( l );
 //                als.add( l );
 //            }
+            return result;
         }
         
         

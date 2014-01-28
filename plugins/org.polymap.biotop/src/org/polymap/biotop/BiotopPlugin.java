@@ -2,9 +2,12 @@ package org.polymap.biotop;
 
 import org.osgi.framework.BundleContext;
 
+import org.apache.commons.lang.time.FastDateFormat;
+
 import org.eclipse.swt.graphics.Image;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import org.polymap.core.ImageRegistryHelper;
@@ -14,10 +17,10 @@ import org.polymap.core.ImageRegistryHelper;
  */
 public class BiotopPlugin extends AbstractUIPlugin {
 
-	// The plug-in ID
 	public static final String PLUGIN_ID = "org.polymap.biotop";
 
-	// The shared instance
+	public static final FastDateFormat df = FastDateFormat.getInstance( "dd.MM.yyyy" );
+
 	private static BiotopPlugin plugin;
 	
 	
