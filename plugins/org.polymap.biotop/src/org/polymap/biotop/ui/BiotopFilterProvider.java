@@ -200,8 +200,8 @@ public class BiotopFilterProvider
             site.addStandardLayout( site.newFormField( result, "biotoptypArtNr", String.class,
                     new PicklistFormField( typen.keySet() ), null, "Biotoptyp" ) );
             
-            site.addStandardLayout( site.newFormField( result, "kuerzel", String.class,
-                    new StringFormField(), null, "Biotopkürzel" ) );
+            site.addStandardLayout( site.newFormField( result, "code", String.class,
+                    new StringFormField(), null, "Biotoptyp (Code)" ) );
             
             site.addStandardLayout( site.newFormField( result, "schutzstatus", String.class,
                     new PicklistFormField( Schutzstatus.all ), null, "Schutzstatus" ) );
@@ -243,7 +243,6 @@ public class BiotopFilterProvider
             expr = andMatches( expr, template.objnr(), (String)site.getFieldValue( "objnr" ) );
             expr = andMatches( expr, template.tk25(), (String)site.getFieldValue( "tk25" ) );
             expr = andMatches( expr, template.objnr_sbk(), (String)site.getFieldValue( "objnr_sbk" ) );
-            expr = andMatches( expr, template.biotopkuerzel(), (String)site.getFieldValue( "kuerzel" ) );
             expr = andEquals( expr, template.schutzstatus(), (Integer)site.getFieldValue( "schutzstatus" ) );
             expr = andEquals( expr, template.geprueft(), (Boolean)site.getFieldValue( "geprueft" ) );
             expr = andEquals( expr, template.waldbiotop(), (Boolean)site.getFieldValue( "waldbiotop" ) );
@@ -256,6 +255,15 @@ public class BiotopFilterProvider
             if (value != null) {
                 BiotoptypArtComposite2 entity = BiotopRepository.instance().btNamen().get( value );
                 expr = and( expr, eq( template.biotoptyp2ArtNr(), entity.nummer().get() ) );
+            }
+            
+            value = site.getFieldValue( "code" );
+            if (value != null) {
+                for (BiotoptypArtComposite2 biotoptyp : BiotopRepository.instance().btNamen().values()) {
+                    if (value.equals( biotoptyp.code().get() )) {
+                        expr = and( expr, eq( template.biotoptyp2ArtNr(), biotoptyp.nummer().get() ) );
+                    }
+                }
             }
             
             value = site.getFieldValue( "erfasst" );
