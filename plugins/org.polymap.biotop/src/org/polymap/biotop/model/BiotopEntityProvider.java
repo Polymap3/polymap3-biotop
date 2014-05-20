@@ -15,6 +15,8 @@
  */
 package org.polymap.biotop.model;
 
+import java.util.Date;
+
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
 import org.geotools.feature.NameImpl;
@@ -49,6 +51,8 @@ import org.polymap.core.qi4j.QiModule.EntityCreator;
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
 import org.polymap.rhei.data.entityfeature.EntityProvider2;
 
+import org.polymap.biotop.model.constant.Erhaltungszustand;
+import org.polymap.biotop.model.constant.Pflegezustand;
 import org.polymap.biotop.model.constant.Schutzstatus;
 import org.polymap.biotop.model.constant.Status;
 
@@ -70,12 +74,23 @@ public class BiotopEntityProvider
         Biotopnummer( String.class, "objnr", true ), 
         SBK( String.class, null, false, "SBK/TK25/UNr." ), 
         Name( String.class, "name", true ), 
-        Beschreibung( String.class, "beschreibung", true ), 
         Biotoptyp( String.class, null, false ), 
+        BiotoptypNr( Integer.class, "biotoptypNr", false ),
+        BiotoptypCode( String.class, "biotoptypCode", false ),
+        BiotoptypVwv( String.class, null, false, "VwV" ),
         Geprueft( Boolean.class, "geprueft", true, "Geprüft" ), 
-        Schutzstatus( String.class, "schutzstatus", false ), 
+        Schutzstatus( String.class, null, false ), 
         Status( String.class, "status", true ),
-        LKNr( String.class, "objnr_landkreise", true, "LK-Nr" );
+        LKNr( String.class, "objnr_landkreise", true, "LK-Nr" ),
+        Erhaltungszustand( String.class, null, false ),
+        Bekanntmachung( Date.class, null, false ),
+        ErfasstAm( Date.class, null, false ),
+        ErfasstVon( String.class, null, false ),
+        BearbeitetAm( Date.class, null, false ),
+        BearbeitetVon( String.class, null, false ),
+        Gesamtflaeche( Double.class, "flaeche", false ),
+        Pflegezustand( String.class, null, true ),
+        Pflegebedarf( Boolean.class, "pflegeBedarf", true );
 
         public static PROP forName( String name ) {
             for (PROP prop : PROP.values()) {
@@ -222,12 +237,38 @@ public class BiotopEntityProvider
             String nummer = biotop.biotoptyp2ArtNr().get();
             BiotoptypArtComposite2 biotoptyp = ((BiotopRepository)repo).btForNummer( nummer );
             fb.set( PROP.Biotoptyp.name, biotoptyp != null ? biotoptyp.bezeichnung().get() : null );
+            fb.set( PROP.BiotoptypNr.name, biotoptyp != null ? biotoptyp.nummer().get() : null );
+            fb.set( PROP.BiotoptypCode.name, biotoptyp != null ? biotoptyp.code().get() : null );
+            fb.set( PROP.BiotoptypVwv.name, biotoptyp != null ? biotoptyp.vwv().get() : null );
             
             Schutzstatus schutzstatus = Schutzstatus.all.forId( biotop.schutzstatus().get() );
-            fb.set( PROP.Schutzstatus.name, schutzstatus.label );
+            fb.set( PROP.Schutzstatus.name, schutzstatus != null ? schutzstatus.label : null );
 
             Status status = Status.all.forId( biotop.status().get() );
-            fb.set( PROP.Status.name, status.label );
+            fb.set( PROP.Status.name, status != null ? status.label : null );
+
+            Erhaltungszustand erhaltungszustand = Erhaltungszustand.all.forId( biotop.erhaltungszustand().get() );
+            fb.set( PROP.Erhaltungszustand.name, erhaltungszustand != null ? erhaltungszustand.label : null );
+
+            Pflegezustand pflegezustand = Pflegezustand.all.forId( biotop.pflegeZustand().get() );
+            fb.set( PROP.Pflegezustand.name, pflegezustand != null ? pflegezustand.label : null );
+            
+            AktivitaetValue aktivitaet = biotop.bearbeitung().get();
+            if (aktivitaet != null) {
+                fb.set( PROP.BearbeitetAm.name, aktivitaet.wann().get() );
+                fb.set( PROP.BearbeitetVon.name, aktivitaet.wer().get() );
+            }
+
+            aktivitaet = biotop.erfassung().get();
+            if (aktivitaet != null) {
+                fb.set( PROP.ErfasstAm.name, aktivitaet.wann().get() );
+                fb.set( PROP.ErfasstVon.name, aktivitaet.wer().get() );
+            }
+
+            aktivitaet = biotop.bekanntmachung().get();
+            if (aktivitaet != null) {
+                fb.set( PROP.Bekanntmachung.name, aktivitaet.wann().get() );
+            }
         }
         catch (Exception e) {
             log.warn( "", e );
@@ -256,9 +297,6 @@ public class BiotopEntityProvider
         }
         else if (propName.equals( PROP.Name.toString() )) {
             biotop.name().set( (String)value );
-        }
-        else if (propName.equals( PROP.Beschreibung.toString() )) {
-            biotop.beschreibung().set( (String)value );
         }
 //        else if (propName.equals( PROP.Biotoptyp.toString() )) {
 //            biotop.biotoptypArtNr().set( (String)value );
