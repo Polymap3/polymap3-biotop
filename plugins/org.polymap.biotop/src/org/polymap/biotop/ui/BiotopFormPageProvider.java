@@ -262,10 +262,7 @@ public class BiotopFormPageProvider
                     new PropertyAdapter( biotop.status() ),
                     new PicklistFormField( Status.all ), null, "Status" ) );
 
-            layouter.setFieldLayoutData( site.newFormField( client, 
-                    new PropertyAdapter( biotop.geprueft() ),
-                    new CheckboxFormField(), null, "Geprüft" ) );
-
+            // Bekanntmachung
             AktivitaetValue bekanntmachung = biotop.bekanntmachung().get();
             IFormField bField = null;
             if (bekanntmachung != null && bekanntmachung.wann().get() != null) {
@@ -277,7 +274,17 @@ public class BiotopFormPageProvider
                         new PlainValuePropertyAdapter( "bekanntmachung", "-" ),
                         bField.setEnabled( false ), null, "Bekanntmachung" ) );                
             }
-            
+
+            // geprüft
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.geprueft() ),
+                    new CheckboxFormField(), null, "Geprüft" ) );
+
+            // Waldbiotop
+            layouter.setFieldLayoutData( site.newFormField( client, 
+                    new PropertyAdapter( biotop.waldbiotop() ),
+                    new CheckboxFormField(), null, "Waldbiotop" ) );
+
             // listen to Property changes (triggered by operation)
             final IFormField fbField = bField;
             biotop.addPropertyChangeListener( bekanntmachungListener =

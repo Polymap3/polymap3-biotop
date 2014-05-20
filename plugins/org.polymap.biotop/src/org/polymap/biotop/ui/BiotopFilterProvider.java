@@ -209,6 +209,9 @@ public class BiotopFilterProvider
             site.addStandardLayout( site.newFormField( result, "geprueft", String.class,
                     new CheckboxFormField(), null, "Geprüft" ) );
             
+            site.addStandardLayout( site.newFormField( result, "waldbiotop", String.class,
+                    new CheckboxFormField(), null, "Waldbiotop" ) );
+            
             site.addStandardLayout( site.newFormField( result, "erfasst", String.class,
                     new StringFormField(), null, "Erfasst im Jahr" ) );
             
@@ -243,6 +246,7 @@ public class BiotopFilterProvider
             expr = andMatches( expr, template.biotopkuerzel(), (String)site.getFieldValue( "kuerzel" ) );
             expr = andEquals( expr, template.schutzstatus(), (Integer)site.getFieldValue( "schutzstatus" ) );
             expr = andEquals( expr, template.geprueft(), (Boolean)site.getFieldValue( "geprueft" ) );
+            expr = andEquals( expr, template.waldbiotop(), (Boolean)site.getFieldValue( "waldbiotop" ) );
             expr = andEquals( expr, template.erhaltungszustand(), (Integer)site.getFieldValue( "erhaltung" ) );
             expr = andEquals( expr, template.pflegeZustand(), (Integer)site.getFieldValue( "pflege" ) );
             expr = andEquals( expr, template.pflegeBedarf(), (Boolean)site.getFieldValue( "pflegebedarf" ) );

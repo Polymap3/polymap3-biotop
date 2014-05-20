@@ -360,7 +360,21 @@ public interface BiotopComposite
     @Optional
     @ImportColumn("Nr_Eigentumsart")
     Property<String>            eigentumsartNr();
-
+    
+    /**
+     * Neue, bislang nicht in den SBS-Daten enthaltene Waldbiotope erfasst die UNB in
+     * der Landkreis-Biotopebene der Fachschale. Um diese Biotope schnell und
+     * unkompliziert als Waldbiotope identifizieren zu können, ist ein gesondertes
+     * Attribut *Waldbiotop* (Checkbox in der GUI) nötig. Dem SBS wird hernach eine
+     * speziell konfigurierte WFS-URL (eingeschränkt auf die erfassten oder
+     * geänderten Waldbiotope innerhalb eines definierten Zeitraumes) zur Verfügung
+     * gestellt.
+     * <p/>
+     * Siehe: #44: Waldbiotopkartierung fehlt (http://polymap.org/biotop/ticket/44)
+     */
+    @UseDefaults
+    Property<Boolean>           waldbiotop();
+    
     
     /**
      * Methods and transient fields.

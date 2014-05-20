@@ -97,6 +97,14 @@
             parameter="biotop">
       </entrypoint>
    </extension>
+   <extension
+         point="org.polymap.core.http.servlets">
+      <servlet
+            class="org.polymap.core.WorkbenchRedirectServlet"
+            name="Workbench Redirect"
+            path="/">
+      </servlet>
+   </extension>
    <!--extension
          point="org.polymap.core.operation.concerns">
       <concern
