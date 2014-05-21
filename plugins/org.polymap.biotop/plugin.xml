@@ -26,7 +26,7 @@
       <pageProvider
             class="org.polymap.biotop.ui.BiotopFormPageProvider"
             id="org.polymap.biotop.BiotopPageProvider"
-            isStandard="true"
+            isStandard="false"
             name="Biotop">
       </pageProvider>
    </extension>
