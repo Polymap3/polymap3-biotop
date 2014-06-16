@@ -1,7 +1,6 @@
 /*
  * polymap.org
- * Copyright 2011, Falko Bräutigam, and other contributors as
- * indicated by the @authors tag. All rights reserved.
+ * Copyright (C) 2011-2014, Falko Bräutigam. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -33,7 +32,8 @@ import org.qi4j.api.query.QueryExpressions;
 import static org.qi4j.api.query.QueryExpressions.matches;
 import static org.qi4j.api.query.QueryExpressions.eq;
 import org.qi4j.api.query.grammar.BooleanExpression;
-import org.qi4j.api.query.grammar.MatchesPredicate;
+import org.qi4j.api.query.grammar.Predicate;
+
 import org.eclipse.swt.widgets.Composite;
 
 import org.polymap.core.model.Entity;
@@ -57,7 +57,6 @@ import org.polymap.biotop.model.BiotoptypArtComposite2;
 import org.polymap.biotop.model.constant.Erhaltungszustand;
 import org.polymap.biotop.model.constant.Pflegezustand;
 import org.polymap.biotop.model.constant.Schutzstatus;
-import org.polymap.biotop.model.constant.Status;
 
 /**
  *
@@ -72,8 +71,7 @@ public class BiotopFilterProvider
     private ILayer                  layer;
 
 
-    public List<IFilter> addFilters( ILayer _layer )
-    throws Exception {
+    public List<IFilter> addFilters( ILayer _layer ) throws Exception {
         this.layer = _layer;
         log.debug( "addFilters(): layer= " + layer );
 
@@ -212,6 +210,9 @@ public class BiotopFilterProvider
             site.addStandardLayout( site.newFormField( result, "waldbiotop", String.class,
                     new CheckboxFormField(), null, "Waldbiotop" ) );
             
+            site.addStandardLayout( site.newFormField( result, "bekanntmachung", String.class,
+                    new CheckboxFormField(), null, "Bekanntmachung" ) );
+            
             site.addStandardLayout( site.newFormField( result, "erfasst", String.class,
                     new StringFormField(), null, "Erfasst im Jahr" ) );
             
@@ -317,11 +318,11 @@ public class BiotopFilterProvider
         protected Query<? extends Entity> createQuery( IFilterEditorSite site ) {
             BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
 
-            BooleanExpression statusQuery = QueryExpressions.notEq( template.status(), Status.archiviert.id );
+//            BooleanExpression statusQuery = QueryExpressions.notEq( template.status(), Status.archiviert.id );
 
             Principal user = Polymap.instance().getUser();
-            MatchesPredicate principalQuery = QueryExpressions.matches(
-                    template._lastModifiedBy(), "*" + user.getName() + "*" );
+            Predicate principalQuery = QueryExpressions.eq(
+                    template.bearbeitung().get().wer(), user.getName() );
 
             BooleanExpression expr = principalQuery;  //QueryExpressions.and( principalQuery, statusQuery );
             return BiotopRepository.instance().findEntities( BiotopComposite.class, expr , 0, getMaxResults() );
