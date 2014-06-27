@@ -218,7 +218,7 @@ public class ArtenFormPage
                             ArtdatenComposite art = repo.findEntity( ArtdatenComposite.class, elm.fid() );
                             model.put( art.nummer().get(), art );
                         }
-                        viewer.refresh( true );
+                        viewer.setInput( model.values() );
                         viewer.getTable().getParent().layout( true );
                         //((Composite)section.getClient()).layout( true );
 
@@ -242,7 +242,7 @@ public class ArtenFormPage
                     ArtdatenComposite art = repo.findEntity( ArtdatenComposite.class, elm.fid() );
                     model.remove( art.nummer().get() );
                 }
-                viewer.refresh( true );
+                viewer.setInput( model.values() );
                 viewer.getTable().getParent().layout( true );
                 dirty = true;
                 pageSite.fireEvent( this, "ValueArtFormPage", IFormFieldListener.VALUE_CHANGE, null );

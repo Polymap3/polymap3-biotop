@@ -80,7 +80,7 @@ public class PflegeFormPage
 
     private FeatureTableViewer              viewer;
 
-    private Map<String, PflegeArtComposite> model = new HashMap();
+    private Map<String,PflegeArtComposite>  model = new HashMap();
 
     private boolean                         dirty;
 
@@ -126,7 +126,7 @@ public class PflegeFormPage
                 model.put( elm.id(), elm );
             }
             viewer.setInput( model.values() );
-            viewer.refresh();
+            viewer.refresh( true );
         }
         dirty = false;
     }
@@ -237,7 +237,7 @@ public class PflegeFormPage
                     model.put( entity.id(), entity );
                     
                     pageSite.fireEvent( this, "pflege", IFormFieldListener.VALUE_CHANGE, null );
-                    viewer.refresh( true );
+                    viewer.setInput( model.values() );
                     dirty = true;
                 }
             }
@@ -255,8 +255,23 @@ public class PflegeFormPage
                 model.remove( viewer.getSelectedElements()[0].fid() );
                 
                 pageSite.fireEvent( this, "pflege", IFormFieldListener.VALUE_CHANGE, null );
-                viewer.refresh( true );
+                viewer.setInput( model.values() );
                 dirty = true;
+                
+//                viewer.getTable().setVisible( false );
+//                
+//                new UIJob( "fake" ) {
+//                    protected void runWithException( IProgressMonitor monitor ) throws Exception {
+//                        viewer.getTable().getDisplay().asyncExec( new Runnable() {
+//                            public void run() {
+//                                System.out.println( "setVisible( true )" );
+//                                viewer.getTable().setVisible( true );                        
+//                            }
+//                        });
+//                        
+//                    }
+//                }.schedule( 1000 );
+////                viewer.getTable().layout( true );
             }
         });
         removeBtn.setEnabled( false );

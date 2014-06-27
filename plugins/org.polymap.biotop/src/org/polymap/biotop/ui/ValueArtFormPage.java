@@ -235,7 +235,7 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
                         public void run() {
                             // update dirty/valid flags of the editor
                             site.fireEvent( this, "ValueArtFormPage", IFormFieldListener.VALUE_CHANGE, null );
-                            viewer.refresh( true );
+                            viewer.setInput( model.values() );
                             viewer.getTable().layout( true );
                         }
                     });
@@ -260,7 +260,7 @@ public abstract class ValueArtFormPage<V extends ValueComposite, A extends Entit
                         public void run() {
                             // update dirty/valid flags of the editor
                             site.fireEvent( this, "ValueArtFormPage", IFormFieldListener.VALUE_CHANGE, null );
-                            viewer.refresh();
+                            viewer.setInput( model.values() );
                         }
                     });
                 }

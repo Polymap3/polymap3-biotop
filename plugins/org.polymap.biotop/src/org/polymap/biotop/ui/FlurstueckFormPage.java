@@ -333,7 +333,7 @@ public class FlurstueckFormPage
                     model.put( flurstueck.id(), flurstueck );
                     
                     pageSite.fireEvent( this, "flurstueck", IFormFieldListener.VALUE_CHANGE, null );
-                    viewer.refresh( true );
+                    viewer.setInput( model.values() );
                     dirty = true;
                 }
                 else {
@@ -354,7 +354,7 @@ public class FlurstueckFormPage
                 model.remove( viewer.getSelectedElements()[0].fid() );
                 
                 pageSite.fireEvent( this, "flurstueck", IFormFieldListener.VALUE_CHANGE, null );
-                viewer.refresh( true );
+                viewer.setInput( model.values() );
                 dirty = true;
             }
         });
