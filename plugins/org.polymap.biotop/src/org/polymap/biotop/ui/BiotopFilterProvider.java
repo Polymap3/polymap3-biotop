@@ -49,7 +49,6 @@ import org.polymap.rhei.field.StringFormField;
 import org.polymap.rhei.filter.IFilter;
 import org.polymap.rhei.filter.IFilterEditorSite;
 import org.polymap.rhei.filter.IFilterProvider;
-
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopEntityProvider;
 import org.polymap.biotop.model.BiotopRepository;
@@ -163,6 +162,11 @@ public class BiotopFilterProvider
     class StandardFilter
             extends AbstractEntityFilter {
 
+        private FilterFieldBuilder bekanntmachung;
+        private FilterFieldBuilder biotoptyp;
+        private FilterFieldBuilder biotoptypCode;
+
+        
         public StandardFilter( ILayer layer ) {
             super( "__biotop--", layer, "Naturschutz...", null, 15000, BiotopComposite.class );
         }
@@ -171,7 +175,9 @@ public class BiotopFilterProvider
             return true;
         }
 
+        @Override
         public Composite createControl( Composite parent, IFilterEditorSite site ) {
+            setSite(site );
             Composite result = site.createStandardLayout( parent );
             
             BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
@@ -195,11 +201,13 @@ public class BiotopFilterProvider
                     new StringFormField(), null, "Objekt-Nr. (SBK)" ) );
             
             Map<String,BiotoptypArtComposite2> typen = BiotopRepository.instance().btNamen();
-            site.addStandardLayout( site.newFormField( result, "biotoptypArtNr", String.class,
-                    new PicklistFormField( typen.keySet() ), null, "Biotoptyp" ) );
+            biotoptyp = newFormField( String.class ).setParent( result )
+                    .setLabel( "Biotoptyp" )
+                    .setField( new PicklistFormField( typen.keySet() ) );
+            biotoptyp.create();
             
-            site.addStandardLayout( site.newFormField( result, "code", String.class,
-                    new StringFormField(), null, "Biotoptyp (Code)" ) );
+            biotoptypCode = newFormField( String.class ).setParent( result ).setLabel( "Biotoptyp-Code" );
+            biotoptypCode.create();
             
             site.addStandardLayout( site.newFormField( result, "schutzstatus", String.class,
                     new PicklistFormField( Schutzstatus.all ), null, "Schutzstatus" ) );
@@ -210,8 +218,10 @@ public class BiotopFilterProvider
             site.addStandardLayout( site.newFormField( result, "waldbiotop", String.class,
                     new CheckboxFormField(), null, "Waldbiotop" ) );
             
-            site.addStandardLayout( site.newFormField( result, "bekanntmachung", String.class,
-                    new CheckboxFormField(), null, "Bekanntmachung" ) );
+//            bekanntmachung = newFormField( Date.class ).setParent( result )
+//                    .setLabel( "Bekanntmachung" )
+//                    .setField( new DateTimeFormField() );
+//            bekanntmachung.create();
             
             site.addStandardLayout( site.newFormField( result, "erfasst", String.class,
                     new StringFormField(), null, "Erfasst im Jahr" ) );
@@ -252,14 +262,23 @@ public class BiotopFilterProvider
             expr = andEquals( expr, template.pflegeBedarf(), (Boolean)site.getFieldValue( "pflegebedarf" ) );
             expr = andEquals( expr, template.naturraumNr(), (String)site.getFieldValue( "naturraum" ) );
 
-            String value = site.getFieldValue( "biotoptypArtNr" );
-            if (value != null) {
-                BiotoptypArtComposite2 entity = BiotopRepository.instance().btNamen().get( value );
+//            if (bekanntmachung.getValue() != null) {
+//                Date[] dates = yearFromTo( bekanntmachung.getValue() );
+//                expr = and( expr, QueryExpressions.and(
+//                        QueryExpressions.gt( template.erfassung().get().wann(), dates[0] ),
+//                        QueryExpressions.lt( template.erfassung().get().wann(), dates[1] ) ) );
+//                
+//            }
+            
+            if (biotoptyp.isSet() && biotoptypCode.isSet()) {
+                throw new RuntimeException( "Biotoptyp und Code dürfen nicht zusammen verwendet werden." );
+            }
+            if (biotoptyp.isSet()) {
+                BiotoptypArtComposite2 entity = BiotopRepository.instance().btNamen().get( biotoptyp.getValue() );
                 expr = and( expr, eq( template.biotoptyp2ArtNr(), entity.nummer().get() ) );
             }
-            
-            value = site.getFieldValue( "code" );
-            if (value != null) {
+            if (biotoptypCode.isSet()) {
+                String value = biotoptypCode.getValue();
                 for (BiotoptypArtComposite2 biotoptyp : BiotopRepository.instance().btNamen().values()) {
                     if (value.equals( biotoptyp.code().get() )) {
                         expr = and( expr, eq( template.biotoptyp2ArtNr(), biotoptyp.nummer().get() ) );
@@ -267,7 +286,7 @@ public class BiotopFilterProvider
                 }
             }
             
-            value = site.getFieldValue( "erfasst" );
+            String value = site.getFieldValue( "erfasst" );
             if (value != null) {
                 Date[] dates = yearFromTo( value );
                 expr = and( expr, QueryExpressions.and(
