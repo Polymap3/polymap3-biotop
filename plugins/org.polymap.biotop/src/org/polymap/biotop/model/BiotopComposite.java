@@ -16,6 +16,10 @@
 package org.polymap.biotop.model;
 
 import java.util.Collection;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -397,7 +401,9 @@ public interface BiotopComposite
             return new ComputedPropertyInstance( flaecheInfo ) {
                 public Object get() {
                     Geometry geom = geom().get();
-                    return geom != null ? geom.getArea() : -1;
+                    return geom != null
+                        ? new BigDecimal( geom.getArea() ).setScale( 2, RoundingMode.HALF_UP ).doubleValue()
+                        : -1;
                 }
             };
         }

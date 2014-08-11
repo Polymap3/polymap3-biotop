@@ -75,7 +75,7 @@ public class BiotopEntityProvider
         SBK( String.class, null, false, "SBK/TK25/UNr." ), 
         Name( String.class, "name", true ), 
         Biotoptyp( String.class, null, false ), 
-        BiotoptypNr( Integer.class, "biotoptypNr", false ),
+        BiotoptypNr( String.class, "biotoptypNr", false ),
         BiotoptypCode( String.class, "biotoptypCode", false ),
         BiotoptypVwv( String.class, null, false, "VwV" ),
         Geprueft( Boolean.class, "geprueft", true, "Geprüft" ), 
@@ -237,7 +237,7 @@ public class BiotopEntityProvider
             String nummer = biotop.biotoptyp2ArtNr().get();
             BiotoptypArtComposite2 biotoptyp = ((BiotopRepository)repo).btForNummer( nummer );
             fb.set( PROP.Biotoptyp.name, biotoptyp != null ? biotoptyp.bezeichnung().get() : null );
-            fb.set( PROP.BiotoptypNr.name, biotoptyp != null ? biotoptyp.nummer().get() : null );
+            fb.set( PROP.BiotoptypNr.name, biotoptyp != null ? biotoptyp.nummer_2012().get() : null );
             fb.set( PROP.BiotoptypCode.name, biotoptyp != null ? biotoptyp.code().get() : null );
             fb.set( PROP.BiotoptypVwv.name, biotoptyp != null ? biotoptyp.vwv().get() : null );
             
