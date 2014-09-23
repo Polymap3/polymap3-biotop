@@ -86,7 +86,7 @@ public class BiotopFilterProvider
 //                    "__allFilter__", layer,
 //                    "Alle", null, Filter.INCLUDE, Integer.MAX_VALUE ) );
 
-            result.add( new StandardFilter( layer ) );
+            result.add( new NaturschutzFilter( layer ) );
 
             result.add( new MeineFilter() );
 
@@ -148,7 +148,7 @@ public class BiotopFilterProvider
 //                }
 //            });
 
-//            result.add( new StandardFilter() );
+//            result.add( new NaturschutzFilter() );
 
             return result;
         }
@@ -159,7 +159,7 @@ public class BiotopFilterProvider
     /*
      * 
      */
-    class StandardFilter
+    class NaturschutzFilter
             extends AbstractEntityFilter {
 
         private FilterFieldBuilder bekanntmachung;
@@ -167,7 +167,7 @@ public class BiotopFilterProvider
         private FilterFieldBuilder biotoptypCode;
 
         
-        public StandardFilter( ILayer layer ) {
+        public NaturschutzFilter( ILayer layer ) {
             super( "__biotop--", layer, "Naturschutz...", null, 15000, BiotopComposite.class );
         }
         
@@ -222,13 +222,13 @@ public class BiotopFilterProvider
 //                    .setLabel( "Bekanntmachung" )
 //                    .setField( new DateTimeFormField() );
 //            bekanntmachung.create();
-            
-            site.addStandardLayout( site.newFormField( result, "erfasst", String.class,
-                    new StringFormField(), null, "Erfasst im Jahr" ) );
-            
-            site.addStandardLayout( site.newFormField( result, "bearbeitet", String.class,
-                    new StringFormField(), null, "Bearbeitet im Jahr" ) );
-            
+
+            newFormField( String.class ).setParent( result ).setPropName( "erfasst" )
+                    .setLabel( "Erfasst im Jahr*" ).setToolTipText( "Jahreszahl, z.B.: 1997, 2013" ).create();
+    
+            newFormField( String.class ).setParent( result ).setPropName( "bearbeitet" )
+                    .setLabel( "Bearbeitet im Jahr*" ).setToolTipText( "Jahreszahl, z.B.: 1997, 2013" ).create();
+    
             site.addStandardLayout( site.newFormField( result, "erhaltung", String.class,
                     new PicklistFormField( Erhaltungszustand.all ), null, "Erhaltungszustand" ) );
             
@@ -279,15 +279,15 @@ public class BiotopFilterProvider
             }
             if (biotoptypCode.isSet()) {
                 String value = biotoptypCode.getValue();
-                for (BiotoptypArtComposite2 biotoptyp : BiotopRepository.instance().btNamen().values()) {
-                    if (value.equals( biotoptyp.code().get() )) {
-                        expr = and( expr, eq( template.biotoptyp2ArtNr(), biotoptyp.nummer().get() ) );
+                for (BiotoptypArtComposite2 bt : BiotopRepository.instance().btNamen().values()) {
+                    if (value.equals( bt.code().get() )) {
+                        expr = and( expr, eq( template.biotoptyp2ArtNr(), bt.nummer().get() ) );
                     }
                 }
             }
             
             String value = site.getFieldValue( "erfasst" );
-            if (value != null) {
+            if (value != null && value.length() > 0) {
                 Date[] dates = yearFromTo( value );
                 expr = and( expr, QueryExpressions.and(
                         QueryExpressions.gt( template.erfassung().get().wann(), dates[0] ),
@@ -295,7 +295,7 @@ public class BiotopFilterProvider
             }
 
             value = site.getFieldValue( "bearbeitet" );
-            if (value != null) {
+            if (value != null && value.length() > 0) {
                 Date[] dates = yearFromTo( value );
                 expr = and( expr, QueryExpressions.and(
                         QueryExpressions.gt( template.bearbeitung().get().wann(), dates[0] ),
@@ -315,6 +315,7 @@ public class BiotopFilterProvider
         protected Date[] yearFromTo( String year ) {
             Date[] result = new Date[2];
             Calendar cal = Calendar.getInstance();
+            cal.clear();
             cal.set( Calendar.YEAR, Integer.parseInt( year ) );
             result[0] = cal.getTime();
             cal.add( Calendar.YEAR, 1 );
