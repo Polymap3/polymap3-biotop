@@ -50,6 +50,9 @@ import org.polymap.core.data.operation.FeatureOperationExtension;
 import org.polymap.core.data.operation.IFeatureOperation;
 import org.polymap.core.data.operation.IFeatureOperationContext;
 import org.polymap.core.data.util.ProgressListenerAdaptor;
+import org.polymap.core.model.security.ACLUtils;
+import org.polymap.core.model.security.AclPermission;
+import org.polymap.core.project.ILayer;
 import org.polymap.core.project.ui.util.SimpleFormData;
 import org.polymap.core.runtime.Polymap;
 import org.polymap.core.ui.FormLayoutFactory;
@@ -78,7 +81,9 @@ public class BekanntmachungOperation
     public boolean init( IFeatureOperationContext ctx ) {
         super.init( ctx );
         try {
-            return context.featureSource().getSchema().getName().getLocalPart().equals( "Biotop" );
+            ILayer layer = context.adapt( ILayer.class );
+            return context.featureSource().getSchema().getName().getLocalPart().equals( "Biotop" )
+                    && layer != null && ACLUtils.checkPermission( layer, AclPermission.WRITE, false );
         }
         catch (Exception e) {
             log.warn( "", e );
