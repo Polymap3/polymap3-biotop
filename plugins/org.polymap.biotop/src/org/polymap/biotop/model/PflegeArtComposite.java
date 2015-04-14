@@ -16,6 +16,7 @@
 package org.polymap.biotop.model;
 
 import org.qi4j.api.common.Optional;
+import org.qi4j.api.common.UseDefaults;
 import org.qi4j.api.concern.Concerns;
 import org.qi4j.api.entity.EntityComposite;
 import org.qi4j.api.mixin.Mixins;
@@ -42,6 +43,11 @@ public interface PflegeArtComposite
     extends QiEntity, PropertyChangeSupport, ModelChangeSupport, EntityComposite {
 
     @Optional
+    @UseDefaults
+    Property<String>            nummer();
+
+    @Optional
+    @UseDefaults
     Property<String>            name();
 
     @Optional

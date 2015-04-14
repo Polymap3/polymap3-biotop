@@ -1,6 +1,6 @@
 /* 
  * polymap.org
- * Copyright 2011, Polymap GmbH. All rights reserved.
+ * Copyright (C) 2011-2015, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -66,6 +66,7 @@ import org.polymap.biotop.model.PflegeArtComposite;
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
+@SuppressWarnings("deprecation")
 public class PflegeFormPage
         extends DefaultFormEditorPage
         implements IFormEditorPage2 {
@@ -107,11 +108,11 @@ public class PflegeFormPage
         pageSite.setFormTitle( "Biotop: " + biotop.objnr().get() );
         pageSite.getPageBody().setLayout( new FormLayout() );
 
-        Section section1 = createFieldsSection( pageSite.getPageBody() );
-        section1.setLayoutData( new SimpleFormData( BiotopFormPageProvider.SECTION_SPACING ).fill().top( 0, 0 ).bottom( 40 ).create() );
-        
         Section section2 = createTableSection( pageSite.getPageBody() );
-        section2.setLayoutData( new SimpleFormData( BiotopFormPageProvider.SECTION_SPACING ).fill().top( section1 ).bottom( 100 ).create() );
+        section2.setLayoutData( new SimpleFormData( BiotopFormPageProvider.SECTION_SPACING ).fill().bottom( 70 ).create() );
+        
+        Section section1 = createFieldsSection( pageSite.getPageBody() );
+        section1.setLayoutData( new SimpleFormData( BiotopFormPageProvider.SECTION_SPACING ).fill().top( section2 ).create() );
         
         pageSite.getPageBody().layout( true );
     }
@@ -160,7 +161,7 @@ public class PflegeFormPage
 
     
     protected Section createFieldsSection( final Composite parent ) {
-        Section section = newSection( "Pfege/Entwicklung", false, null );
+        Section section = newSection( "Bemerkungen zu Pflege/Entwicklung", false, null );
         ((Composite)section.getClient()).setLayout( new FormLayout() );
 
 //        layouter.setFieldLayoutData( pageSite.newFormField( (Composite)section.getClient(), 
