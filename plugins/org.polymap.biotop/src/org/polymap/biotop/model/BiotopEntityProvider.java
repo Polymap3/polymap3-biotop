@@ -70,7 +70,7 @@ public class BiotopEntityProvider
     /** 
      * The properties (name/type) of the feature type provided. 
      */
-    private enum PROP {
+    public enum PROP {
         Biotopnummer( String.class, "objnr", true ), 
         SBK( String.class, null, false, "SBK/TK25/UNr." ), 
         Name( String.class, "name", true ), 

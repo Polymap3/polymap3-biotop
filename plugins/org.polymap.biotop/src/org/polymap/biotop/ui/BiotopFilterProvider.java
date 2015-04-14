@@ -22,6 +22,8 @@ import java.util.Map;
 
 import java.security.Principal;
 
+import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import net.refractions.udig.catalog.IGeoResource;
 
 import org.apache.commons.logging.Log;
@@ -36,9 +38,11 @@ import org.qi4j.api.query.grammar.Predicate;
 
 import org.eclipse.swt.widgets.Composite;
 
+import org.polymap.core.data.DataPlugin;
 import org.polymap.core.model.Entity;
 import org.polymap.core.project.ILayer;
 import org.polymap.core.runtime.Polymap;
+import org.polymap.core.security.SecurityUtils;
 
 import org.polymap.rhei.data.entityfeature.AbstractEntityFilter;
 import org.polymap.rhei.data.entityfeature.EntityProvider;
@@ -49,6 +53,8 @@ import org.polymap.rhei.field.StringFormField;
 import org.polymap.rhei.filter.IFilter;
 import org.polymap.rhei.filter.IFilterEditorSite;
 import org.polymap.rhei.filter.IFilterProvider;
+import org.polymap.rhei.filter.TransientFilter;
+
 import org.polymap.biotop.model.BiotopComposite;
 import org.polymap.biotop.model.BiotopEntityProvider;
 import org.polymap.biotop.model.BiotopRepository;
@@ -56,6 +62,7 @@ import org.polymap.biotop.model.BiotoptypArtComposite2;
 import org.polymap.biotop.model.constant.Erhaltungszustand;
 import org.polymap.biotop.model.constant.Pflegezustand;
 import org.polymap.biotop.model.constant.Schutzstatus;
+import org.polymap.biotop.model.constant.Status;
 
 /**
  *
@@ -90,14 +97,19 @@ public class BiotopFilterProvider
 
             result.add( new MeineFilter() );
 
-//            result.add( new AbstractEntityFilter( "__archiv__", layer, "Archiv", null, 10000, BiotopComposite.class ) {
-//                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
-//                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
-//                    EqualsPredicate predicate = QueryExpressions.eq( template.status(), Status.archiviert.id );
-//                    return BiotopRepository.instance().findEntities( BiotopComposite.class, predicate, 0, getMaxResults() );
-//                }
-//            });
-//
+            if (SecurityUtils.isAdmin( Polymap.instance().getUser() )) {
+                String propName = BiotopEntityProvider.PROP.Status.name();
+                FilterFactory2 ff = DataPlugin.ff;
+
+                // archiviert
+                Filter filter = ff.equals( ff.property( propName ), ff.literal( Status.archiviert.label ) );
+                result.add( new TransientFilter( "__archiv__", layer, "Archiviert", null, filter, Integer.MAX_VALUE ) {} );
+                
+                // aktuell
+                filter = ff.equals( ff.property( propName ), ff.literal( Status.aktuell.label ) );
+                result.add( new TransientFilter( "__aktuell__", layer, "Aktuell", null, filter, Integer.MAX_VALUE ) );
+            }
+
 //            result.add( new AbstractEntityFilter( "__pilze__", layer, "mit Pilzen", null, 10000, BiotopComposite.class ) {
 //                protected Query<? extends Entity> createQuery( IFilterEditorSite  site ) {
 //                    BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );

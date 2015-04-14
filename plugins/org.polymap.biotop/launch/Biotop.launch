@@ -19,6 +19,7 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_20"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -console -consolelog -registryMultiLanguage -data ${env_var:HOME}/servers/workspace-biotop"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dosgi.noShutdown=true -Declipse.ignoreApp=true -server -XX:UseSSE=3 -XX:+TieredCompilation -Xmx512m -Xms128m -XX:+UseG1GC -XX:MaxPermSize=128m -XX:NewRatio=4 -ea -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:SoftRefLRUPolicyMSPerMB=500 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog -Dorg.eclipse.rwt.compression=true -DFsContentProvider=/tmp,admins,tmp -Djava.security.krb5.realm=polymap.de -Djava.security.krb5.kdc=mail.polymap.de"/>
