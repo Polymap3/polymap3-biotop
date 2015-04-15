@@ -94,7 +94,7 @@ public class BiotopFilterProvider
 //                    "Alle", null, Filter.INCLUDE, Integer.MAX_VALUE ) );
 
             result.add( new NaturschutzFilter( layer ) );
-
+            result.add( new BearbeitetFilter() );
             result.add( new MeineFilter() );
 
             if (SecurityUtils.isAdmin( Polymap.instance().getUser() )) {
@@ -165,6 +165,18 @@ public class BiotopFilterProvider
             return result;
         }
         return null;
+    }
+
+
+    protected Date[] yearFromTo( String year ) {
+        Date[] result = new Date[2];
+        Calendar cal = Calendar.getInstance();
+        cal.clear();
+        cal.set( Calendar.YEAR, Integer.parseInt( year ) );
+        result[0] = cal.getTime();
+        cal.add( Calendar.YEAR, 1 );
+        result[1] = cal.getTime();
+        return result;
     }
 
 
@@ -254,11 +266,6 @@ public class BiotopFilterProvider
             site.addStandardLayout( site.newFormField( result, "pflegebedarf", String.class,
                     pflegeField, null, "Pflegebedarf" ) );
             
-//            StringFormField naturraumField = new StringFormField();
-//            //naturraumField.setEnabled( false );
-//            site.addStandardLayout( site.newFormField( result, "naturraum", String.class,
-//                    naturraumField, null, "Naturraum (Nr.)" ) );
-            
             return result;
         }
 
@@ -276,7 +283,6 @@ public class BiotopFilterProvider
             expr = andEquals( expr, template.erhaltungszustand(), (Integer)site.getFieldValue( "erhaltung" ) );
             expr = andEquals( expr, template.pflegeZustand(), (Integer)site.getFieldValue( "pflege" ) );
             expr = andEquals( expr, template.pflegeBedarf(), (Boolean)site.getFieldValue( "pflegebedarf" ) );
-//            expr = andEquals( expr, template.naturraumNr(), (String)site.getFieldValue( "naturraum" ) );
 
 //            if (bekanntmachung.getValue() != null) {
 //                Date[] dates = yearFromTo( bekanntmachung.getValue() );
@@ -327,19 +333,8 @@ public class BiotopFilterProvider
         protected <T> BooleanExpression andEquals( BooleanExpression expr, Property<T> prop, T value ) {
             return value != null ? and( expr, eq( prop, value ) ) : expr;
         }
-        
-        protected Date[] yearFromTo( String year ) {
-            Date[] result = new Date[2];
-            Calendar cal = Calendar.getInstance();
-            cal.clear();
-            cal.set( Calendar.YEAR, Integer.parseInt( year ) );
-            result[0] = cal.getTime();
-            cal.add( Calendar.YEAR, 1 );
-            result[1] = cal.getTime();
-            return result;
-        }
     }
-    
+
     
     /**
      *
@@ -375,6 +370,116 @@ public class BiotopFilterProvider
 //            return QueryExpressions.and( openQuery, principalsQuery );
         }
 
+    }
+
+    
+    /**
+     *
+     */
+    class BearbeitetFilter
+            extends AbstractEntityFilter {
+
+        public BearbeitetFilter() {
+            super( "__bearbeitet__", layer, "Bearbeitet...", null, 100000, BiotopComposite.class );
+        }
+        
+        @Override
+        public boolean hasControl() {
+            return true;
+        }
+
+        @Override
+        public Composite createControl( Composite parent, IFilterEditorSite site ) {
+            setSite(site );
+            Composite result = site.createStandardLayout( parent );
+            
+            BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
+
+            newFormField( String.class ).setParent( result )
+                    .setPropName( "erfasst" )
+                    .setLabel( "Erfasst im Jahr*" )
+                    .setToolTipText( "Jahreszahl, z.B.: 1997, 2013" )
+                    .create();
+
+            newFormField( String.class ).setParent( result )
+                    .setPropName( "erfasser" )
+                    .setLabel( "Erfasser*" )
+                    .setToolTipText( "Der Nutzername des Erfassers\nPlatzhalter sind möglich: * ?" )
+                    .create();
+
+            newFormField( String.class ).setParent( result )
+                    .setPropName( "bearbeitet" )
+                    .setLabel( "Bearbeitet im Jahr*" )
+                    .setToolTipText( "Jahreszahl, z.B.: 1997, 2013" )
+                    .create();
+            
+            newFormField( String.class ).setParent( result )
+                    .setPropName( "bearbeiter" )
+                    .setLabel( "Bearbeiter*" )
+                    .setToolTipText( "Der Nutzername des Bearbeiters\nPlatzhalter sind möglich: * ?" )
+                    .create();
+
+            
+            newFormField( String.class ).setParent( result )
+                    .setPropName( "bekanntmachung" )
+                    .setLabel( "Bekanntmachung*" )
+                    .setToolTipText( "Jahreszahl, z.B.: 1997, 2013" )
+                    .create();
+
+            return result;
+        }
+
+        
+        protected Query<? extends Entity> createQuery( IFilterEditorSite site ) {
+            BiotopComposite template = QueryExpressions.templateFor( BiotopComposite.class );
+
+            BooleanExpression expr = andEquals( null, template.status(), (Integer)site.getFieldValue( "status" ) );
+
+            String value = site.getFieldValue( "erfasst" );
+            if (value != null && value.length() > 0) {
+                Date[] dates = yearFromTo( value );
+                expr = and( expr, QueryExpressions.and(
+                        QueryExpressions.gt( template.erfassung().get().wann(), dates[0] ),
+                        QueryExpressions.lt( template.erfassung().get().wann(), dates[1] ) ) );
+            }
+
+            value = site.getFieldValue( "bearbeitet" );
+            if (value != null && value.length() > 0) {
+                Date[] dates = yearFromTo( value );
+                expr = and( expr, QueryExpressions.and(
+                        QueryExpressions.gt( template.bearbeitung().get().wann(), dates[0] ),
+                        QueryExpressions.lt( template.bearbeitung().get().wann(), dates[1] ) ) );
+            }
+
+            value = site.getFieldValue( "bekanntmachung" );
+            if (value != null && value.length() > 0) {
+                Date[] dates = yearFromTo( value );
+                expr = and( expr, QueryExpressions.and(
+                        QueryExpressions.gt( template.bekanntmachung().get().wann(), dates[0] ),
+                        QueryExpressions.lt( template.bekanntmachung().get().wann(), dates[1] ) ) );
+            }
+
+            value = site.getFieldValue( "bearbeiter" );
+            if (value != null && value.length() > 0) {
+                expr = and( expr, QueryExpressions.matches( template.bearbeitung().get().wer(), value ) );
+            }
+            
+            value = site.getFieldValue( "erfasser" );
+            if (value != null && value.length() > 0) {
+                expr = and( expr, QueryExpressions.matches( template.erfassung().get().wer(), value ) );
+            }
+            
+            return BiotopRepository.instance().findEntities( BiotopComposite.class, expr , 0, getMaxResults() );
+        }
+
+        
+        protected BooleanExpression andMatches( BooleanExpression expr, Property<String> prop, String value ) {
+            return value != null ? and( expr, matches( prop, value ) ) : expr;
+        }
+
+        protected <T> BooleanExpression andEquals( BooleanExpression expr, Property<T> prop, T value ) {
+            return value != null ? and( expr, eq( prop, value ) ) : expr;
+        }
     }
 
 }
