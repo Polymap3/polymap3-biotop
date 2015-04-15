@@ -180,7 +180,7 @@ public class BiotopFilterProvider
 
         
         public NaturschutzFilter( ILayer layer ) {
-            super( "__biotop--", layer, "Naturschutz...", null, 15000, BiotopComposite.class );
+            super( "__naturschutz__", layer, "Naturschutz...", null, 15000, BiotopComposite.class );
         }
         
         public boolean hasControl() {
@@ -211,6 +211,9 @@ public class BiotopFilterProvider
             
             site.addStandardLayout( site.newFormField( result, "objnr_sbk", String.class,
                     new StringFormField(), null, "Objekt-Nr. (SBK)" ) );
+            
+            site.addStandardLayout( site.newFormField( result, "objnr_landkreise", String.class,
+                    new StringFormField(), null, "Alte LK-Nr." ) );
             
             Map<String,BiotoptypArtComposite2> typen = BiotopRepository.instance().btNamen();
             biotoptyp = newFormField( String.class ).setParent( result )
@@ -251,10 +254,10 @@ public class BiotopFilterProvider
             site.addStandardLayout( site.newFormField( result, "pflegebedarf", String.class,
                     pflegeField, null, "Pflegebedarf" ) );
             
-            StringFormField naturraumField = new StringFormField();
-            //naturraumField.setEnabled( false );
-            site.addStandardLayout( site.newFormField( result, "naturraum", String.class,
-                    naturraumField, null, "Naturraum (Nr.)" ) );
+//            StringFormField naturraumField = new StringFormField();
+//            //naturraumField.setEnabled( false );
+//            site.addStandardLayout( site.newFormField( result, "naturraum", String.class,
+//                    naturraumField, null, "Naturraum (Nr.)" ) );
             
             return result;
         }
@@ -266,13 +269,14 @@ public class BiotopFilterProvider
             expr = andMatches( expr, template.objnr(), (String)site.getFieldValue( "objnr" ) );
             expr = andMatches( expr, template.tk25(), (String)site.getFieldValue( "tk25" ) );
             expr = andMatches( expr, template.objnr_sbk(), (String)site.getFieldValue( "objnr_sbk" ) );
+            expr = andMatches( expr, template.objnr_landkreise(), (String)site.getFieldValue( "objnr_landkreise" ) );
             expr = andEquals( expr, template.schutzstatus(), (Integer)site.getFieldValue( "schutzstatus" ) );
             expr = andEquals( expr, template.geprueft(), (Boolean)site.getFieldValue( "geprueft" ) );
             expr = andEquals( expr, template.waldbiotop(), (Boolean)site.getFieldValue( "waldbiotop" ) );
             expr = andEquals( expr, template.erhaltungszustand(), (Integer)site.getFieldValue( "erhaltung" ) );
             expr = andEquals( expr, template.pflegeZustand(), (Integer)site.getFieldValue( "pflege" ) );
             expr = andEquals( expr, template.pflegeBedarf(), (Boolean)site.getFieldValue( "pflegebedarf" ) );
-            expr = andEquals( expr, template.naturraumNr(), (String)site.getFieldValue( "naturraum" ) );
+//            expr = andEquals( expr, template.naturraumNr(), (String)site.getFieldValue( "naturraum" ) );
 
 //            if (bekanntmachung.getValue() != null) {
 //                Date[] dates = yearFromTo( bekanntmachung.getValue() );
