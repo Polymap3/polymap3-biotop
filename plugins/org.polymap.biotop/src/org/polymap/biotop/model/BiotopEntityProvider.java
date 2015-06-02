@@ -83,6 +83,7 @@ public class BiotopEntityProvider
         Status( String.class, "status", true ),
         LKNr( String.class, "objnr_landkreise", true, "LK-Nr" ),
         Erhaltungszustand( String.class, null, false ),
+        ErhaltungszustandCode( String.class, null, false ),
         Bekanntmachung( Date.class, null, false ),
         ErfasstAm( Date.class, null, false ),
         ErfasstVon( String.class, null, false ),
@@ -249,6 +250,8 @@ public class BiotopEntityProvider
 
             Erhaltungszustand erhaltungszustand = Erhaltungszustand.all.forId( biotop.erhaltungszustand().get() );
             fb.set( PROP.Erhaltungszustand.name, erhaltungszustand != null ? erhaltungszustand.label : null );
+            fb.set( PROP.ErhaltungszustandCode.name, erhaltungszustand != null ? 
+                    (erhaltungszustand.id == 0 ? "kA" : erhaltungszustand.id) : null );
 
             Pflegezustand pflegezustand = Pflegezustand.all.forId( biotop.pflegeZustand().get() );
             fb.set( PROP.Pflegezustand.name, pflegezustand != null ? pflegezustand.label : null );

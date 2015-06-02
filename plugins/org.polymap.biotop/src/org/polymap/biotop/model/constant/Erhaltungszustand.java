@@ -27,13 +27,13 @@ public class Erhaltungszustand
     /** Provides access to the elements of this type. */
     public static final Type<Erhaltungszustand,String> all = new Type<Erhaltungszustand,String>();
     
-    public static final Erhaltungszustand unbestimmt = new Erhaltungszustand( 0, "0 - noch nicht bestimmt", "noch nicht bestimmt" );
+    public static final Erhaltungszustand unbestimmt = new Erhaltungszustand( 0, "0 - keine Angabe", "keine Angabe" );
 
-    public static final Erhaltungszustand guenstig = new Erhaltungszustand( 1, "1 - günstig", "günstig" );
+    public static final Erhaltungszustand guenstig = new Erhaltungszustand( 1, "1 - hervorragend", "hervorragend" );
 
-    public static final Erhaltungszustand unzureichend = new Erhaltungszustand( 2, "2 - ungünstig/unzureichend", "unzureichend" );
+    public static final Erhaltungszustand unzureichend = new Erhaltungszustand( 2, "2 - gut", "gut" );
 
-    public static final Erhaltungszustand schlecht = new Erhaltungszustand( 3, "3 - ungünstig/schlecht", "schlecht" );
+    public static final Erhaltungszustand schlecht = new Erhaltungszustand( 3, "3 - mittel bis schlecht", "mittel bis schlecht" );
 
     
     // instance *******************************************
