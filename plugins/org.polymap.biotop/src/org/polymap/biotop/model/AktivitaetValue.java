@@ -23,7 +23,7 @@ import org.qi4j.api.value.ValueComposite;
 
 /**
  * Wann? Wer? Warum?
- *
+ *  
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 public interface AktivitaetValue
