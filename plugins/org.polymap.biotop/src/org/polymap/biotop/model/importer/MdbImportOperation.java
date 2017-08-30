@@ -70,7 +70,7 @@ public class MdbImportOperation
         extends AbstractModelChangeOperation
         implements IUndoableOperation {
 
-    private static Log log = LogFactory.getLog( MdbImportOperation.class );
+    private static Log log = LogFactory.getLog( WaldbiotopeImportOperation.class );
 
     private File                dbFile;
 

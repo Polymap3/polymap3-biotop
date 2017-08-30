@@ -273,8 +273,7 @@ public class BiotopRepository
     public BiotopComposite newBiotop( final EntityCreator<BiotopComposite> creator )
     throws Exception {
         return newEntity( BiotopComposite.class, null, new EntityCreator<BiotopComposite>() {
-            public void create( BiotopComposite prototype )
-            throws Exception {
+            public void create( BiotopComposite prototype ) throws Exception {
                 // objnr
                 prototype.objnr().set( biotopnummern.get().generate() );
                 // status

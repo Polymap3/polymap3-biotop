@@ -19,20 +19,22 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_20"/>
+<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -console -consolelog -registryMultiLanguage -data ${env_var:HOME}/servers/workspace-biotop"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dosgi.noShutdown=true -Declipse.ignoreApp=true -server -XX:UseSSE=3 -XX:+TieredCompilation -Xmx512m -Xms128m -XX:+UseG1GC -XX:MaxPermSize=128m -XX:NewRatio=4 -ea -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:SoftRefLRUPolicyMSPerMB=500 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog -Dorg.eclipse.rwt.compression=true -DFsContentProvider=/tmp,admins,tmp -Djava.security.krb5.realm=polymap.de -Djava.security.krb5.kdc=mail.polymap.de"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dosgi.noShutdown=true -Declipse.ignoreApp=true -client -XX:UseSSE=3 -XX:+TieredCompilation -Xmx1024m -XX:+UseG1GC -XX:NewRatio=4 -ea -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:SoftRefLRUPolicyMSPerMB=100 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog -Dorg.eclipse.rwt.compression=true -DFsContentProvider=/tmp,admins,tmp -Djava.security.krb5.realm=polymap.de -Djava.security.krb5.kdc=mail.polymap.de -Dsun.java2d.renderer=org.marlin.pisces.PiscesRenderingEngine"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="/home/falko/servers/workspace-biotop"/>
 <stringAttribute key="org.eclipse.rap.launch.browserMode" value="EXTERNAL"/>
 <stringAttribute key="org.eclipse.rap.launch.contextpath" value=""/>
 <stringAttribute key="org.eclipse.rap.launch.dataLocation" value="/home/falko/servers/workspace-biotop"/>
+<booleanAttribute key="org.eclipse.rap.launch.developmentMode" value="true"/>
 <stringAttribute key="org.eclipse.rap.launch.entryPoint" value="default"/>
 <stringAttribute key="org.eclipse.rap.launch.libraryVariant" value="STANDARD"/>
 <stringAttribute key="org.eclipse.rap.launch.logLevel" value="OFF"/>
 <booleanAttribute key="org.eclipse.rap.launch.openBrowser" value="false"/>
 <intAttribute key="org.eclipse.rap.launch.port" value="10080"/>
 <stringAttribute key="org.eclipse.rap.launch.servletName" value="polymap"/>
+<stringAttribute key="org.eclipse.rap.launch.servletPath" value="/rap"/>
 <intAttribute key="org.eclipse.rap.launch.sessionTimeout" value="1800"/>
 <booleanAttribute key="org.eclipse.rap.launch.terminatePrevious" value="true"/>
 <booleanAttribute key="org.eclipse.rap.launch.useDefaultDataLocation" value="false"/>

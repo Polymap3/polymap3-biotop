@@ -20,6 +20,13 @@
             id="org.polymap.biotop.MdbImportWizard"
             name="LfULG-Daten (*.mdb)">
       </wizard>
+      <wizard
+            category="org.polymap.biotop.BiotopCategory"
+            class="org.polymap.biotop.model.importer.WaldbiotopeImportWizard"
+            icon="icons/b.png"
+            id="org.polymap.biotop.MdbImportWizard"
+            name="Waldbiotope (*.zip mit Shape und CSV)">
+      </wizard>
    </extension>
    <extension
          point="org.polymap.rhei.form.pageProviders">
