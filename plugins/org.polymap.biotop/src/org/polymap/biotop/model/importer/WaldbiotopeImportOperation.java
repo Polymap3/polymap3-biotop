@@ -180,13 +180,18 @@ public class WaldbiotopeImportOperation
                 BiotopComposite entity = repo.newBiotop( new EntityCreator<BiotopComposite>() {
                     public void create( BiotopComposite proto ) throws Exception {
                         proto.waldbiotop().set( true );
+                        proto.bemerkungen().set( WaldbiotopeImportOperation.class.getSimpleName() );
                         
                         proto.objnr_sbk().set( Objektnummer );
                         proto.unr().set( Biotop_Unternummer );
                         proto.tk25().set( TK25 );
 
                         proto.name().set( Biotopname );
-                        proto.beschreibung().set( Beschreibung );
+                        if (Beschreibung.contains( "_x000D_" )) {
+                            String replaced = Beschreibung.replace( "_x000D_", "\n" );
+                            //log.info( "    " + replaced );
+                        }
+                        proto.beschreibung().set( Beschreibung.replace( "_x000D_", "\n" ) );
                         proto.pflegeZustand().set( Pflegezustand_ != null ? Pflegezustand.all.forLabelOrSynonym( Pflegezustand_ ).id : null );
                         proto.pflegeEntwicklung().set( Pflege );
                         proto.schutzstatus().set( Schutzstatus.all.forLabelOrSynonym( Schutz ).id );
