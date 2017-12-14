@@ -15,7 +15,9 @@
  */
 package org.polymap.biotop.model;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
@@ -36,6 +38,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.qi4j.api.value.ValueBuilder;
+
 import com.google.common.base.Joiner;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -47,6 +51,7 @@ import org.polymap.core.model.EntityType;
 import org.polymap.core.model.EntityType.Property;
 import org.polymap.core.qi4j.QiModule;
 import org.polymap.core.qi4j.QiModule.EntityCreator;
+import org.polymap.core.runtime.Polymap;
 
 import org.polymap.rhei.data.entityfeature.DefaultEntityProvider;
 import org.polymap.rhei.data.entityfeature.EntityProvider2;
@@ -297,6 +302,14 @@ public class BiotopEntityProvider
             else {
                 throw new IllegalStateException( "Falscher Geometrietyp: " + value.getClass().getSimpleName() );
             }
+            ValueBuilder<AktivitaetValue> builder = repo.newValueBuilder( AktivitaetValue.class );
+            AktivitaetValue prototype = builder.prototype();
+            Calendar now = Calendar.getInstance( Locale.GERMANY );
+            now.set( Calendar.MILLISECOND, 0 );
+            prototype.wann().set( now.getTime() );
+            prototype.wer().set( Polymap.instance().getUser().getName() );
+            prototype.bemerkung().set( "Änderung der Geometrie" );
+            biotop.bearbeitung().set( builder.newInstance() );
         }
         else if (propName.equals( PROP.Name.toString() )) {
             biotop.name().set( (String)value );

@@ -154,6 +154,8 @@ public class BiotopFormPageProvider
 
         private IFormFieldListener      statusListener2;
 
+        private PropertyChangeListener  geomListener;
+
 
         protected BaseFormEditorPage( Feature feature, FeatureStore featureStore ) {
             this.feature = feature;
@@ -168,6 +170,12 @@ public class BiotopFormPageProvider
                 biotop.removePropertyChangeListener( bekanntmachungListener );
                 bekanntmachungListener = null;
             }
+            if (geomListener != null && biotop != null) {
+                biotop.removePropertyChangeListener( geomListener );
+                geomListener = null;
+            }
+            feature = null;
+            biotop = null;
         }
 
         public String getId() {
@@ -289,7 +297,7 @@ public class BiotopFormPageProvider
             final IFormField fbField = bField;
             biotop.addPropertyChangeListener( bekanntmachungListener =
                 new PropertyChangeListener() {
-                    @EventHandler(display=true)
+                    @EventHandler( display=true )
                     public void propertyChange( PropertyChangeEvent ev ) {
                         AktivitaetValue bkm = biotop.bekanntmachung().get();
                         if (bkm != null && bkm.wann().get() != null) {
@@ -586,6 +594,31 @@ public class BiotopFormPageProvider
                 }
             });
             layouter.newLayout();
+            
+            // listen to Geometry changes -> update
+            assert geomListener == null;
+            biotop.addPropertyChangeListener( geomListener =
+                new PropertyChangeListener() {
+                    @EventHandler( display=true )
+                    public void propertyChange( PropertyChangeEvent ev ) {
+                        try {
+                            if (biotop != null) {
+                                site.setFieldValue( "modified_wann", biotop.bearbeitung().get().wann().get() );
+                                site.setFieldValue( "modified_wer", biotop.bearbeitung().get().wer().get() );
+                            }
+                        }
+                        catch (Exception e) {
+                            log.warn( "", e );
+                        }
+                    }
+                },
+                new EventFilter<PropertyChangeEvent>() {
+                    public boolean apply( PropertyChangeEvent ev ) {
+                        return ev.getPropertyName().equals( biotop.geom().qualifiedName().name() );
+                    }
+                });
+
+
             return section;
         }
 
