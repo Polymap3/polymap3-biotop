@@ -42,6 +42,7 @@
       <filterProvider
             class="org.polymap.biotop.ui.BiotopFilterProvider"
             id="org.polymap.biotop.BiotopFilterProvider"
+            isStandard="true"
             name="org.polymap.biotop.BiotopFilterProvider">
       </filterProvider>
    </extension>
@@ -74,6 +75,14 @@
             id="org.polymap.biotop.Biotoptyp2002Operation"
             label="Biotop: Biotoptyp 2002"
             tooltip="Alten Biotoptyp 2002 verknüpfen">
+      </featureOperation>
+      <featureOperation
+            class="org.polymap.biotop.operations.ExportOperation"
+            description="Export nach CSV/Shape"
+            icon="icons/b.png"
+            id="org.polymap.biotop.ExportOperation"
+            label="Biotop: Datenexport"
+            tooltip="Export des gesamten Datenbestandes nach CSV/Shape">
       </featureOperation>
    </extension>
    <extension
